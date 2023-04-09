@@ -1,0 +1,3 @@
+
+rootProject.name = "sprintboot-kt"
+

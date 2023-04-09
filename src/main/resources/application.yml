@@ -1,0 +1,17 @@
+logging:
+  level:
+    root: error
+    org.ktorm: debug
+
+spring:
+  datasource:
+    url: jdbc:mariadb://127.0.0.1:3306/web_ai
+    username: root
+    password: "zhang1128!"
+
+server:
+  servlet:
+    context-path: /api
+  port: 8081
+  application:
+    name: spring-boot-kt
