@@ -1,9 +1,6 @@
-
-group = "com.vgerbot"
-version = "1.0-SNAPSHOT"
-
 dependencies {
     implementation(project(":captcha"))
+    implementation(project(":common"))
     runtimeOnly("com.github.anji-plus:captcha")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

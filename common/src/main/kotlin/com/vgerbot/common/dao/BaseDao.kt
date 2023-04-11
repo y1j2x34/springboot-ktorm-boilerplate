@@ -1,4 +1,4 @@
-package com.vgerbot.app.foundation.dao
+package com.vgerbot.common.dao
 
 import org.ktorm.database.Database
 import org.ktorm.entity.*

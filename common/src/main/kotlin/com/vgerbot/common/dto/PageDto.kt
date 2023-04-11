@@ -1,4 +1,4 @@
-package com.vgerbot.app.foundation.dto
+package com.vgerbot.common.dto
 
 data class PageDTO<T>(
     val modelList: List<T>,
