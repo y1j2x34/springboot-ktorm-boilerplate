@@ -31,6 +31,7 @@ subprojects {
         implementation("org.ktorm:ktorm-jackson:3.6.0")
         implementation("org.ktorm:ktorm-support-mysql:3.6.0")
         implementation("org.mariadb.jdbc:mariadb-java-client:3.1.3")
+        implementation("javax.xml.bind:jaxb-api:2.3.0")
     }
     configure<DependencyManagementExtension> {
         imports(delegateClosureOf<ImportsHandler> {

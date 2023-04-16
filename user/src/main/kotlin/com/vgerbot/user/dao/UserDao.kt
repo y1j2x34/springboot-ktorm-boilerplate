@@ -1,8 +1,8 @@
-package com.vgerbot.app.user.dao
+package com.vgerbot.user.dao
 
 import com.vgerbot.common.dao.BaseDao
-import com.vgerbot.app.user.model.User
-import com.vgerbot.app.user.model.Users
+import com.vgerbot.user.model.User
+import com.vgerbot.user.model.Users
 import org.springframework.stereotype.Component
 
 @Component

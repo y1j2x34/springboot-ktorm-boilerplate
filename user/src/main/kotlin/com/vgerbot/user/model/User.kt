@@ -1,4 +1,4 @@
-package com.vgerbot.app.user.model
+package com.vgerbot.user.model
 
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity

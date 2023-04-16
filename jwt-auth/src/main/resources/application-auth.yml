@@ -1,0 +1,4 @@
+jwt:
+  secret: abc
+  accessTokenExpireTime: 60
+  refreshTokenExpireTime: 3600
