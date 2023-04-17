@@ -24,6 +24,8 @@ subprojects {
         implementation("org.springframework.boot:spring-boot-starter-web")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
         runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.8.20")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
