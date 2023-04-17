@@ -28,15 +28,11 @@ class JwtRequestFilter: OncePerRequestFilter() {
             filterChain.doFilter(request, response);
             return;
         }
-        val token = header.split(" ").first().trim();
+        val token = header.split(" ").last().trim();
 
         val username = jwtTokenUtils.getUsernameFromToken(token);
 
-        val authentication = SecurityContextHolder.getContext().authentication;
-
-        val userDetails =
-            (if (authentication != null) userDetailsService.loadUserByUsername(username) else null)
-                ?: return;
+        val userDetails = userDetailsService.loadUserByUsername(username) ?: return
 
         if(jwtTokenUtils.validateToken(token, userDetails)) {
             val usernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities);
