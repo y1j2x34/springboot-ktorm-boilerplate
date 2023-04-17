@@ -16,7 +16,7 @@ spring:
     username: root
     password: "zhang1128!"
   config.import:
-    - classpath:spring-config.yml
+    - classpath:application-jwt.yml
 
 server:
   servlet:
