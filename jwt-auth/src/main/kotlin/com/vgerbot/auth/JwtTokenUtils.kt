@@ -3,7 +3,7 @@ package com.vgerbot.auth
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.io.Serializable
@@ -12,8 +12,8 @@ import kotlin.collections.HashMap
 
 @Component
 class JwtTokenUtils : Serializable {
-    @Value("\${jwt.secret}")
-    private val secret: String? = null
+    @Autowired
+    private lateinit var properties: JwtProperties;
 
     //retrieve username from jwt token
     fun getUsernameFromToken(token: String?): String? {
@@ -32,7 +32,7 @@ class JwtTokenUtils : Serializable {
 
     //for retrieveing any information from token we will need the secret key
     private fun getAllClaimsFromToken(token: String?): Claims {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody()
+        return Jwts.parser().setSigningKey(properties.secret).parseClaimsJws(token).getBody()
     }
 
     //check if the token has expired
@@ -55,7 +55,7 @@ class JwtTokenUtils : Serializable {
     private fun doGenerateToken(claims: Map<String, Any>, subject: String): String {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(Date(System.currentTimeMillis()))
             .setExpiration(Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-            .signWith(SignatureAlgorithm.HS512, secret).compact()
+            .signWith(SignatureAlgorithm.HS512, properties.secret).compact()
     }
 
     //validate token

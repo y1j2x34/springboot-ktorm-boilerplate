@@ -19,6 +19,7 @@ subprojects {
     dependencies {
         val implementation by configurations;
         val runtimeOnly by configurations;
+        val testImplementation by configurations;
 
         implementation("org.springframework.boot:spring-boot-starter-web")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -32,6 +33,8 @@ subprojects {
         implementation("org.ktorm:ktorm-support-mysql:3.6.0")
         implementation("org.mariadb.jdbc:mariadb-java-client:3.1.3")
         implementation("javax.xml.bind:jaxb-api:2.3.0")
+
+        testImplementation("org.springframework.boot:spring-bot-starter-test")
     }
     configure<DependencyManagementExtension> {
         imports(delegateClosureOf<ImportsHandler> {

@@ -1,4 +1,4 @@
 jwt:
-  secret: abc
+  secret: "NjFlM2QxODc3NDgwMA=="
   accessTokenExpireTime: 60
   refreshTokenExpireTime: 3600
