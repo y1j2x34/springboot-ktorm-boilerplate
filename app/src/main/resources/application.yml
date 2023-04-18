@@ -15,8 +15,6 @@ spring:
     url: jdbc:mariadb://127.0.0.1:3306/web_ai
     username: root
     password: "zhang1128!"
-  config.import:
-    - classpath:application-jwt.yml
 
 server:
   servlet:

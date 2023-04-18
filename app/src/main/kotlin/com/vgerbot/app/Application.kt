@@ -6,6 +6,7 @@ import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.core.env.get
 import java.util.*
 
 
@@ -26,5 +27,6 @@ class Application {
 }
 
 fun main(args: Array<String>) {
-   runApplication<Application>()
+   var ctx = runApplication<Application>()
+   println(ctx.environment.get("jwt.secret"));
 }
