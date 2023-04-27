@@ -9,6 +9,7 @@ build/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/sonarlint
 *.iws
 *.iml
 *.ipr
@@ -27,7 +28,6 @@ out/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
