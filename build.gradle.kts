@@ -36,7 +36,7 @@ subprojects {
         implementation("org.mariadb.jdbc:mariadb-java-client:3.1.3")
         implementation("javax.xml.bind:jaxb-api:2.3.0")
 
-        testImplementation("org.springframework.boot:spring-bot-starter-test")
+        testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
     configure<DependencyManagementExtension> {
         imports(delegateClosureOf<ImportsHandler> {
