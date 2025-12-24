@@ -1,0 +1,57 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'springboot-ktorm'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Spring Boot Application metrics
+  - job_name: 'springboot-app'
+    metrics_path: '/api/actuator/prometheus'
+    static_configs:
+      - targets: ['springboot-app:8081']
+        labels:
+          service: 'springboot-ktorm-app'
+          environment: 'production'
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter for host metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'docker-host'
+
+  # cAdvisor for container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          instance: 'docker-host'
+
+  # MariaDB Exporter (if needed, requires mariadb-exporter container)
+  # - job_name: 'mariadb'
+  #   static_configs:
+  #     - targets: ['mariadb-exporter:9104']
+
+  # PostgreSQL Exporter (if needed, requires postgres-exporter container)
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+

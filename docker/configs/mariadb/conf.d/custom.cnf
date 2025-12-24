@@ -1,0 +1,92 @@
+# MariaDB Production Configuration
+# Optimized for production workloads
+
+[mysqld]
+# ============================================
+# Character Set and Collation
+# ============================================
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# ============================================
+# Connection Settings
+# ============================================
+max_connections = 500
+max_connect_errors = 100
+connect_timeout = 10
+wait_timeout = 600
+interactive_timeout = 600
+
+# ============================================
+# Buffer Settings
+# ============================================
+# InnoDB buffer pool (recommended: 70-80% of available RAM)
+innodb_buffer_pool_size = 1G
+innodb_buffer_pool_instances = 4
+innodb_log_buffer_size = 16M
+
+# ============================================
+# Log Settings
+# ============================================
+innodb_log_file_size = 256M
+innodb_log_files_in_group = 2
+innodb_flush_log_at_trx_commit = 2
+innodb_flush_method = O_DIRECT
+
+# ============================================
+# Query Cache
+# ============================================
+# Disabled for better performance in modern MySQL versions
+query_cache_type = 0
+query_cache_size = 0
+
+# ============================================
+# Thread Settings
+# ============================================
+thread_cache_size = 50
+table_open_cache = 4000
+table_definition_cache = 2000
+
+# ============================================
+# Slow Query Log
+# ============================================
+slow_query_log = 1
+long_query_time = 2
+slow_query_log_file = /var/log/mysql/slow-query.log
+
+# ============================================
+# Error Log
+# ============================================
+log_error = /var/log/mysql/error.log
+
+# ============================================
+# Binary Log
+# ============================================
+# For replication and point-in-time recovery
+log_bin = /var/log/mysql/mysql-bin.log
+binlog_format = ROW
+binlog_expire_logs_seconds = 604800
+max_binlog_size = 100M
+
+# ============================================
+# InnoDB Settings
+# ============================================
+innodb_file_per_table = 1
+innodb_stats_on_metadata = 0
+innodb_read_io_threads = 4
+innodb_write_io_threads = 4
+
+# ============================================
+# Security
+# ============================================
+local_infile = 0
+symbolic-links = 0
+
+# ============================================
+# Performance Schema
+# ============================================
+performance_schema = ON
+performance_schema_instrument = 'stage/%=ON'
+performance_schema_consumer_events_stages_current = ON
+performance_schema_consumer_events_stages_history = ON
+performance_schema_consumer_events_stages_history_long = ON

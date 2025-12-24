@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  # Spring Boot Application - Main API service
+  springboot-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: springboot-ktorm-app
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/web_ai
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=zhang1128!
+      - SERVER_PORT=8081
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # MariaDB Database - Data storage for Spring Boot application
+  mariadb:
+    image: mariadb:11.2
+    container_name: mariadb-db
+    environment:
+      MYSQL_ROOT_PASSWORD: zhang1128!
+      MYSQL_DATABASE: web_ai
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./app/src/main/resources/database.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mariadb-data:
+

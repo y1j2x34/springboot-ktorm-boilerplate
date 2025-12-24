@@ -1,0 +1,103 @@
+logging:
+  file:
+    name: /app/logs/application.log
+    max-size: 100MB
+    max-history: 30
+    total-size-cap: 1GB
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: WARN
+    org.ktorm: INFO
+    com.vgerbot: INFO
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      # Connection pool settings
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      # Performance settings
+      auto-commit: true
+      connection-test-query: SELECT 1
+      pool-name: SpringBootHikariCP
+      # Leak detection (disabled in production for performance)
+      leak-detection-threshold: 0
+  
+  # Jackson JSON settings
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+
+  # Multipart file upload
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+server:
+  servlet:
+    context-path: /api
+  port: ${SERVER_PORT:8081}
+  application:
+    name: spring-boot-kt
+  
+  # Compression
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml
+    min-response-size: 1024
+  
+  # Tomcat settings
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    connection-timeout: 20000
+    max-connections: 8192
+    accept-count: 100
+    max-http-header-size: 8KB
+  
+  # Error handling
+  error:
+    include-message: always
+    include-binding-errors: on_param
+    include-stacktrace: never
+    include-exception: false
+
+# Actuator for monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+

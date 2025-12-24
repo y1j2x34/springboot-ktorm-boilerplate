@@ -1,0 +1,24 @@
+logging:
+  file: logs/docker_app.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+    level:
+      root: INFO
+      org.springframework.web: INFO
+      guru.springframework.controllers: INFO
+      org.ktorm: DEBUG
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://mariadb:3306/web_ai}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:zhang1128!}
+
+server:
+  servlet:
+    context-path: /api
+  port: ${SERVER_PORT:8081}
+  application:
+    name: spring-boot-kt
+

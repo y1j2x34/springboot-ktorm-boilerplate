@@ -1,0 +1,83 @@
+# Production-ready multi-stage Dockerfile
+FROM gradle:8.5-jdk17 AS builder
+
+WORKDIR /app
+
+# Copy Gradle files for dependency caching
+COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradle ./gradle
+
+# Download dependencies (cached layer)
+RUN gradle dependencies --no-daemon || true
+
+# Copy source code
+COPY app ./app
+COPY common ./common
+COPY captcha ./captcha
+COPY jwt-auth ./jwt-auth
+COPY user ./user
+
+# Build arguments
+ARG BUILD_DATE
+ARG VERSION=1.0.0
+
+# Build the application
+RUN gradle :app:bootJar --no-daemon -x test \
+    && mkdir -p /app/build \
+    && cp app/build/libs/*.jar /app/build/app.jar
+
+# Production runtime stage
+FROM eclipse-temurin:17-jre-alpine
+
+# Install required packages
+RUN apk add --no-cache \
+    curl \
+    tzdata \
+    && rm -rf /var/cache/apk/*
+
+# Set timezone
+ENV TZ=Asia/Shanghai
+
+WORKDIR /app
+
+# Create non-root user with specific UID/GID
+RUN addgroup -g 1000 -S spring \
+    && adduser -u 1000 -S spring -G spring \
+    && mkdir -p /app/logs /app/tmp \
+    && chown -R spring:spring /app
+
+# Copy the built jar
+COPY --from=builder --chown=spring:spring /app/build/app.jar /app/app.jar
+
+# Switch to non-root user
+USER spring:spring
+
+# Expose the application port
+EXPOSE 8081
+
+# Add labels for metadata
+LABEL maintainer="your-email@example.com" \
+      version="${VERSION}" \
+      build-date="${BUILD_DATE}" \
+      description="Spring Boot Ktorm Application"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:8081/api/actuator/health || exit 1
+
+# JVM options for production
+ENV JAVA_OPTS="-server \
+    -Xms512m \
+    -Xmx2g \
+    -XX:+UseG1GC \
+    -XX:MaxGCPauseMillis=200 \
+    -XX:+HeapDumpOnOutOfMemoryError \
+    -XX:HeapDumpPath=/app/logs/heap-dump.hprof \
+    -XX:+ExitOnOutOfMemoryError \
+    -Djava.security.egd=file:/dev/./urandom \
+    -Dfile.encoding=UTF-8 \
+    -Duser.timezone=Asia/Shanghai"
+
+# Run the application with proper signal handling
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
+
