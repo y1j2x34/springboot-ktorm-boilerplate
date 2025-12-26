@@ -1,0 +1,22 @@
+logging:
+  file: logs/dev_app.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+    level:
+      root: DEBUG
+      org.springframework.web: DEBUG
+      guru.springframework.controllers: DEBUG
+      org.ktorm: DEBUG
+
+
+server:
+  servlet:
+    context-path: /
+  port: 8082
+  application:
+    name: logto-example
+
+spring:
+  profiles:
+    active: logto

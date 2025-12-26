@@ -28,17 +28,17 @@ class WebSecurityConfig {
     fun securityFilterChain(http: HttpSecurity): DefaultSecurityFilterChain =
         http.authorizeRequests { authorizeRequests ->
             authorizeRequests
-                .antMatchers(HttpMethod.GET, "/check").permitAll()
+                .antMatchers(HttpMethod.GET, "/", "/sign-in", "/check", "/error").permitAll()
                 .anyRequest().authenticated()
         }
             .oauth2Login { oauth2Login ->
+//                oauth2Login.loginPage("/sign-in")
                 oauth2Login.successHandler { _, response, _ ->
                     response?.sendRedirect("/")
                 }
             }
             .logout { logout ->
                 logout.invalidateHttpSession(false)
-                    .logoutUrl("/sign-out")
                     .logoutSuccessUrl("/")
             }
             .build()

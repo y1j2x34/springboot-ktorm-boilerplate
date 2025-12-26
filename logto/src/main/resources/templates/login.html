@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Logto Boilerplate</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
+        .login-card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px; }
+        .login-card h2 { margin-bottom: 1.5rem; text-align: center; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; }
+        .form-group input { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 0.75rem; background: #3f51b5; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #303f9f; }
+        .oauth-hint { margin-top: 1rem; text-align: center; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>登录</h2>
+        <!-- 方式 A: 标准 OAuth2 重定向按钮 (Logto 推荐) -->
+        <a href="/oauth2/authorization/logto" style="text-decoration: none;">
+            <button type="button" style="background: #000; margin-bottom: 1rem;">使用 Logto 账号登录</button>
+        </a>
+
+        <hr/>
+
+        <!-- 方式 B: 用户要求的账号密码表单 -->
+        <form action="/api/login" method="post">
+            <div class="form-group">
+                <label for="username">账号</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">确定</button>
+        </form>
+    </div>
+</body>
+</html>
