@@ -13,17 +13,8 @@
             <option value="$PROJECT_DIR$/captcha" />
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/jwt-auth" />
-            <option value="$PROJECT_DIR$/user" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/logto" />
-        <option name="gradleHome" value="" />
-        <option name="gradleJvm" value="corretto-17" />
-        <option name="modules">
-          <set>
             <option value="$PROJECT_DIR$/logto" />
+            <option value="$PROJECT_DIR$/user" />
           </set>
         </option>
       </GradleProjectSettings>

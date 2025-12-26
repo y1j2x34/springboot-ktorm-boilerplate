@@ -3,12 +3,11 @@ import io.spring.gradle.dependencymanagement.dsl.ImportsHandler
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.7.1" apply false
-    id("io.spring.dependency-management") version "1.0.11.RELEASE" apply false
+    id("org.springframework.boot") version "3.2.4" apply false
+    id("io.spring.dependency-management") version "1.1.4" apply false
     kotlin("jvm") version "1.8.20" apply false
     kotlin("plugin.spring") version "1.8.20" apply false
 }
-
 
 subprojects {
     apply { plugin("org.jetbrains.kotlin.jvm") }
@@ -17,9 +16,9 @@ subprojects {
     apply { plugin("org.jetbrains.kotlin.plugin.spring") }
 
     dependencies {
-        val implementation by configurations;
-        val runtimeOnly by configurations;
-        val testImplementation by configurations;
+        val implementation by configurations
+        val runtimeOnly by configurations
+        val testImplementation by configurations
 
         implementation("org.springframework.boot:spring-boot-starter-web")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
