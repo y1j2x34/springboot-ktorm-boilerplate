@@ -15,9 +15,9 @@ services:
       - "${APP_PORT:-8081}:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/${DB_NAME:-web_ai}
-      - SPRING_DATASOURCE_USERNAME=${DB_USER:-appuser}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?Database password required}
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/${DB_NAME:-spring-boot-kt}
+      - DB_USER=${DB_USER:-appuser}
+      - DB_PASSWORD=${DB_PASSWORD:?Database password required}
       - SERVER_PORT=8081
       - JAVA_OPTS=-Xms512m -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
       - TZ=Asia/Shanghai

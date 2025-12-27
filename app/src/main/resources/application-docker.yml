@@ -11,9 +11,9 @@ logging:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://mariadb:3306/web_ai}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:zhang1128!}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://mariadb:3306/spring-boot-kt}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD}
 
 server:
   servlet:

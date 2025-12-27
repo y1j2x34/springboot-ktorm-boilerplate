@@ -12,9 +12,9 @@ logging:
 
 spring:
   datasource:
-    url: jdbc:mariadb://127.0.0.1:3306/web_ai
-    username: root
-    password: "zhang1128!"
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
 
 server:
   servlet:
