@@ -139,6 +139,55 @@ if [ $attempt -eq $max_attempts ]; then
     exit 1
 fi
 
+# Discover and start submodule services
+echo ""
+echo -e "${YELLOW}Scanning for submodule deployment scripts...${NC}"
+
+# Auto-discover submodules from settings.gradle.kts
+SUBMODULES=()
+if [ -f "settings.gradle.kts" ]; then
+    # Extract module names from settings.gradle.kts
+    while IFS= read -r line; do
+        if [[ $line =~ include\(\"([^\"]+)\"\) ]]; then
+            SUBMODULES+=("${BASH_REMATCH[1]}")
+        fi
+    done < settings.gradle.kts
+fi
+
+# If no modules found in settings.gradle.kts, scan for directories with build.gradle.kts
+if [ ${#SUBMODULES[@]} -eq 0 ]; then
+    echo -e "${YELLOW}  settings.gradle.kts not found, scanning directories...${NC}"
+    for dir in */; do
+        dir=${dir%/}  # Remove trailing slash
+        # Skip common non-module directories
+        if [[ "$dir" != "build" && "$dir" != "gradle" && "$dir" != "docker" && "$dir" != "docs" && "$dir" != "monitoring" ]]; then
+            if [ -f "$dir/build.gradle.kts" ]; then
+                SUBMODULES+=("$dir")
+            fi
+        fi
+    done
+fi
+
+echo -e "${GREEN}✓${NC} Detected modules: ${SUBMODULES[*]}"
+
+STARTED_SUBMODULES=()
+
+for submodule in "${SUBMODULES[@]}"; do
+    if [ -f "$submodule/deploy-prod.sh" ]; then
+        echo -e "${YELLOW}  Found deploy-prod.sh in $submodule/${NC}"
+        chmod +x "$submodule/deploy-prod.sh"
+        (cd "$submodule" && ./deploy-prod.sh)
+        STARTED_SUBMODULES+=("$submodule")
+        echo -e "${GREEN}✓${NC} Deployed $submodule services (production)"
+    fi
+done
+
+if [ ${#STARTED_SUBMODULES[@]} -eq 0 ]; then
+    echo -e "${GREEN}✓${NC} No submodule deployment scripts found"
+else
+    echo -e "${GREEN}✓${NC} Deployed ${#STARTED_SUBMODULES[@]} submodule service(s): ${STARTED_SUBMODULES[*]}"
+fi
+
 # Start monitoring if requested
 if [ "$WITH_MONITORING" = true ]; then
     echo ""

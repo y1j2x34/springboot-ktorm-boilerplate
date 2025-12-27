@@ -14,6 +14,64 @@ docker compose up -d
 
 echo "✅ Spring Boot application started successfully"
 echo "   Spring Boot 应用启动完成"
+
+# Discover and start submodule services
+# 发现并启动子模块服务
+echo ""
+echo "🔍 Scanning for submodule start scripts..."
+echo "   扫描子模块启动脚本..."
+
+# Auto-discover submodules from settings.gradle.kts
+SUBMODULES=()
+if [ -f "settings.gradle.kts" ]; then
+    # Extract module names from settings.gradle.kts
+    while IFS= read -r line; do
+        if [[ $line =~ include\(\"([^\"]+)\"\) ]]; then
+            SUBMODULES+=("${BASH_REMATCH[1]}")
+        fi
+    done < settings.gradle.kts
+fi
+
+# If no modules found in settings.gradle.kts, scan for directories with build.gradle.kts
+if [ ${#SUBMODULES[@]} -eq 0 ]; then
+    echo "   ℹ️  settings.gradle.kts not found, scanning directories..."
+    echo "      未找到 settings.gradle.kts，扫描目录..."
+    for dir in */; do
+        dir=${dir%/}  # Remove trailing slash
+        # Skip common non-module directories
+        if [[ "$dir" != "build" && "$dir" != "gradle" && "$dir" != "docker" && "$dir" != "docs" && "$dir" != "monitoring" ]]; then
+            if [ -f "$dir/build.gradle.kts" ]; then
+                SUBMODULES+=("$dir")
+            fi
+        fi
+    done
+fi
+
+echo "   📋 Detected modules: ${SUBMODULES[*]}"
+echo "      检测到的模块: ${SUBMODULES[*]}"
+
+STARTED_SUBMODULES=()
+
+for submodule in "${SUBMODULES[@]}"; do
+    if [ -f "$submodule/start.sh" ]; then
+        echo "   📦 Found start.sh in $submodule/"
+        echo "      在 $submodule/ 中找到 start.sh"
+        chmod +x "$submodule/start.sh"
+        (cd "$submodule" && ./start.sh)
+        STARTED_SUBMODULES+=("$submodule")
+        echo "   ✅ Started $submodule services"
+        echo "      $submodule 服务启动完成"
+    fi
+done
+
+if [ ${#STARTED_SUBMODULES[@]} -eq 0 ]; then
+    echo "   ℹ️  No submodule start scripts found"
+    echo "      未找到子模块启动脚本"
+else
+    echo ""
+    echo "✅ Started ${#STARTED_SUBMODULES[@]} submodule service(s): ${STARTED_SUBMODULES[*]}"
+    echo "   启动了 ${#STARTED_SUBMODULES[@]} 个子模块服务: ${STARTED_SUBMODULES[*]}"
+fi
 echo ""
 echo "📊 Service Status / 服务状态:"
 docker compose ps
