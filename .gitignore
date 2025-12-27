@@ -45,4 +45,4 @@ bin/
 .env.local
 .env.*.local
 
-./database/.idea
+database/.idea/

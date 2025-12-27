@@ -1,6 +1,6 @@
-create table user
+create table `spring-boot-kt`.`user`
 (
-    id         tinyint(11) auto_increment primary key,
+    id         int auto_increment primary key,
     username   varchar(32)                           not null comment '用户名（唯一）',
     email      varchar(128)                          not null comment '邮箱',
     password   varchar(32)                           not null comment '密码（=BCrypt(MD5(明文), salt)）',
@@ -15,7 +15,7 @@ create table user
 -- ================================================
 
 -- 角色表
-CREATE TABLE IF NOT EXISTS `role` (
+CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`role` (
                                       `id` INT NOT NULL AUTO_INCREMENT,
                                       `name` VARCHAR(50) NOT NULL COMMENT '角色名称',
     `code` VARCHAR(50) NOT NULL UNIQUE COMMENT '角色代码',
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `role` (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
 
 -- 权限表
-CREATE TABLE IF NOT EXISTS `permission` (
+CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`permission` (
                                             `id` INT NOT NULL AUTO_INCREMENT,
                                             `name` VARCHAR(50) NOT NULL COMMENT '权限名称',
     `code` VARCHAR(100) NOT NULL UNIQUE COMMENT '权限代码',
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `permission` (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 
 -- 用户角色关联表
-CREATE TABLE IF NOT EXISTS `user_role` (
+CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_role` (
                                            `id` INT NOT NULL AUTO_INCREMENT,
                                            `user_id` INT NOT NULL COMMENT '用户ID',
                                            `role_id` INT NOT NULL COMMENT '角色ID',
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `user_role` (
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
 
 -- 角色权限关联表
-CREATE TABLE IF NOT EXISTS `role_permission` (
+CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`role_permission` (
                                                  `id` INT NOT NULL AUTO_INCREMENT,
                                                  `role_id` INT NOT NULL COMMENT '角色ID',
                                                  `permission_id` INT NOT NULL COMMENT '权限ID',
