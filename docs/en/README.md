@@ -35,8 +35,6 @@ docker compose -f docker-compose.prod.yml logs -f
 | Service | Port | Access URL |
 |---------|------|------------|
 | Spring Boot API | 8081 | http://localhost:8081/api |
-| Logto Admin | 3002 | http://localhost:3002 |
-| Logto API | 3001 | http://localhost:3001 |
 | Grafana | 3000 | http://localhost:3000 |
 | Prometheus | 9090 | http://localhost:9090 |
 
@@ -57,8 +55,7 @@ docker compose -f docker-compose.prod.yml logs -f
 │   └── zh-CN/           # Chinese documentation
 ├── docker/
 │   └── configs/         # Database configurations
-│       ├── mariadb/
-│       └── postgres/
+│       └── mariadb/
 ├── docker-compose.prod.yml      # Production main services
 ├── docker-compose.monitoring.yml # Monitoring stack
 ├── Dockerfile.prod              # Production Dockerfile
@@ -93,7 +90,6 @@ docker compose -f docker-compose.prod.yml restart springboot-app
 ```bash
 # Database backup
 /backup/backup-mariadb.sh
-/backup/backup-postgres.sh
 
 # Volume backup
 tar -czf backup.tar.gz /var/lib/springboot-ktorm-app
@@ -112,8 +108,6 @@ Access Grafana at `http://localhost:3000`:
 |---------|-----|--------|
 | Spring Boot | 2 cores | 2.5 GB |
 | MariaDB | 2 cores | 2 GB |
-| Logto | 1 core | 1 GB |
-| PostgreSQL | 1 core | 1 GB |
 
 ## 📚 Documentation
 

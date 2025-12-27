@@ -1,4 +1,4 @@
-.PHONY: help start stop restart logs logs-springboot logs-logto build clean status
+.PHONY: help start stop restart logs logs-springboot build clean status
 
 # 默认目标
 help:
@@ -11,7 +11,6 @@ help:
 	@echo "  make restart            - 重启所有服务"
 	@echo "  make logs               - 查看所有日志"
 	@echo "  make logs-springboot    - 查看 Spring Boot 日志"
-	@echo "  make logs-logto         - 查看 Logto 日志"
 	@echo "  make build              - 重新构建 Spring Boot 镜像"
 	@echo "  make status             - 查看服务状态"
 	@echo "  make clean              - 清理所有容器和数据卷"
@@ -21,22 +20,18 @@ help:
 start:
 	@echo "🚀 启动 Spring Boot 应用..."
 	@docker compose up -d
-	@echo "🔐 启动 Logto 服务..."
-	@cd logto && docker compose up -d
 	@echo "✅ 所有服务已启动"
 	@make status
 
 # 停止所有服务
 stop:
 	@echo "🛑 停止所有服务..."
-	@cd logto && docker compose down
 	@docker compose down
 	@echo "✅ 所有服务已停止"
 
 # 停止并删除数据卷
 stop-clean:
 	@echo "🛑 停止所有服务并删除数据卷..."
-	@cd logto && docker compose down -v
 	@docker compose down -v
 	@echo "✅ 所有服务已停止，数据卷已删除"
 
@@ -46,17 +41,12 @@ restart: stop start
 # 查看所有日志
 logs:
 	@echo "📋 查看所有服务日志 (Ctrl+C 退出)..."
-	@docker compose logs -f & cd logto && docker compose logs -f
+	@docker compose logs -f
 
 # 查看 Spring Boot 日志
 logs-springboot:
 	@echo "📋 查看 Spring Boot 日志..."
 	@docker compose logs -f springboot-app
-
-# 查看 Logto 日志
-logs-logto:
-	@echo "📋 查看 Logto 日志..."
-	@cd logto && docker compose logs -f app
 
 # 重新构建 Spring Boot 镜像
 build:
@@ -70,13 +60,8 @@ status:
 	@echo "📊 Spring Boot 服务状态:"
 	@docker compose ps
 	@echo ""
-	@echo "📊 Logto 服务状态:"
-	@cd logto && docker compose ps
-	@echo ""
 	@echo "🌐 访问地址:"
 	@echo "  - Spring Boot API: http://localhost:8081/api"
-	@echo "  - Logto 管理界面: http://localhost:3002"
-	@echo "  - Logto API: http://localhost:3001"
 
 # 清理所有容器、镜像和数据卷
 clean: stop

@@ -1,6 +1,6 @@
 # Docker Quick Start Guide 🚀
 
-> One-command startup for Spring Boot + Logto development environment
+> One-command startup for Spring Boot development environment
 
 ## 🎯 Quick Start
 
@@ -12,7 +12,6 @@
 
 # 2. Wait for services to start, then access:
 #    - Spring Boot API: http://localhost:8081/api
-#    - Logto Admin Panel: http://localhost:3002
 ```
 
 That's it! 🎉
@@ -23,7 +22,6 @@ That's it! 🎉
 # View logs
 ./logs.sh all              # All services
 ./logs.sh springboot       # Spring Boot only
-./logs.sh logto           # Logto only
 
 # Stop services
 ./stop-all.sh             # Preserve data
@@ -42,16 +40,16 @@ make help                 # View all commands
 ┌─────────────────────────────────────────┐
 │         Docker Network (app-network)     │
 │                                          │
-│  ┌──────────────┐    ┌──────────────┐  │
-│  │ SpringBoot   │    │   Logto      │  │
-│  │     App      │◄──►│     App      │  │
-│  │   :8081      │    │  :3001,3002  │  │
-│  └──────┬───────┘    └──────┬───────┘  │
-│         │                   │           │
-│  ┌──────▼───────┐    ┌──────▼───────┐  │
-│  │   MariaDB    │    │  PostgreSQL  │  │
-│  │    :3306     │    │    :5432     │  │
-│  └──────────────┘    └──────────────┘  │
+│  ┌──────────────┐                        │
+│  │ SpringBoot   │                        │
+│  │     App      │                        │
+│  │   :8081      │                        │
+│  └──────┬───────┘                        │
+│         │                                │
+│  ┌──────▼───────┐                        │
+│  │   MariaDB    │                        │
+│  │    :3306     │                        │
+│  └──────────────┘                        │
 └─────────────────────────────────────────┘
 ```
 
@@ -61,16 +59,11 @@ make help                 # View all commands
 |---------|------|-------------|
 | Spring Boot | 8081 | Main API application |
 | MariaDB | 3306 | Application database |
-| Logto App | 3001, 3002 | Authentication service |
-| PostgreSQL | 5432 | Logto database |
 
 ## 💡 Design Philosophy
 
-### Why Two docker compose Files?
-
-✅ **Modular Management**: Logto is independent authentication service, clearer when maintained separately
+✅ **Modular Management**: Clearer when maintained separately
 ✅ **Flexible Deployment**: Can choose to start only needed services
-✅ **Easy Maintenance**: logto/docker-compose.yml stays original, easier to update
 ✅ **Network Sharing**: Services communicate through Docker network
 
 ## 📖 Detailed Documentation

@@ -168,7 +168,6 @@ docs/
 | File | Purpose / 用途 |
 |------|---------------|
 | `docker/configs/mariadb/conf.d/custom.cnf` | MariaDB production config |
-| `docker/configs/postgres/postgresql.conf` | PostgreSQL production config |
 
 ### Application Configurations / 应用配置
 
@@ -188,9 +187,6 @@ docs/
 |---------|------|-----|
 | Spring Boot | 8081 | http://localhost:8081/api |
 | MariaDB | 3306 | localhost:3306 |
-| Logto Admin | 3002 | http://localhost:3002 |
-| Logto API | 3001 | http://localhost:3001 |
-| PostgreSQL | 5432 | localhost:5432 |
 
 ### Production (Additional) / 生产环境（额外）
 

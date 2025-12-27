@@ -216,7 +216,6 @@ volumes:
 
 # 或者
 docker compose up -d
-cd logto && docker compose up -d
 ```
 
 **特点**:
@@ -359,7 +358,7 @@ long_query_time = 2
 **可用脚本**:
 - `deploy-prod.sh` - 完整部署流程
 - `stop-prod.sh` - 优雅停止
-- 备份脚本（MariaDB、PostgreSQL）
+- 备份脚本（MariaDB）
 - 监控配置
 
 **文档**:

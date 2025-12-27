@@ -34,12 +34,10 @@ springboot-ktorm-boilerplate/
 │       └── CHANGELOG-PRODUCTION.md    # 更新日志
 │
 ├── docker/                            # Docker related files / Docker 相关文件
-│   └── configs/                       # Database configurations / 数据库配置
-│       ├── mariadb/                   # MariaDB configurations / MariaDB 配置
-│       │   └── conf.d/
-│       │       └── custom.cnf         # MariaDB production config / 生产配置
-│       └── postgres/                  # PostgreSQL configurations / PostgreSQL 配置
-│           └── postgresql.conf        # PostgreSQL production config / 生产配置
+│   └── configs/                       # Database configurations / Database 配置
+│       └── mariadb/                   # MariaDB configurations / MariaDB 配置
+│           └── conf.d/
+│               └── custom.cnf         # MariaDB production config / 生产配置
 │
 ├── monitoring/                        # Monitoring configurations / 监控配置
 │   ├── prometheus/                    # Prometheus configuration / Prometheus 配置
@@ -64,10 +62,6 @@ springboot-ktorm-boilerplate/
 ├── captcha/                           # Captcha module / 验证码模块
 ├── jwt-auth/                          # JWT authentication / JWT 认证
 ├── user/                              # User module / 用户模块
-│
-├── logto/                             # Logto authentication service / Logto 认证服务
-│   ├── docker-compose.yml             # Development config / 开发配置
-│   └── docker-compose.prod.yml        # Production config / 生产配置
 │
 ├── docker-compose.yml                 # Development environment / 开发环境
 ├── docker-compose.prod.yml            # Production environment / 生产环境
@@ -108,7 +102,6 @@ springboot-ktorm-boilerplate/
 
 **Structure / 结构**:
 - `configs/mariadb/`: MariaDB production optimizations
-- `configs/postgres/`: PostgreSQL production optimizations
 
 ### Monitoring / 监控 (`monitoring/`)
 
@@ -151,7 +144,6 @@ springboot-ktorm-boilerplate/
 | `application-docker.yml` | Development | Docker-specific settings |
 | `application-prod.yml` | Production | Production optimizations |
 | `docker/configs/mariadb/conf.d/custom.cnf` | Production | MariaDB tuning |
-| `docker/configs/postgres/postgresql.conf` | Production | PostgreSQL tuning |
 
 ## 🔍 Finding Files / 查找文件
 
@@ -174,7 +166,6 @@ springboot-ktorm-boilerplate/
 
 **Database Configuration / 数据库配置**:
 - MariaDB: `docker/configs/mariadb/conf.d/custom.cnf`
-- PostgreSQL: `docker/configs/postgres/postgresql.conf`
 
 ### By Language / 按语言
 

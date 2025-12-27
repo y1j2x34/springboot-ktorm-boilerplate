@@ -24,15 +24,6 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-echo "🛑 停止 Logto 服务..."
-cd logto
-if [ "$REMOVE_VOLUMES" = true ]; then
-  docker compose down -v
-else
-  docker compose down
-fi
-cd ..
-
 echo "🛑 停止 Spring Boot 应用..."
 if [ "$REMOVE_VOLUMES" = true ]; then
   docker compose down -v

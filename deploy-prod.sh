@@ -74,10 +74,8 @@ export $(cat "$ENV_FILE" | grep -v '^#' | xargs)
 echo ""
 echo -e "${YELLOW}Creating data directories...${NC}"
 mkdir -p "$DATA_DIR/mariadb"
-mkdir -p "$DATA_DIR/postgres"
 chmod 755 "$DATA_DIR"
 chmod 700 "$DATA_DIR/mariadb"
-chmod 700 "$DATA_DIR/postgres"
 echo -e "${GREEN}✓${NC} Data directories created"
 
 # Pre-deployment checks
@@ -112,7 +110,6 @@ echo -e "${GREEN}✓${NC} Application built successfully"
 echo ""
 echo -e "${YELLOW}Stopping existing containers...${NC}"
 docker compose -f docker-compose.prod.yml down
-cd logto && docker compose -f docker-compose.prod.yml down && cd ..
 echo -e "${GREEN}✓${NC} Existing containers stopped"
 
 # Start the main application
@@ -142,14 +139,6 @@ if [ $attempt -eq $max_attempts ]; then
     exit 1
 fi
 
-# Start Logto
-echo ""
-echo -e "${YELLOW}Starting Logto services...${NC}"
-cd logto
-docker compose -f docker-compose.prod.yml up -d
-cd ..
-echo -e "${GREEN}✓${NC} Logto services started"
-
 # Start monitoring if requested
 if [ "$WITH_MONITORING" = true ]; then
     echo ""
@@ -167,8 +156,6 @@ echo ""
 echo -e "${YELLOW}Service Status:${NC}"
 docker compose -f docker-compose.prod.yml ps
 echo ""
-cd logto && docker compose -f docker-compose.prod.yml ps && cd ..
-echo ""
 
 if [ "$WITH_MONITORING" = true ]; then
     echo -e "${YELLOW}Monitoring Stack:${NC}"
@@ -178,8 +165,6 @@ fi
 
 echo -e "${YELLOW}Access URLs:${NC}"
 echo "  - Spring Boot API: http://localhost:${APP_PORT:-8081}/api"
-echo "  - Logto Admin: ${ADMIN_ENDPOINT}"
-echo "  - Logto API: ${ENDPOINT}"
 
 if [ "$WITH_MONITORING" = true ]; then
     echo "  - Grafana: http://localhost:3000"

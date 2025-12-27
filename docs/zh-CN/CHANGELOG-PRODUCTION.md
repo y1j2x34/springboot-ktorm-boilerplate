@@ -32,14 +32,6 @@
   - 健康检查内置
   - 时区配置（Asia/Shanghai）
 
-#### ✅ `logto/docker-compose.prod.yml`
-- Logto 生产环境配置
-- **特性**:
-  - 资源限制
-  - PostgreSQL 优化
-  - 网络共享和隔离
-  - 健康检查
-
 #### ✅ `docker-compose.monitoring.yml`
 - 完整监控栈配置
 - **包含服务**:
@@ -56,7 +48,7 @@
 
 ---
 
-### 2. 数据库配置 (2 个文件)
+### 2. 数据库配置 (1 个文件)
 
 #### ✅ `docker/mariadb/conf.d/custom.cnf`
 - MariaDB 生产优化配置
@@ -66,15 +58,6 @@
   - 慢查询日志: 2秒阈值
   - 二进制日志: 7天保留
   - InnoDB 优化
-
-#### ✅ `logto/postgres/postgresql.conf`
-- PostgreSQL 生产优化配置
-- **优化项**:
-  - 内存配置优化
-  - 连接数: 200
-  - 检查点优化
-  - 日志配置
-  - 性能统计
 
 ---
 
@@ -152,8 +135,6 @@
 - **包含**:
   - 应用版本配置
   - 数据库配置
-  - Logto 配置
-  - PostgreSQL 配置
   - 监控配置
   - 安全提示和检查清单
 
@@ -264,7 +245,6 @@
 |------|--------|
 | JVM | G1GC, 堆大小优化, 堆转储 |
 | MariaDB | 1GB buffer pool, 连接池 500 |
-| PostgreSQL | 内存优化, 检查点优化 |
 | Spring Boot | HikariCP, 响应压缩, 线程池 |
 | Docker | 多阶段构建, 依赖缓存 |
 
@@ -299,8 +279,6 @@
 |------|----------|----------|----------|----------|
 | Spring Boot | 2.0 核 | 2560 MB | 0.5 核 | 512 MB |
 | MariaDB | 2.0 核 | 2048 MB | 0.5 核 | 512 MB |
-| Logto App | 1.0 核 | 1024 MB | 0.25 核 | 256 MB |
-| PostgreSQL | 1.0 核 | 1024 MB | 0.25 核 | 256 MB |
 | Prometheus | 0.5 核 | 512 MB | - | - |
 | Grafana | 0.5 核 | 512 MB | - | - |
 | Loki | 0.5 核 | 512 MB | - | - |

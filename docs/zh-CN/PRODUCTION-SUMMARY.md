@@ -19,11 +19,6 @@
    - ✅ 健康检查
    - ✅ 时区配置
 
-3. **logto/docker-compose.prod.yml** - Logto 生产配置
-   - ✅ 资源限制
-   - ✅ 网络隔离
-   - ✅ PostgreSQL 优化
-
 ### 监控和日志
 
 4. **docker-compose.monitoring.yml** - 完整监控栈
@@ -48,12 +43,6 @@
    - 缓冲区优化
    - 慢查询日志
    - 二进制日志
-
-7. **logto/postgres/postgresql.conf** - PostgreSQL 优化
-   - 内存配置
-   - 连接设置
-   - 性能优化
-   - 日志配置
 
 ### 应用配置
 
@@ -191,8 +180,6 @@ docker compose -f docker-compose.prod.yml logs -f
 |------|----------|----------|----------|----------|
 | Spring Boot | 2.0 核 | 2560 MB | 0.5 核 | 512 MB |
 | MariaDB | 2.0 核 | 2048 MB | 0.5 核 | 512 MB |
-| Logto | 1.0 核 | 1024 MB | 0.25 核 | 256 MB |
-| PostgreSQL | 1.0 核 | 1024 MB | 0.25 核 | 256 MB |
 | Prometheus | 0.5 核 | 512 MB | - | - |
 | Grafana | 0.5 核 | 512 MB | - | - |
 
@@ -260,12 +247,8 @@ sudo ufw enable
 # MariaDB 备份
 /backup/backup-mariadb.sh
 
-# PostgreSQL 备份
-/backup/backup-postgres.sh
-
 # 配置自动备份（每天 2:00 AM）
 0 2 * * * /backup/backup-mariadb.sh
-0 2 * * * /backup/backup-postgres.sh
 ```
 
 ### 数据卷备份

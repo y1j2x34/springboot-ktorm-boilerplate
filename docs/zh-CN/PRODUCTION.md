@@ -72,14 +72,6 @@ DB_PORT=3306
 
 # Data Directory
 DATA_DIR=/var/lib/springboot-ktorm-app
-
-# Logto
-TAG=latest
-ENDPOINT=https://auth.yourdomain.com
-ADMIN_ENDPOINT=https://auth-admin.yourdomain.com
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=<STRONG_POSTGRES_PASSWORD>
-POSTGRES_DB=logto
 EOF
 
 # 保护配置文件
@@ -95,9 +87,9 @@ chmod 600 .env.prod
 ### 4. 创建数据目录
 
 ```bash
-sudo mkdir -p /var/lib/springboot-ktorm-app/{mariadb,postgres}
+sudo mkdir -p /var/lib/springboot-ktorm-app/mariadb
 sudo chown -R $USER:$USER /var/lib/springboot-ktorm-app
-chmod 700 /var/lib/springboot-ktorm-app/{mariadb,postgres}
+chmod 700 /var/lib/springboot-ktorm-app/mariadb
 ```
 
 ## 快速部署
@@ -124,10 +116,7 @@ docker compose -f docker-compose.prod.yml build
 # 2. 启动服务
 docker compose -f docker-compose.prod.yml up -d
 
-# 3. 启动 Logto
-cd logto && docker compose -f docker-compose.prod.yml up -d && cd ..
-
-# 4. (可选) 启动监控
+# 3. (可选) 启动监控
 docker compose -f docker-compose.prod.yml -f docker-compose.monitoring.yml up -d
 ```
 
@@ -158,16 +147,6 @@ deploy:
 # 根据可用内存调整
 innodb_buffer_pool_size = 1G  # 推荐为可用内存的 70-80%
 max_connections = 500          # 根据并发量调整
-```
-
-#### PostgreSQL 配置
-
-编辑 `logto/postgres/postgresql.conf`:
-
-```ini
-shared_buffers = 256MB         # 推荐为内存的 25%
-effective_cache_size = 1GB     # 推荐为内存的 50-75%
-max_connections = 200
 ```
 
 ### JVM 调优
@@ -330,35 +309,6 @@ chmod +x /backup/backup-mariadb.sh
 echo "0 2 * * * /backup/backup-mariadb.sh" | crontab -
 ```
 
-#### PostgreSQL 备份
-
-```bash
-# 创建备份目录
-mkdir -p /backup/postgres
-
-# 备份脚本
-cat > /backup/backup-postgres.sh << 'EOF'
-#!/bin/bash
-DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/backup/postgres"
-DB_NAME="logto"
-DB_USER="postgres"
-
-docker exec postgres-db pg_dump \
-  -U ${DB_USER} \
-  -d ${DB_NAME} \
-  --format=custom | gzip > ${BACKUP_DIR}/backup_${DATE}.dump.gz
-
-# 保留最近 7 天的备份
-find ${BACKUP_DIR} -name "backup_*.dump.gz" -mtime +7 -delete
-EOF
-
-chmod +x /backup/backup-postgres.sh
-
-# 设置 cron 任务
-echo "0 2 * * * /backup/backup-postgres.sh" | crontab -
-```
-
 ### 恢复数据
 
 #### MariaDB 恢复
@@ -367,14 +317,6 @@ echo "0 2 * * * /backup/backup-postgres.sh" | crontab -
 # 恢复备份
 gunzip < /backup/mariadb/backup_20241224_020000.sql.gz | \
   docker exec -i mariadb-db mysql -uroot -pYOUR_PASSWORD web_ai
-```
-
-#### PostgreSQL 恢复
-
-```bash
-# 恢复备份
-gunzip < /backup/postgres/backup_20241224_020000.dump.gz | \
-  docker exec -i postgres-db pg_restore -U postgres -d logto --clean
 ```
 
 ### 数据卷备份

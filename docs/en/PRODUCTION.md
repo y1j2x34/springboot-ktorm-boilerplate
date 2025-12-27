@@ -75,9 +75,9 @@ chmod 600 .env.prod
 ### 4. Create Data Directories
 
 ```bash
-sudo mkdir -p /var/lib/springboot-ktorm-app/{mariadb,postgres}
+sudo mkdir -p /var/lib/springboot-ktorm-app/mariadb
 sudo chown -R $USER:$USER /var/lib/springboot-ktorm-app
-chmod 700 /var/lib/springboot-ktorm-app/{mariadb,postgres}
+chmod 700 /var/lib/springboot-ktorm-app/mariadb
 ```
 
 ## Quick Deployment
@@ -104,10 +104,7 @@ docker compose -f docker-compose.prod.yml build
 # 2. Start services
 docker compose -f docker-compose.prod.yml up -d
 
-# 3. Start Logto
-cd logto && docker compose -f docker-compose.prod.yml up -d && cd ..
-
-# 4. (Optional) Start monitoring
+# 3. (Optional) Start monitoring
 docker compose -f docker-compose.prod.yml -f docker-compose.monitoring.yml up -d
 ```
 
@@ -138,16 +135,6 @@ Edit `docker/configs/mariadb/conf.d/custom.cnf`:
 # Adjust based on available memory
 innodb_buffer_pool_size = 1G  # Recommended: 70-80% of available RAM
 max_connections = 500          # Adjust based on concurrency
-```
-
-#### PostgreSQL Configuration
-
-Edit `docker/configs/postgres/postgresql.conf`:
-
-```ini
-shared_buffers = 256MB         # Recommended: 25% of RAM
-effective_cache_size = 1GB     # Recommended: 50-75% of RAM
-max_connections = 200
 ```
 
 ### JVM Tuning
@@ -310,35 +297,6 @@ chmod +x /backup/backup-mariadb.sh
 echo "0 2 * * * /backup/backup-mariadb.sh" | crontab -
 ```
 
-#### PostgreSQL Backup
-
-```bash
-# Create backup directory
-mkdir -p /backup/postgres
-
-# Backup script
-cat > /backup/backup-postgres.sh << 'EOF'
-#!/bin/bash
-DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/backup/postgres"
-DB_NAME="logto"
-DB_USER="postgres"
-
-docker exec postgres-db pg_dump \
-  -U ${DB_USER} \
-  -d ${DB_NAME} \
-  --format=custom | gzip > ${BACKUP_DIR}/backup_${DATE}.dump.gz
-
-# Keep last 7 days of backups
-find ${BACKUP_DIR} -name "backup_*.dump.gz" -mtime +7 -delete
-EOF
-
-chmod +x /backup/backup-postgres.sh
-
-# Setup cron job
-echo "0 2 * * * /backup/backup-postgres.sh" | crontab -
-```
-
 ### Restore Data
 
 #### MariaDB Restore
@@ -347,14 +305,6 @@ echo "0 2 * * * /backup/backup-postgres.sh" | crontab -
 # Restore backup
 gunzip < /backup/mariadb/backup_20241224_020000.sql.gz | \
   docker exec -i mariadb-db mysql -uroot -pYOUR_PASSWORD web_ai
-```
-
-#### PostgreSQL Restore
-
-```bash
-# Restore backup
-gunzip < /backup/postgres/backup_20241224_020000.dump.gz | \
-  docker exec -i postgres-db pg_restore -U postgres -d logto --clean
 ```
 
 ### Volume Backup

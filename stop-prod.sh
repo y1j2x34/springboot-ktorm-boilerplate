@@ -55,17 +55,6 @@ if [ "$REMOVE_MONITORING" = true ]; then
     echo -e "${GREEN}✓${NC} Monitoring stack stopped"
 fi
 
-# Stop Logto
-echo -e "${YELLOW}Stopping Logto services...${NC}"
-cd logto
-if [ "$REMOVE_VOLUMES" = true ]; then
-    docker compose -f docker-compose.prod.yml down -v
-else
-    docker compose -f docker-compose.prod.yml down
-fi
-cd ..
-echo -e "${GREEN}✓${NC} Logto services stopped"
-
 # Stop main application
 echo -e "${YELLOW}Stopping main application...${NC}"
 if [ "$REMOVE_VOLUMES" = true ]; then

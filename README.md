@@ -26,7 +26,6 @@ Enterprise-ready Spring Boot application with Ktorm ORM, featuring complete Dock
 
 # Access:
 # - API: http://localhost:8081/api
-# - Logto: http://localhost:3002
 ```
 
 ### Production Environment
@@ -66,13 +65,11 @@ vim .env.prod
 ├── docker/
 │   └── configs/                 # Database configurations
 │       ├── mariadb/
-│       └── postgres/
 ├── app/                         # Main application
 ├── common/                      # Common modules
 ├── captcha/                     # Captcha module
 ├── jwt-auth/                    # JWT authentication
 ├── user/                        # User module
-├── logto/                       # Logto authentication service
 ├── monitoring/                  # Monitoring configurations
 ├── docker-compose.yml           # Development environment
 ├── docker-compose.prod.yml      # Production environment
@@ -85,7 +82,7 @@ vim .env.prod
 - **Backend**: Spring Boot 2.7.1, Kotlin 1.8.20
 - **ORM**: Ktorm 3.6.0
 - **Database**: MariaDB 11.2
-- **Auth**: Logto, JWT
+- **Auth**: JWT
 - **Captcha**: Anji-Plus Captcha
 - **Containerization**: Docker, Docker Compose
 - **Monitoring**: Prometheus, Grafana, Loki
@@ -98,8 +95,6 @@ vim .env.prod
 |---------|------|-------------|
 | Spring Boot | 8081 | Main API |
 | MariaDB | 3306 | Database |
-| Logto | 3001, 3002 | Authentication |
-| PostgreSQL | 5432 | Logto database |
 
 ### Production Environment (Additional)
 
