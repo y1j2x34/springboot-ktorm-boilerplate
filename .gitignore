@@ -44,3 +44,5 @@ bin/
 .env
 .env.local
 .env.*.local
+
+./database/.idea

@@ -1,5 +1,6 @@
 
 dependencies {
+    implementation(project(":common"))
     implementation(project(":user"))
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("io.jsonwebtoken:jjwt:0.9.1")

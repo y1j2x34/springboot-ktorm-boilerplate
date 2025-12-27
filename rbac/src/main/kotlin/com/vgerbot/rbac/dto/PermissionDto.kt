@@ -1,0 +1,37 @@
+package com.vgerbot.rbac.dto
+
+data class PermissionDto(
+    val id: Int? = null,
+    val name: String,
+    val code: String,
+    val resource: String,
+    val action: String,
+    val description: String? = null
+)
+
+data class CreatePermissionDto(
+    val name: String,
+    val code: String,
+    val resource: String,
+    val action: String,
+    val description: String? = null
+)
+
+data class UpdatePermissionDto(
+    val name: String? = null,
+    val code: String? = null,
+    val resource: String? = null,
+    val action: String? = null,
+    val description: String? = null
+)
+
+data class AssignPermissionToRoleDto(
+    val roleId: Int,
+    val permissionId: Int
+)
+
+data class RemovePermissionFromRoleDto(
+    val roleId: Int,
+    val permissionId: Int
+)
+
