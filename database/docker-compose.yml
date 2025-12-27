@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  # MariaDB Database - Data storage for Spring Boot application
+  mariadb:
+    image: mariadb:11.2
+    container_name: mariadb-db
+    environment:
+      MYSQL_ROOT_PASSWORD: zhang1128!
+      MYSQL_DATABASE: web_ai
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./conf.d:/etc/mysql/conf.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  mariadb-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
+
+

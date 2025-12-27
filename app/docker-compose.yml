@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  # Spring Boot Application - Main API service
+  springboot-app:
+    build:
+      context: ..
+      dockerfile: app/Dockerfile
+    container_name: springboot-ktorm-app
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/web_ai
+      - SPRING_DATASOURCE_USERNAME=appuser
+      - SPRING_DATASOURCE_PASSWORD=apppass
+      - SERVER_PORT=8081
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+

@@ -9,3 +9,4 @@ create table web_ai.user
     constraint user_pk3 unique (email)
 ) comment '用户表';
 
+

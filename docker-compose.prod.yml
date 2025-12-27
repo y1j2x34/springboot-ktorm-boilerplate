@@ -1,108 +1,8 @@
 version: "3.9"
 
-services:
-  # Spring Boot Application - Main API service
-  springboot-app:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-      args:
-        BUILD_DATE: ${BUILD_DATE:-}
-        VERSION: ${VERSION:-1.0.0}
-    image: ${REGISTRY:-local}/springboot-ktorm-app:${VERSION:-latest}
-    container_name: springboot-ktorm-app
-    ports:
-      - "${APP_PORT:-8081}:8081"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/${DB_NAME:-web_ai}
-      - SPRING_DATASOURCE_USERNAME=${DB_USER:-appuser}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?Database password required}
-      - SERVER_PORT=8081
-      - JAVA_OPTS=-Xms512m -Xmx2g -XX:+UseG1GC -XX:MaxGCPauseMillis=200
-      - TZ=Asia/Shanghai
-    depends_on:
-      mariadb:
-        condition: service_healthy
-    networks:
-      - app-network
-      - internal-network
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2560M
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/api/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "100m"
-        max-file: "5"
-    security_opt:
-      - no-new-privileges:true
-    read_only: false
-    tmpfs:
-      - /tmp:noexec,nosuid,size=512m
-
-  # MariaDB for Spring Boot App
-  mariadb:
-    image: mariadb:11.2
-    container_name: mariadb-db
-    environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:?Root password required}
-      - MYSQL_DATABASE=${DB_NAME:-web_ai}
-      - MYSQL_USER=${DB_USER:-appuser}
-      - MYSQL_PASSWORD=${DB_PASSWORD:?Database password required}
-      - TZ=Asia/Shanghai
-      - MYSQL_INITDB_SKIP_TZINFO=1
-    ports:
-      - "${DB_PORT:-3306}:3306"
-    volumes:
-      - mariadb-data:/var/lib/mysql
-      - ./app/src/main/resources/database.sql:/docker-entrypoint-initdb.d/init.sql:ro
-      - ./docker/configs/mariadb/conf.d:/etc/mysql/conf.d:ro
-    command: >
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-      --max_connections=500
-      --innodb_buffer_pool_size=1G
-      --innodb_log_file_size=256M
-      --slow_query_log=1
-      --long_query_time=2
-      --log_error=/var/log/mysql/error.log
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    networks:
-      - internal-network
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "50m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
+include:
+  - path: ./database/docker-compose.prod.yml
+  - path: ./app/docker-compose.prod.yml
 
 networks:
   # 外部访问网络
@@ -115,12 +15,4 @@ networks:
   internal-network:
     driver: bridge
     internal: true
-
-volumes:
-  mariadb-data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${DATA_DIR:-./data}/mariadb
 

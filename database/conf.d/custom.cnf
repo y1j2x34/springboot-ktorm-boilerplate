@@ -90,3 +90,4 @@ performance_schema_instrument = 'stage/%=ON'
 performance_schema_consumer_events_stages_current = ON
 performance_schema_consumer_events_stages_history = ON
 performance_schema_consumer_events_stages_history_long = ON
+

@@ -1,21 +1,21 @@
 # Production-ready multi-stage Dockerfile
 FROM gradle:8.5-jdk17 AS builder
 
-WORKDIR /app
+WORKDIR /build
 
 # Copy Gradle files for dependency caching
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
-COPY gradle ./gradle
+COPY ../build.gradle.kts ../settings.gradle.kts ../gradle.properties ./
+COPY ../gradle ./gradle
 
 # Download dependencies (cached layer)
 RUN gradle dependencies --no-daemon || true
 
 # Copy source code
-COPY app ./app
-COPY common ./common
-COPY captcha ./captcha
-COPY jwt-auth ./jwt-auth
-COPY user ./user
+COPY . ./app
+COPY ../common ./common
+COPY ../captcha ./captcha
+COPY ../jwt-auth ./jwt-auth
+COPY ../user ./user
 
 # Build arguments
 ARG BUILD_DATE
@@ -23,8 +23,8 @@ ARG VERSION=1.0.0
 
 # Build the application
 RUN gradle :app:bootJar --no-daemon -x test \
-    && mkdir -p /app/build \
-    && cp app/build/libs/*.jar /app/build/app.jar
+    && mkdir -p /build/output \
+    && cp app/build/libs/*.jar /build/output/app.jar
 
 # Production runtime stage
 FROM eclipse-temurin:17-jre-alpine
@@ -47,7 +47,7 @@ RUN addgroup -g 1000 -S spring \
     && chown -R spring:spring /app
 
 # Copy the built jar
-COPY --from=builder --chown=spring:spring /app/build/app.jar /app/app.jar
+COPY --from=builder --chown=spring:spring /build/output/app.jar /app/app.jar
 
 # Switch to non-root user
 USER spring:spring

@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  # MariaDB for Spring Boot App - Production Configuration
+  mariadb:
+    image: mariadb:11.2
+    container_name: mariadb-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:?Root password required}
+      - MYSQL_DATABASE=${DB_NAME:-web_ai}
+      - MYSQL_USER=${DB_USER:-appuser}
+      - MYSQL_PASSWORD=${DB_PASSWORD:?Database password required}
+      - TZ=Asia/Shanghai
+      - MYSQL_INITDB_SKIP_TZINFO=1
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./conf.d:/etc/mysql/conf.d:ro
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max_connections=500
+      --innodb_buffer_pool_size=1G
+      --innodb_log_file_size=256M
+      --slow_query_log=1
+      --long_query_time=2
+      --log_error=/var/log/mysql/error.log
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - internal-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  mariadb-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_DIR:-./data}/mariadb
+
+networks:
+  internal-network:
+    driver: bridge
+
+

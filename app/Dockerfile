@@ -1,18 +1,18 @@
 # Multi-stage build for Spring Boot Kotlin application
 FROM gradle:8.5-jdk17 AS builder
 
-WORKDIR /app
+WORKDIR /build
 
 # Copy Gradle files
-COPY build.gradle.kts settings.gradle.kts gradle.properties ./
-COPY gradle ./gradle
+COPY ../build.gradle.kts ../settings.gradle.kts ../gradle.properties ./
+COPY ../gradle ./gradle
 
 # Copy all module sources
-COPY app ./app
-COPY common ./common
-COPY captcha ./captcha
-COPY jwt-auth ./jwt-auth
-COPY user ./user
+COPY . ./app
+COPY ../common ./common
+COPY ../captcha ./captcha
+COPY ../jwt-auth ./jwt-auth
+COPY ../user ./user
 
 # Build the application (skip tests for faster builds)
 RUN gradle :app:bootJar --no-daemon -x test
@@ -23,7 +23,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy the built jar from builder stage
-COPY --from=builder /app/app/build/libs/*.jar app.jar
+COPY --from=builder /build/app/build/libs/*.jar app.jar
 
 # Create a non-root user
 RUN addgroup -S spring && adduser -S spring -G spring
