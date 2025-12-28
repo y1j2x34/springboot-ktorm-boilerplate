@@ -1,8 +1,8 @@
 package com.vgerbot.auth
 
 import com.vgerbot.auth.data.AuthRequest
-import com.vgerbot.user.service.CreateUserDto
-import com.vgerbot.user.service.UserService
+import com.vgerbot.common.user.CreateUserDto
+import com.vgerbot.common.user.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus

@@ -82,5 +82,33 @@ class TenantController {
             "message" to "Use TenantService.getTenantsForUser(userId) to get all tenants for a user"
         )
     }
+    
+    /**
+     * 根据邮箱查找匹配的租户
+     * 
+     * @param email 邮箱地址
+     * @return 匹配的租户列表
+     */
+    @GetMapping("/find-by-email")
+    fun findByEmail(email: String): Map<String, Any?> {
+        if (email.isBlank()) {
+            return mapOf("error" to "Email parameter is required")
+        }
+        
+        val tenants = tenantService.findTenantsByEmail(email)
+        
+        return mapOf(
+            "email" to email,
+            "matched" to tenants.map { tenant ->
+                mapOf(
+                    "id" to tenant.id,
+                    "code" to tenant.code,
+                    "name" to tenant.name,
+                    "description" to tenant.description,
+                    "emailDomains" to tenant.emailDomains
+                )
+            }
+        )
+    }
 }
 

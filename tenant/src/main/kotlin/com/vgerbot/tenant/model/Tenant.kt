@@ -15,6 +15,8 @@ interface Tenant : Entity<Tenant> {
     val id: Int
     var code: String
     var name: String
+    var description: String?
+    var emailDomains: String?
     var status: Int
     var createdAt: Instant
     var updatedAt: Instant?
@@ -27,6 +29,8 @@ object Tenants : Table<Tenant>("tenant") {
     val id = int("id").primaryKey().bindTo { it.id }
     val code = varchar("code").bindTo { it.code }
     val name = varchar("name").bindTo { it.name }
+    val description = varchar("description").bindTo { it.description }
+    val emailDomains = varchar("email_domains").bindTo { it.emailDomains }
     val status = int("status").bindTo { it.status }
     val createdAt = timestamp("created_at").bindTo { it.createdAt }
     val updatedAt = timestamp("updated_at").bindTo { it.updatedAt }

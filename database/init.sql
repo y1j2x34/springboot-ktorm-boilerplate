@@ -1,13 +1,32 @@
 create table `spring-boot-kt`.`user`
 (
-    id         int auto_increment primary key,
-    username   varchar(32)                           not null comment '用户名（唯一）',
-    email      varchar(128)                          not null comment '邮箱',
-    password   varchar(32)                           not null comment '密码（=BCrypt(MD5(明文), salt)）',
-    created_at timestamp default current_timestamp() null comment '创建时间',
+    id           int auto_increment primary key,
+    username     varchar(32)                           not null comment '用户名（唯一）',
+    email        varchar(128)                          not null comment '邮箱',
+    phone_number varchar(20)                               null comment '手机号',
+    password     char(60)                              not null comment '密码（=BCrypt(MD5(明文), salt)）',
+    created_at   timestamp default current_timestamp()     null comment '创建时间',
     constraint user_pk unique (username),
-    constraint user_pk3 unique (email)
+    constraint user_pk3 unique (email),
+    constraint user_pk_phone unique (phone_number)
 ) comment '用户表';
+
+-- ================================================
+-- 用户测试数据
+-- ================================================
+-- 注意：密码字段需要通过应用程序的加密逻辑生成，这里使用占位符
+INSERT INTO `spring-boot-kt`.`user` (`username`, `email`, `phone_number`, `password`) VALUES
+('admin', 'admin@example.com', '13800138000', '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('john_doe', 'john.doe@example.com', '13800138001', '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('jane_smith', 'jane.smith@example.com', '13800138002', '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('mike_wilson', 'mike.wilson@example.com', '13800138003', '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('sarah_jones', 'sarah.jones@example.com', NULL, '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('david_brown', 'david.brown@example.com', '13800138005', '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('emily_davis', 'emily.davis@example.com', '13800138006', '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('chris_miller', 'chris.miller@example.com', NULL, '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('lisa_taylor', 'lisa.taylor@example.com', '13800138008', '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a'),
+('robert_anderson', 'robert.anderson@example.com', '13800138009', '$2a$10$k83EOZ1Y8lud/6GOzOtGWO2O6y/dRmbC1Mo2LiKh695qcx1mZyd1a')
+ON DUPLICATE KEY UPDATE `username` = VALUES(`username`);
 
 
 -- ================================================
@@ -78,6 +97,12 @@ INSERT INTO `role` (`name`, `code`, `description`) VALUES
                                                        ('普通用户', 'ROLE_USER', '普通用户，拥有基础权限')
     ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
+INSERT INTO `user_role` (`user_id`, `role_id`)
+SELECT
+    (SELECT id FROM `user` WHERE username = 'admin'),
+    (SELECT id FROM `role` WHERE code = 'ROLE_ADMIN')
+ON DUPLICATE KEY UPDATE `user_id` = VALUES(`user_id`);
+
 -- 插入默认权限
 INSERT INTO `permission` (`name`, `code`, `resource`, `action`, `description`) VALUES
 -- 用户相关权限
@@ -125,6 +150,8 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`tenant` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(50) NOT NULL UNIQUE COMMENT '租户代码（唯一标识）',
     `name` VARCHAR(100) NOT NULL COMMENT '租户名称',
+    `description` VARCHAR(500) NULL COMMENT '租户描述',
+    `email_domains` VARCHAR(500) NULL COMMENT '邮箱域名（支持匹配语法，例如：baidu.{com,cn} 表示支持 baidu.com, baidu.cn，多个用逗号分隔）',
     `status` INT NOT NULL DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -152,21 +179,20 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_tenant` (
 -- ================================================
 
 -- 插入示例租户
-INSERT INTO `tenant` (`code`, `name`, `status`) VALUES
-    ('tenant_demo', '演示租户', 1),
-    ('tenant_test', '测试租户', 1),
-    ('tenant_company_a', 'A公司', 1),
-    ('tenant_company_b', 'B公司', 1)
-ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
+INSERT INTO `tenant` (`code`, `name`, `description`, `email_domains`, `status`) VALUES
+    ('tenant_demo', '演示租户', '用于演示和测试的租户', 'demo.com,example.com', 1),
+    ('tenant_test', '测试租户', '专用测试环境租户', 'test.{com,cn,net}', 1),
+    ('tenant_company_a', 'A公司', 'A公司企业租户，支持主域名和所有子域名', 'company-a.{com,cn},*.company-a.com', 1),
+    ('tenant_company_b', 'B公司', 'B公司企业租户，支持多个域名扩展', 'comp.{com,cn,org},company-b.com', 1)
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`), `description` = VALUES(`description`), `email_domains` = VALUES(`email_domains`);
 
 -- 为已存在的用户分配租户（假设用户表已有数据）
 -- 注意：这里使用 INSERT IGNORE 避免重复插入
 -- 实际使用中，应根据具体业务逻辑调整
 INSERT IGNORE INTO `user_tenant` (`user_id`, `tenant_id`)
-SELECT 
-    u.id as user_id,
-    (SELECT id FROM `tenant` WHERE code = 'tenant_demo') as tenant_id
+SELECT u.id, t.id
 FROM `user` u
-WHERE u.id IN (SELECT MIN(id) FROM `user`)  -- 只为第一个用户分配演示租户
-LIMIT 1;
+JOIN `tenant` t ON t.code = 'tenant_demo'
+WHERE u.username IN ('john_doe', 'jane_smith');
+;
 

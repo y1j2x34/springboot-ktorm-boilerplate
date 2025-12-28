@@ -40,5 +40,12 @@ class TenantDao {
     fun findAllActive(): List<Tenant> {
         return database.tenants.filter { it.status eq 1 }.toList()
     }
+    
+    /**
+     * 查询所有租户（用于邮箱域名匹配）
+     */
+    fun findAll(): List<Tenant> {
+        return database.tenants.toList()
+    }
 }
 

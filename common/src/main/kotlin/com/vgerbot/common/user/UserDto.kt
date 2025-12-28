@@ -9,5 +9,7 @@ data class UserDto (
 
     var email: String,
 
+    var phoneNumber: String?,
+
     var createdAt: Instant
 )

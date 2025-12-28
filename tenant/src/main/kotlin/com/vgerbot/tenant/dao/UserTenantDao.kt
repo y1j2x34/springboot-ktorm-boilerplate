@@ -6,6 +6,7 @@ import com.vgerbot.tenant.model.userTenants
 import org.ktorm.database.Database
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
+import org.ktorm.entity.add
 import org.ktorm.entity.filter
 import org.ktorm.entity.find
 import org.ktorm.entity.toList
@@ -42,6 +43,17 @@ class UserTenantDao {
         return database.userTenants.find {
             (it.userId eq userId) and (it.tenantId eq tenantId)
         }
+    }
+    
+    /**
+     * 创建用户租户关联
+     */
+    fun create(userId: Int, tenantId: Int): Int {
+        val userTenant = UserTenant {
+            this.userId = userId
+            this.tenantId = tenantId
+        }
+        return database.userTenants.add(userTenant)
     }
 }
 

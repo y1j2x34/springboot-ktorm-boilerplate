@@ -18,6 +18,8 @@ interface User: Entity<User> {
 
     var email: String
 
+    var phoneNumber: String?
+
     var password: String
 
     var createdAt: Instant
@@ -29,6 +31,8 @@ object Users: Table<User>("user") {
     var username = varchar("username").bindTo { it.username }
 
     var email = varchar("email").bindTo { it.email }
+
+    var phoneNumber = varchar("phone_number").bindTo { it.phoneNumber }
 
     var password = varchar("password").bindTo { it.password }
 
