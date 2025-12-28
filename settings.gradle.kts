@@ -6,3 +6,4 @@ include("jwt-auth")
 include("user")
 
 include("rbac")
+include("tenant")
