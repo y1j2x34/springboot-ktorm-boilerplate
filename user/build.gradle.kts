@@ -1,18 +1,21 @@
-// Disable bootJar for library modules
-tasks.bootJar {
-    enabled = false
+plugins {
+    kotlin("jvm") version "1.9.23"
 }
-tasks.jar {
-    enabled = true
+
+group = "com.vgerbot"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    implementation(project(":common"))
-    implementation("org.springframework.security:spring-security-crypto")
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation(kotlin("test"))
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(17)
 }

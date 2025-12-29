@@ -1,13 +1,13 @@
 package com.vgerbot.rbac.dao
 
-import com.vgerbot.common.dao.BaseDao
+import com.vgerbot.common.dao.AbstractBaseDao
 import com.vgerbot.rbac.model.UserRole
 import com.vgerbot.rbac.model.UserRoles
 import org.ktorm.dsl.*
 import org.springframework.stereotype.Component
 
 @Component
-class UserRoleDao : BaseDao<UserRole, UserRoles>(UserRoles) {
+class UserRoleDao : AbstractBaseDao<UserRole, UserRoles>(UserRoles) {
     
     /**
      * 根据用户ID获取所有角色ID列表

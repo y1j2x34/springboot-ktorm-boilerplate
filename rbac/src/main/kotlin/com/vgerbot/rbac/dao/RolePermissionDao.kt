@@ -1,13 +1,13 @@
 package com.vgerbot.rbac.dao
 
-import com.vgerbot.common.dao.BaseDao
+import com.vgerbot.common.dao.AbstractBaseDao
 import com.vgerbot.rbac.model.RolePermission
 import com.vgerbot.rbac.model.RolePermissions
 import org.ktorm.dsl.*
 import org.springframework.stereotype.Component
 
 @Component
-class RolePermissionDao : BaseDao<RolePermission, RolePermissions>(RolePermissions) {
+class RolePermissionDao : AbstractBaseDao<RolePermission, RolePermissions>(RolePermissions) {
     
     /**
      * 根据角色ID列表获取所有权限ID列表

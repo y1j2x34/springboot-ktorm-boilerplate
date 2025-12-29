@@ -13,6 +13,7 @@ tasks.jar {
 
 dependencies {
     implementation(project(":common"))
+    implementation(project(":core"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.ktorm:ktorm-core")

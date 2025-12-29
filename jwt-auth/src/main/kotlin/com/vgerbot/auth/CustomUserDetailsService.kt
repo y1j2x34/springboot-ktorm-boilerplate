@@ -1,6 +1,5 @@
 package com.vgerbot.auth
 
-import com.vgerbot.common.user.UserService
 import com.vgerbot.user.dao.UserDao
 import org.ktorm.dsl.eq
 import org.springframework.beans.factory.annotation.Autowired

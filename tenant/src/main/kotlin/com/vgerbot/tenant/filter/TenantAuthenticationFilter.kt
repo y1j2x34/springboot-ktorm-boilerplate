@@ -1,6 +1,6 @@
 package com.vgerbot.tenant.filter
 
-import com.vgerbot.common.user.UserService
+import com.vgerbot.user.service.UserService
 import com.vgerbot.tenant.context.TenantContext
 import com.vgerbot.tenant.context.TenantContextHolder
 import com.vgerbot.tenant.security.TenantAuthenticationToken
@@ -8,7 +8,6 @@ import com.vgerbot.tenant.security.TenantPrincipal
 import com.vgerbot.tenant.service.TenantService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component

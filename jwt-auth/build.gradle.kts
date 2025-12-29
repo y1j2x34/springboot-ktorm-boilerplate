@@ -8,7 +8,8 @@ tasks.jar {
 
 dependencies {
     implementation(project(":common"))
-    implementation(project(":user"))
+    implementation(project(":core"))
+    implementation(project(":user:user-api"))
     implementation("org.springframework.boot:spring-boot-starter-security")
     // Updated JWT library for better Java 17+ and Spring Boot 3 compatibility
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")

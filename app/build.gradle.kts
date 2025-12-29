@@ -4,7 +4,8 @@ dependencies {
     implementation(project(":jwt-auth"))
     implementation(project(":rbac"))
     implementation(project(":tenant"))
-    
+    implementation(project(":user:user-core"))
+
     // Spring Security is needed because AppSecurityConfiguration uses it directly
     implementation("org.springframework.boot:spring-boot-starter-security")
     
