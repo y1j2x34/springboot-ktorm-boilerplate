@@ -253,4 +253,3 @@ object EmailDomainMatcher {
         return results
     }
 }
-

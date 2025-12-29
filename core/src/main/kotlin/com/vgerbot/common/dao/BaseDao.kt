@@ -1,22 +1,31 @@
 package com.vgerbot.common.dao
 
+import com.vgerbot.common.dto.Pagination
 import org.ktorm.database.Database
+import org.ktorm.dsl.from
 import org.ktorm.entity.Entity
 import org.ktorm.entity.add
 import org.ktorm.entity.all
 import org.ktorm.entity.any
 import org.ktorm.entity.count
+import org.ktorm.entity.drop
 import org.ktorm.entity.filter
 import org.ktorm.entity.find
 import org.ktorm.entity.none
 import org.ktorm.entity.removeIf
 import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.sortedBy
+import org.ktorm.entity.sortedByDescending
+import org.ktorm.entity.take
 import org.ktorm.entity.toList
 import org.ktorm.entity.update
 import org.ktorm.schema.ColumnDeclaring
 import org.ktorm.schema.Table
 import org.springframework.beans.factory.annotation.Autowired
 
+enum class SortOrder {
+    ASC, DESC
+}
 interface BaseDao<E: Entity<E>, T: Table<E>> {
     fun add(entity: E): Int
     fun update(entity: E): Int
@@ -126,5 +135,58 @@ abstract class AbstractBaseDao<E : Entity<E>, T : Table<E>>(private val tableObj
      */
     override fun findAll(): List<E> {
         return database.sequenceOf(tableObject).toList()
+    }
+
+    fun pagination(pageSize: Int, pageIndex: Int, predicate: (T) -> ColumnDeclaring<Boolean>): Pagination<E> {
+
+        val totalCount = this.count(predicate)
+
+        val startIndex = pageIndex * pageSize
+
+        val modelList = database.sequenceOf(tableObject)
+            .filter(predicate)
+            .drop(startIndex)
+            .take(pageSize)
+            .toList()
+
+        return Pagination(
+            modelList = modelList,
+            totalRecordsInAllPages = totalCount,
+            startIndex = startIndex,
+            pageSize = pageSize
+        )
+    }
+    fun paginationWithSort(
+        pageSize: Int,
+        pageIndex: Int,
+        predicate: (T) -> ColumnDeclaring<Boolean>,
+        orderByList: List<Pair<(T) -> ColumnDeclaring<*>, SortOrder?>>? = null
+    ): Pagination<E> {
+        val totalCount = this.count(predicate)
+        val startIndex = pageIndex * pageSize
+
+        val modelList = database.sequenceOf(tableObject).filter(predicate)
+            .let {
+                it ->
+                var seq = it;
+                orderByList?.forEach { (column, order) ->
+                   seq = when(order) {
+                       null -> seq
+                       SortOrder.ASC -> seq.sortedBy(column)
+                       else -> seq.sortedByDescending(column)
+                   }
+                }
+                seq
+            }
+            .drop(startIndex)
+            .take(pageSize)
+            .toList()
+
+        return Pagination(
+            modelList = modelList,
+            totalRecordsInAllPages = totalCount,
+            startIndex = startIndex,
+            pageSize = pageSize
+        )
     }
 }

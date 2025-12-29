@@ -16,6 +16,8 @@
             <option value="$PROJECT_DIR$/jwt-auth" />
             <option value="$PROJECT_DIR$/rbac" />
             <option value="$PROJECT_DIR$/tenant" />
+            <option value="$PROJECT_DIR$/tenant/tenant-api" />
+            <option value="$PROJECT_DIR$/tenant/tenant-core" />
             <option value="$PROJECT_DIR$/user" />
             <option value="$PROJECT_DIR$/user/user-api" />
             <option value="$PROJECT_DIR$/user/user-core" />

@@ -3,7 +3,7 @@ package com.vgerbot.app.configuration
 import com.vgerbot.auth.CustomUserDetailsService
 import com.vgerbot.auth.JwtAuthenticationEntryPoint
 import com.vgerbot.auth.JwtRequestFilter
-import com.vgerbot.tenant.filter.TenantAuthenticationFilter
+import com.vgerbot.com.vgerbot.tenant.filter.TenantAuthenticationFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
