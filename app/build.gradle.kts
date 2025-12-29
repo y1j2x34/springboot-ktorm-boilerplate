@@ -8,6 +8,7 @@ dependencies {
 
     // Spring Security is needed because AppSecurityConfiguration uses it directly
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("me.paulschwarz:springboot3-dotenv:5.0.1")
     
     runtimeOnly("com.github.anji-plus:captcha")
     implementation("io.projectreactor:reactor-core")
