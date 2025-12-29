@@ -13,9 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
-import javax.servlet.FilterChain
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 
 /**
  * 租户认证过滤器
@@ -83,7 +83,7 @@ class TenantAuthenticationFilter : OncePerRequestFilter() {
                         val tenant = getTenantForUser(userId, request)
                         
                         if (tenant != null) {
-                            logger.debug("Found tenant for user {}: {}", username, tenant.name)
+                            logger.debug("Found tenant for user $username: ${tenant.name}")
                             
                             // 包装 Principal
                             val tenantPrincipal = TenantPrincipal(
@@ -109,9 +109,9 @@ class TenantAuthenticationFilter : OncePerRequestFilter() {
                             // 设置 ThreadLocal 上下文
                             setTenantContext(tenant.id, tenant.code, tenant.name)
                             
-                            logger.debug("Successfully injected tenant info into authentication for user: {}", username)
+                            logger.debug("Successfully injected tenant info into authentication for user: $username")
                         } else {
-                            logger.debug("No tenant found for user: {}", username)
+                            logger.debug("No tenant found for user: $username")
                             // 即使没有租户信息，也设置一个空的上下文
                             setTenantContext(null, null, null)
                         }
@@ -148,11 +148,11 @@ class TenantAuthenticationFilter : OncePerRequestFilter() {
                 if (tenantService.isUserBelongsToTenant(userId, requestedTenantId)) {
                     val tenant = tenantService.getTenantById(requestedTenantId)
                     if (tenant != null) {
-                        logger.debug("Using tenant from header: {}", requestedTenantId)
+                        logger.debug("Using tenant from header: $requestedTenantId")
                         return tenant
                     }
                 } else {
-                    logger.warn("User {} does not belong to tenant {}", userId, requestedTenantId)
+                    logger.warn("User $userId does not belong to tenant $requestedTenantId")
                 }
             }
         }

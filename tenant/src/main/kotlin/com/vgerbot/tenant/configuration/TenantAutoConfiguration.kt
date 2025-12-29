@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 /**
  * 租户过滤器自动配置

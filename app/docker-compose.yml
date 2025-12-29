@@ -10,9 +10,9 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/web_ai
-      - SPRING_DATASOURCE_USERNAME=appuser
-      - SPRING_DATASOURCE_PASSWORD=apppass
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/${DB_NAME:?Database name required}
+      - DB_USER=${DB_USER:?Database user required}
+      - DB_PASSWORD=${DB_PASSWORD:?Database password required}
       - SERVER_PORT=8081
     depends_on:
       mariadb:

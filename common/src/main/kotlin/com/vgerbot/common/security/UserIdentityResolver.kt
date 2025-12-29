@@ -1,6 +1,6 @@
 package com.vgerbot.common.security
 
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 /**
  * 用户身份解析器接口

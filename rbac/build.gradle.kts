@@ -3,6 +3,14 @@ plugins {
     kotlin("plugin.spring")
 }
 
+// Disable bootJar for library modules
+tasks.bootJar {
+    enabled = false
+}
+tasks.jar {
+    enabled = true
+}
+
 dependencies {
     implementation(project(":common"))
     implementation("org.springframework.boot:spring-boot-starter-web")

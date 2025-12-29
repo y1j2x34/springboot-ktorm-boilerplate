@@ -2,27 +2,34 @@ package com.vgerbot.auth
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import java.io.Serializable
+import java.nio.charset.StandardCharsets
 import java.util.*
-import kotlin.collections.HashMap
+import javax.crypto.SecretKey
 
 @Component
 class JwtTokenUtils : Serializable {
     @Autowired
-    private lateinit var properties: JwtProperties;
+    private lateinit var properties: JwtProperties
 
-    //retrieve username from jwt token
-    fun getUsernameFromToken(token: String?): String? {
-        return getClaimFromToken<String>(token, Claims::getSubject)
+    // Convert secret string to SecretKey
+    private fun getSigningKey(): SecretKey {
+        val keyBytes = properties.secret.toByteArray(StandardCharsets.UTF_8)
+        return Keys.hmacShaKeyFor(keyBytes)
     }
 
-    //retrieve expiration date from jwt token
+    // retrieve username from jwt token
+    fun getUsernameFromToken(token: String?): String? {
+        return getClaimFromToken(token, Claims::getSubject)
+    }
+
+    // retrieve expiration date from jwt token
     fun getExpirationDateFromToken(token: String?): Date? {
-        return getClaimFromToken<Date>(token, Claims::getExpiration)
+        return getClaimFromToken(token, Claims::getExpiration)
     }
 
     fun <T> getClaimFromToken(token: String?, claimsResolver: (claims: Claims) -> T): T {
@@ -30,35 +37,43 @@ class JwtTokenUtils : Serializable {
         return claimsResolver(claims)
     }
 
-    //for retrieveing any information from token we will need the secret key
+    // for retrieving any information from token we will need the secret key
     private fun getAllClaimsFromToken(token: String?): Claims {
-        return Jwts.parser().setSigningKey(properties.secret).parseClaimsJws(token).getBody()
+        return Jwts.parser()
+            .verifyWith(getSigningKey())
+            .build()
+            .parseSignedClaims(token)
+            .payload
     }
 
-    //check if the token has expired
+    // check if the token has expired
     private fun isTokenExpired(token: String?): Boolean {
         val expiration: Date? = getExpirationDateFromToken(token)
         return expiration?.before(Date()) ?: false
     }
 
-    //generate token for user
+    // generate token for user
     fun generateToken(userDetails: UserDetails): String {
         val claims: Map<String, Any> = HashMap()
         return doGenerateToken(claims, userDetails.username)
     }
 
-    //while creating the token -
-    //1. Define  claims of the token, like Issuer, Expiration, Subject, and the ID
-    //2. Sign the JWT using the HS512 algorithm and secret key.
-    //3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
-    //   compaction of the JWT to a URL-safe string
+    // while creating the token -
+    // 1. Define claims of the token, like Issuer, Expiration, Subject, and the ID
+    // 2. Sign the JWT using the HS512 algorithm and secret key.
+    // 3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
+    //    compaction of the JWT to a URL-safe string
     private fun doGenerateToken(claims: Map<String, Any>, subject: String): String {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-            .signWith(SignatureAlgorithm.HS512, properties.secret).compact()
+        return Jwts.builder()
+            .claims(claims)
+            .subject(subject)
+            .issuedAt(Date(System.currentTimeMillis()))
+            .expiration(Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+            .signWith(getSigningKey())
+            .compact()
     }
 
-    //validate token
+    // validate token
     fun validateToken(token: String?, userDetails: UserDetails): Boolean {
         val username = getUsernameFromToken(token)
         return username == userDetails.username && !isTokenExpired(token)

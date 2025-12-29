@@ -1,3 +1,10 @@
+// Disable bootJar for library modules
+tasks.bootJar {
+    enabled = false
+}
+tasks.jar {
+    enabled = true
+}
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")

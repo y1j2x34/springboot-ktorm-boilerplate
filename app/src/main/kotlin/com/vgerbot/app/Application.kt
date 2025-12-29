@@ -1,6 +1,5 @@
 package com.vgerbot.app;
 
-import com.vgerbot.auth.JwtConfiguration
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -11,7 +10,7 @@ import org.springframework.core.env.get
 import java.util.*
 
 
-@SpringBootApplication(exclude = [JwtConfiguration::class])
+@SpringBootApplication
 @ComponentScan("com.vgerbot.*")
 class Application {
    @Bean

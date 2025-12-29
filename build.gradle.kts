@@ -5,8 +5,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.2.4" apply false
     id("io.spring.dependency-management") version "1.1.4" apply false
-    kotlin("jvm") version "1.8.20" apply false
-    kotlin("plugin.spring") version "1.8.20" apply false
+    kotlin("jvm") version "1.9.23" apply false
+    kotlin("plugin.spring") version "1.9.23" apply false
 }
 
 subprojects {
@@ -22,7 +22,7 @@ subprojects {
 
         implementation("org.springframework.boot:spring-boot-starter-web")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-        runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.8.20")
+        runtimeOnly("org.jetbrains.kotlin:kotlin-reflect")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
@@ -32,14 +32,14 @@ subprojects {
         implementation("org.ktorm:ktorm-core:3.6.0")
         implementation("org.ktorm:ktorm-jackson:3.6.0")
         implementation("org.ktorm:ktorm-support-mysql:3.6.0")
-        implementation("org.mariadb.jdbc:mariadb-java-client:3.1.3")
-        implementation("javax.xml.bind:jaxb-api:2.3.0")
+        implementation("org.mariadb.jdbc:mariadb-java-client:3.4.0")
+        // JAXB no longer needed in Spring Boot 3.x, removed
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
     configure<DependencyManagementExtension> {
         imports(delegateClosureOf<ImportsHandler> {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:2.7.1")
+            mavenBom("org.springframework.boot:spring-boot-dependencies:3.2.4")
         })
     }
 }
