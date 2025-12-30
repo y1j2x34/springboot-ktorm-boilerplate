@@ -6,9 +6,6 @@ tasks.jar {
 }
 
 dependencies {
-
+    implementation(project(":core"))
 }
 
-tasks.test {
-    useJUnitPlatform()
-}

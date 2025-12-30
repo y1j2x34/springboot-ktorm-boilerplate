@@ -10,15 +10,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
-interface PermissionService {
-    fun createPermission(dto: CreatePermissionDto): Permission?
-    fun updatePermission(id: Int, dto: UpdatePermissionDto): Boolean
-    fun deletePermission(id: Int): Boolean
-    fun getPermissionById(id: Int): Permission?
-    fun getPermissionByCode(code: String): Permission?
-    fun getAllPermissions(): List<Permission>
-}
-
 @Service
 class PermissionServiceImpl : PermissionService {
     

@@ -1,3 +1,11 @@
+// Disable bootJar for library modules
+tasks.bootJar {
+    enabled = false
+}
+tasks.jar {
+    enabled = true
+}
+
 dependencies {
     implementation(project(":core"))
     implementation(project(":user:user-api"))

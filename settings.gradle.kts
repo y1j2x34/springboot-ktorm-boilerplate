@@ -5,6 +5,8 @@ include("common")
 include("jwt-auth")
 
 include("rbac")
+include("rbac:rbac-api")
+include("rbac:rbac-core")
 include("tenant")
 include("core")
 include("user")

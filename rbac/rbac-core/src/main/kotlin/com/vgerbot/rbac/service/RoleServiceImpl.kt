@@ -2,7 +2,6 @@ package com.vgerbot.rbac.service
 
 import com.vgerbot.rbac.dao.RoleDao
 import com.vgerbot.rbac.dto.CreateRoleDto
-import com.vgerbot.rbac.dto.RoleDto
 import com.vgerbot.rbac.dto.UpdateRoleDto
 import com.vgerbot.rbac.model.Role
 import org.ktorm.dsl.eq
@@ -10,15 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
-
-interface RoleService {
-    fun createRole(dto: CreateRoleDto): Role?
-    fun updateRole(id: Int, dto: UpdateRoleDto): Boolean
-    fun deleteRole(id: Int): Boolean
-    fun getRoleById(id: Int): Role?
-    fun getRoleByCode(code: String): Role?
-    fun getAllRoles(): List<Role>
-}
 
 @Service
 class RoleServiceImpl : RoleService {

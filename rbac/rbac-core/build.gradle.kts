@@ -1,3 +1,4 @@
+// Disable bootJar for library modules
 tasks.bootJar {
     enabled = false
 }
@@ -5,12 +6,10 @@ tasks.jar {
     enabled = true
 }
 
-group = "com.vgerbot"
-version = "1.0-SNAPSHOT"
-
 dependencies {
-    implementation(project(":common"))
     implementation(project(":core"))
+    implementation(project(":rbac:rbac-api"))
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     testImplementation(kotlin("test"))
 }
@@ -22,3 +21,4 @@ kotlin {
 tasks.test {
     useJUnitPlatform()
 }
+

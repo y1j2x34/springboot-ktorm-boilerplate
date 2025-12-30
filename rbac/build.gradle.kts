@@ -1,9 +1,8 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.spring")
+    kotlin("jvm") version "1.9.23"
 }
 
-// Disable bootJar for library modules
+// Disable bootJar for parent module
 tasks.bootJar {
     enabled = false
 }
@@ -11,11 +10,20 @@ tasks.jar {
     enabled = true
 }
 
+group = "com.vgerbot"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
 dependencies {
-    implementation(project(":common"))
-    implementation(project(":core"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.ktorm:ktorm-core")
-    implementation("org.ktorm:ktorm-support-mysql")
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(17)
 }

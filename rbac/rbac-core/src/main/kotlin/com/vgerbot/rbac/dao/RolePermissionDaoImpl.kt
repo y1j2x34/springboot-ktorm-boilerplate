@@ -4,15 +4,15 @@ import com.vgerbot.common.dao.AbstractBaseDao
 import com.vgerbot.rbac.model.RolePermission
 import com.vgerbot.rbac.model.RolePermissions
 import org.ktorm.dsl.*
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 
-@Component
-class RolePermissionDao : AbstractBaseDao<RolePermission, RolePermissions>(RolePermissions) {
+@Repository
+class RolePermissionDaoImpl : AbstractBaseDao<RolePermission, RolePermissions>(RolePermissions), RolePermissionDao {
     
     /**
      * 根据角色ID列表获取所有权限ID列表
      */
-    fun getPermissionIdsByRoleIds(roleIds: List<Int>): List<Int> {
+    override fun getPermissionIdsByRoleIds(roleIds: List<Int>): List<Int> {
         if (roleIds.isEmpty()) return emptyList()
         
         return database
@@ -25,7 +25,7 @@ class RolePermissionDao : AbstractBaseDao<RolePermission, RolePermissions>(RoleP
     /**
      * 根据角色ID获取所有权限ID列表
      */
-    fun getPermissionIdsByRoleId(roleId: Int): List<Int> {
+    override fun getPermissionIdsByRoleId(roleId: Int): List<Int> {
         return database
             .from(RolePermissions)
             .select(RolePermissions.permissionId)
@@ -36,7 +36,7 @@ class RolePermissionDao : AbstractBaseDao<RolePermission, RolePermissions>(RoleP
     /**
      * 检查角色是否已分配某个权限
      */
-    fun existsByRoleIdAndPermissionId(roleId: Int, permissionId: Int): Boolean {
+    override fun existsByRoleIdAndPermissionId(roleId: Int, permissionId: Int): Boolean {
         return findOne { 
             (it.roleId eq roleId) and (it.permissionId eq permissionId) 
         } != null
@@ -45,7 +45,7 @@ class RolePermissionDao : AbstractBaseDao<RolePermission, RolePermissions>(RoleP
     /**
      * 删除角色的特定权限
      */
-    fun deleteByRoleIdAndPermissionId(roleId: Int, permissionId: Int): Int {
+    override fun deleteByRoleIdAndPermissionId(roleId: Int, permissionId: Int): Int {
         return deleteIf {
             (it.roleId eq roleId) and (it.permissionId eq permissionId) 
         }
