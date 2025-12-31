@@ -245,5 +245,56 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_data` (
     UNIQUE KEY uk_dict_code_value (dict_code, data_value),
     
     CONSTRAINT fk_dict_data_type FOREIGN KEY (dict_type_id) 
-        REFERENCES sys_dict_type(id) ON DELETE CASCADE
+        REFERENCES dict_type(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='字典数据表';
+
+-- ================================================
+-- 字典模块初始化数据
+-- ================================================
+
+-- 插入示例字典类型
+INSERT INTO `dict_type` (`dict_code`, `dict_name`, `dict_category`, `value_type`, `is_tree`, `description`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+('user_status', '用户状态', 'system', 'STRING', 0, '用户账号状态定义', 1, 1, NOW(), NOW()),
+('gender', '性别', 'common', 'STRING', 0, '性别类型', 1, 2, NOW(), NOW()),
+('region', '地区', 'common', 'STRING', 1, '地区树形结构', 1, 3, NOW(), NOW()),
+('order_status', '订单状态', 'business', 'STRING', 0, '订单状态定义', 1, 4, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `dict_name` = VALUES(`dict_name`);
+
+-- 插入字典数据 - 用户状态
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+((SELECT id FROM `dict_type` WHERE dict_code = 'user_status'), 'user_status', 'active', '正常', 0, 1, 1, 1, 1, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'user_status'), 'user_status', 'inactive', '停用', 0, 1, 0, 1, 2, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'user_status'), 'user_status', 'locked', '锁定', 0, 1, 0, 1, 3, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'user_status'), 'user_status', 'deleted', '已删除', 0, 1, 0, 1, 4, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `data_label` = VALUES(`data_label`);
+
+-- 插入字典数据 - 性别
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+((SELECT id FROM `dict_type` WHERE dict_code = 'gender'), 'gender', 'male', '男', 0, 1, 0, 1, 1, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'gender'), 'gender', 'female', '女', 0, 1, 0, 1, 2, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'gender'), 'gender', 'unknown', '未知', 0, 1, 1, 1, 3, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `data_label` = VALUES(`data_label`);
+
+-- 插入字典数据 - 地区（树形结构示例）
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+-- 省级
+((SELECT id FROM `dict_type` WHERE dict_code = 'region'), 'region', '110000', '北京市', 0, 1, 0, 1, 1, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'region'), 'region', '310000', '上海市', 0, 1, 0, 1, 2, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'region'), 'region', '440000', '广东省', 0, 1, 0, 1, 3, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `data_label` = VALUES(`data_label`);
+
+-- 市级（北京下辖区）
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+((SELECT id FROM `dict_type` WHERE dict_code = 'region'), 'region', '110100', '北京市区', (SELECT id FROM `dict_data` WHERE dict_code = 'region' AND data_value = '110000' LIMIT 1), 2, 0, 1, 1, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'region'), 'region', '440100', '广州市', (SELECT id FROM `dict_data` WHERE dict_code = 'region' AND data_value = '440000' LIMIT 1), 2, 0, 1, 1, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'region'), 'region', '440300', '深圳市', (SELECT id FROM `dict_data` WHERE dict_code = 'region' AND data_value = '440000' LIMIT 1), 2, 0, 1, 2, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `data_label` = VALUES(`data_label`);
+
+-- 插入字典数据 - 订单状态
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+((SELECT id FROM `dict_type` WHERE dict_code = 'order_status'), 'order_status', 'pending', '待支付', 0, 1, 1, 1, 1, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'order_status'), 'order_status', 'paid', '已支付', 0, 1, 0, 1, 2, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'order_status'), 'order_status', 'shipped', '已发货', 0, 1, 0, 1, 3, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'order_status'), 'order_status', 'completed', '已完成', 0, 1, 0, 1, 4, NOW(), NOW()),
+((SELECT id FROM `dict_type` WHERE dict_code = 'order_status'), 'order_status', 'cancelled', '已取消', 0, 1, 0, 1, 5, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `data_label` = VALUES(`data_label`);

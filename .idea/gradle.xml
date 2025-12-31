@@ -13,10 +13,14 @@
             <option value="$PROJECT_DIR$/captcha" />
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/dict" />
+            <option value="$PROJECT_DIR$/dict/dict-api" />
+            <option value="$PROJECT_DIR$/dict/dict-core" />
             <option value="$PROJECT_DIR$/jwt-auth" />
             <option value="$PROJECT_DIR$/rbac" />
             <option value="$PROJECT_DIR$/rbac/rbac-api" />
             <option value="$PROJECT_DIR$/rbac/rbac-core" />
+            <option value="$PROJECT_DIR$/security" />
             <option value="$PROJECT_DIR$/tenant" />
             <option value="$PROJECT_DIR$/tenant/tenant-api" />
             <option value="$PROJECT_DIR$/tenant/tenant-core" />
