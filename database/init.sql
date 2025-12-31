@@ -196,3 +196,54 @@ JOIN `tenant` t ON t.code = 'tenant_demo'
 WHERE u.username IN ('john_doe', 'jane_smith');
 ;
 
+
+CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_type` (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '字典类型ID',
+    dict_code VARCHAR(100) NOT NULL UNIQUE COMMENT '字典编码（唯一标识）',
+    dict_name VARCHAR(200) NOT NULL COMMENT '字典名称',
+    dict_category VARCHAR(100) COMMENT '字典分类',
+    value_type VARCHAR(50) DEFAULT 'STRING' COMMENT '值类型：STRING-字符串, INTEGER-整数, DECIMAL-小数, DATE-日期, BOOLEAN-布尔',
+    validation_rule VARCHAR(500) COMMENT '值校验规则（使用JSON格式存储，例如：{"type": "regex", "pattern": "^[a-zA-Z0-9]+$"}）',
+    validation_message VARCHAR(500) COMMENT '校验失败提示信息',
+    is_tree TINYINT(1) DEFAULT 0 COMMENT '是否树形结构：0-否, 1-是',
+    description TEXT COMMENT '字典描述',
+    status TINYINT(1) DEFAULT 1 COMMENT '状态：0-停用, 1-启用',
+    sort_order INT DEFAULT 0 COMMENT '排序顺序',
+    created_by INT COMMENT '创建人',
+    created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_by INT COMMENT '更新人',
+    updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    remark VARCHAR(500) COMMENT '备注',
+    
+    INDEX idx_dict_code (dict_code),
+    INDEX idx_dict_category (dict_category),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='字典类型定义表';
+
+CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_data` (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '字典数据ID',
+    dict_type_id BIGINT NOT NULL COMMENT '字典类型ID（外键）',
+    dict_code VARCHAR(100) NOT NULL COMMENT '字典编码（来自字典类型表）',
+    data_value VARCHAR(500) NOT NULL COMMENT '字典值（实际存储的值）',
+    data_label VARCHAR(500) NOT NULL COMMENT '字典标签（显示文本）',
+    parent_id BIGINT DEFAULT 0 COMMENT '父级ID（树形结构使用，0表示根节点）',
+    level INT DEFAULT 1 COMMENT '层级深度（1表示根级别）',
+    is_default TINYINT(1) DEFAULT 0 COMMENT '是否默认值：0-否, 1-是',
+    status TINYINT(1) DEFAULT 1 COMMENT '状态：0-停用, 1-启用',
+    sort_order INT DEFAULT 0 COMMENT '排序顺序',
+    created_by INT COMMENT '创建人',
+    created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_by INT COMMENT '更新人',
+    updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    remark VARCHAR(500) COMMENT '备注',
+    
+    INDEX idx_dict_type_id (dict_type_id),
+    INDEX idx_dict_code (dict_code),
+    INDEX idx_parent_id (parent_id),
+    INDEX idx_status (status),
+    INDEX idx_data_value (data_value),
+    UNIQUE KEY uk_dict_code_value (dict_code, data_value),
+    
+    CONSTRAINT fk_dict_data_type FOREIGN KEY (dict_type_id) 
+        REFERENCES sys_dict_type(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='字典数据表';
