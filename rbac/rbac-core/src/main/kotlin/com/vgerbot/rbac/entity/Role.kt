@@ -1,14 +1,14 @@
 package com.vgerbot.rbac.entity
 
-import com.vgerbot.common.entity.AuditableEntity
-import com.vgerbot.common.entity.AuditableTable
+import com.vgerbot.common.entity.StatusAuditableEntity
+import com.vgerbot.common.entity.StatusAuditableTable
 import com.vgerbot.rbac.dto.RoleDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.*
 
-interface Role : AuditableEntity<Role> {
+interface Role : StatusAuditableEntity<Role> {
     companion object : Entity.Factory<Role>()
     
     val id: Int
@@ -17,7 +17,7 @@ interface Role : AuditableEntity<Role> {
     var description: String?
 }
 
-object Roles : AuditableTable<Role>("role") {
+object Roles : StatusAuditableTable<Role>("role") {
     val id = int("id").primaryKey().bindTo { it.id }
     val name = varchar("name").bindTo { it.name }
     val code = varchar("code").bindTo { it.code }

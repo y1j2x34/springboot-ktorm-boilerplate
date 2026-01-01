@@ -27,6 +27,6 @@ class Application {
 }
 
 fun main(args: Array<String>) {
-   var ctx = runApplication<Application>()
-   println(ctx.environment.get("jwt.secret"));
+   val ctx = runApplication<Application>()
+   println(ctx.environment["jwt.secret"]);
 }

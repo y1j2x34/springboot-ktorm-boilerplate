@@ -6,6 +6,7 @@ import com.vgerbot.rbac.dto.RoleDto
 import com.vgerbot.rbac.dto.UpdateRoleDto
 import com.vgerbot.rbac.entity.Role
 import com.vgerbot.rbac.entity.toDto
+import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -20,8 +21,8 @@ class RoleServiceImpl : RoleService {
     
     @Transactional
     override fun createRole(dto: CreateRoleDto): RoleDto? {
-        // 检查角色代码是否已存在（只查询未删除的）
-        val existing = roleDao.findOneActive { it.code eq dto.code }
+        // 检查角色代码是否已存在（只查询启用的）
+        val existing = roleDao.findOne { (it.code eq dto.code) and (it.status eq 1) }
         if (existing != null) {
             return null
         }
@@ -31,14 +32,14 @@ class RoleServiceImpl : RoleService {
         role.code = dto.code
         role.description = dto.description
         role.createdAt = Instant.now()
-        role.isDeleted = false
+        role.status = 1 // 默认启用
         
         return if (roleDao.add(role) == 1) role.toDto() else null
     }
     
     @Transactional
     override fun updateRole(id: Int, dto: UpdateRoleDto): Boolean {
-        val role = roleDao.findOneActive { it.id eq id } ?: return false
+        val role = roleDao.findOne { it.id eq id } ?: return false
         
         dto.name?.let { role.name = it }
         dto.code?.let { role.code = it }
@@ -50,19 +51,22 @@ class RoleServiceImpl : RoleService {
     
     @Transactional
     override fun deleteRole(id: Int): Boolean {
-        return roleDao.softDelete(id)
+        val role = roleDao.findOne { it.id eq id } ?: return false
+        role.status = 0 // 停用而不是删除
+        role.updatedAt = Instant.now()
+        return roleDao.update(role) == 1
     }
     
     override fun getRoleById(id: Int): RoleDto? {
-        return roleDao.findOneActive { it.id eq id }?.toDto()
+        return roleDao.findOne { (it.id eq id) and (it.status eq 1) }?.toDto()
     }
     
     override fun getRoleByCode(code: String): RoleDto? {
-        return roleDao.findOneActive { it.code eq code }?.toDto()
+        return roleDao.findOne { (it.code eq code) and (it.status eq 1) }?.toDto()
     }
     
     override fun getAllRoles(): List<RoleDto> {
-        return roleDao.findAllActive().map { it.toDto() }
+        return roleDao.findList { it.status eq 1 }.map { it.toDto() }
     }
 }
 

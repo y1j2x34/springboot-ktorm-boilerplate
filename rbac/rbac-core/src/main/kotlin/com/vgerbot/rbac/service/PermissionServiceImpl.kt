@@ -6,6 +6,7 @@ import com.vgerbot.rbac.dto.PermissionDto
 import com.vgerbot.rbac.dto.UpdatePermissionDto
 import com.vgerbot.rbac.entity.Permission
 import com.vgerbot.rbac.entity.toDto
+import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -20,8 +21,8 @@ class PermissionServiceImpl : PermissionService {
     
     @Transactional
     override fun createPermission(dto: CreatePermissionDto): PermissionDto? {
-        // 检查权限代码是否已存在（只查询未删除的）
-        val existing = permissionDao.findOneActive { it.code eq dto.code }
+        // 检查权限代码是否已存在（只查询启用的）
+        val existing = permissionDao.findOne { (it.code eq dto.code) and (it.status eq 1) }
         if (existing != null) {
             return null
         }
@@ -33,14 +34,14 @@ class PermissionServiceImpl : PermissionService {
         permission.action = dto.action
         permission.description = dto.description
         permission.createdAt = Instant.now()
-        permission.isDeleted = false
+        permission.status = 1 // 默认启用
         
         return if (permissionDao.add(permission) == 1) permission.toDto() else null
     }
     
     @Transactional
     override fun updatePermission(id: Int, dto: UpdatePermissionDto): Boolean {
-        val permission = permissionDao.findOneActive { it.id eq id } ?: return false
+        val permission = permissionDao.findOne { it.id eq id } ?: return false
         
         dto.name?.let { permission.name = it }
         dto.code?.let { permission.code = it }
@@ -54,19 +55,22 @@ class PermissionServiceImpl : PermissionService {
     
     @Transactional
     override fun deletePermission(id: Int): Boolean {
-        return permissionDao.softDelete(id)
+        val permission = permissionDao.findOne { it.id eq id } ?: return false
+        permission.status = 0 // 停用而不是删除
+        permission.updatedAt = Instant.now()
+        return permissionDao.update(permission) == 1
     }
     
     override fun getPermissionById(id: Int): PermissionDto? {
-        return permissionDao.findOneActive { it.id eq id }?.toDto()
+        return permissionDao.findOne { (it.id eq id) and (it.status eq 1) }?.toDto()
     }
     
     override fun getPermissionByCode(code: String): PermissionDto? {
-        return permissionDao.findOneActive { it.code eq code }?.toDto()
+        return permissionDao.findOne { (it.code eq code) and (it.status eq 1) }?.toDto()
     }
     
     override fun getAllPermissions(): List<PermissionDto> {
-        return permissionDao.findAllActive().map { it.toDto() }
+        return permissionDao.findList { it.status eq 1 }.map { it.toDto() }
     }
 }
 

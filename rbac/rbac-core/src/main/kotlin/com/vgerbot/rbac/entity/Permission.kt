@@ -1,16 +1,16 @@
 package com.vgerbot.rbac.entity
 
-import com.vgerbot.common.entity.AuditableEntity
-import com.vgerbot.common.entity.AuditableTable
+import com.vgerbot.common.entity.StatusAuditableEntity
+import com.vgerbot.common.entity.StatusAuditableTable
 import com.vgerbot.rbac.dto.PermissionDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.*
 
-interface Permission : AuditableEntity<Permission> {
+interface Permission : StatusAuditableEntity<Permission> {
     companion object : Entity.Factory<Permission>()
-    
+
     val id: Int
     var name: String
     var code: String
@@ -19,7 +19,7 @@ interface Permission : AuditableEntity<Permission> {
     var description: String?
 }
 
-object Permissions : AuditableTable<Permission>("permission") {
+object Permissions : StatusAuditableTable<Permission>("permission") {
     val id = int("id").primaryKey().bindTo { it.id }
     val name = varchar("name").bindTo { it.name }
     val code = varchar("code").bindTo { it.code }

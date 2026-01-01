@@ -1,0 +1,4 @@
+logging:
+  pattern:
+    level:
+      com.vgerbot.tenant: DEBUG

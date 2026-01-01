@@ -1,14 +1,14 @@
 package com.vgerbot.dict.entity
 
-import com.vgerbot.common.entity.AuditableEntity
-import com.vgerbot.common.entity.AuditableTable
+import com.vgerbot.common.entity.StatusAuditableEntity
+import com.vgerbot.common.entity.StatusAuditableTable
 import com.vgerbot.dict.dto.DictTypeDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.*
 
-interface DictType : AuditableEntity<DictType> {
+interface DictType : StatusAuditableEntity<DictType> {
     companion object : Entity.Factory<DictType>()
     
     val id: Long
@@ -20,12 +20,11 @@ interface DictType : AuditableEntity<DictType> {
     var validationMessage: String?
     var isTree: Boolean
     var description: String?
-    var status: Boolean
     var sortOrder: Int
     var remark: String?
 }
 
-object DictTypes : AuditableTable<DictType>("dict_type") {
+object DictTypes : StatusAuditableTable<DictType>("dict_type") {
     val id = long("id").primaryKey().bindTo { it.id }
     val dictCode = varchar("dict_code").bindTo { it.dictCode }
     val dictName = varchar("dict_name").bindTo { it.dictName }
@@ -35,7 +34,6 @@ object DictTypes : AuditableTable<DictType>("dict_type") {
     val validationMessage = varchar("validation_message").bindTo { it.validationMessage }
     val isTree = boolean("is_tree").bindTo { it.isTree }
     val description = text("description").bindTo { it.description }
-    val status = boolean("status").bindTo { it.status }
     val sortOrder = int("sort_order").bindTo { it.sortOrder }
     val remark = varchar("remark").bindTo { it.remark }
 }

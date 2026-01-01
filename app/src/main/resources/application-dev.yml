@@ -19,6 +19,6 @@ spring:
 server:
   servlet:
     context-path: /api
-  port: 8081
+  port: ${APP_PORT}
   application:
     name: spring-boot-kt
