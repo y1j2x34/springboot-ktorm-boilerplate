@@ -5,6 +5,7 @@ import com.vgerbot.user.dto.CreateUserDto
 import com.vgerbot.user.dto.UserInfoDto
 import com.vgerbot.user.dao.UserDao
 import com.vgerbot.user.entity.User
+import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationEventPublisher
@@ -31,6 +32,8 @@ class UserServiceImpl : UserService {
         user.password = encoder.encode(userDto.password);
         user.email = userDto.email;
         user.phoneNumber = userDto.phoneNumber;
+        user.isDeleted = false;
+        // createdAt 由数据库自动设置，updatedAt 在创建时不需要设置
         val insertRows = userDao.add(
             user
         )
@@ -50,14 +53,15 @@ class UserServiceImpl : UserService {
         return insertRows == 1;
     }
 
-    override fun findUser(username: String): UserInfoDto? = userDao.findOne { it.username.eq(username) }.let {
+    override fun findUser(username: String): UserInfoDto? = userDao.findOne { (it.username eq username) and (it.isDeleted eq false) }.let {
         if (it != null) UserInfoDto(
             it.id,
             it.username,
             it.password,
             it.email,
             it.phoneNumber,
-            it.createdAt
+            it.createdAt,
+            it.updatedAt
         ) else null;
     }
 

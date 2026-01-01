@@ -1,13 +1,13 @@
 package com.vgerbot.rbac.dao
 
-import com.vgerbot.common.dao.AbstractBaseDao
+import com.vgerbot.common.dao.SimpleAuditableDaoImpl
 import com.vgerbot.rbac.entity.RolePermission
 import com.vgerbot.rbac.entity.RolePermissions
 import org.ktorm.dsl.*
 import org.springframework.stereotype.Repository
 
 @Repository
-class RolePermissionDaoImpl : AbstractBaseDao<RolePermission, RolePermissions>(RolePermissions), RolePermissionDao {
+class RolePermissionDaoImpl : SimpleAuditableDaoImpl<RolePermission, RolePermissions>(RolePermissions), RolePermissionDao {
     
     /**
      * 根据角色ID列表获取所有权限ID列表
@@ -18,7 +18,7 @@ class RolePermissionDaoImpl : AbstractBaseDao<RolePermission, RolePermissions>(R
         return database
             .from(RolePermissions)
             .select(RolePermissions.permissionId)
-            .where { RolePermissions.roleId inList roleIds }
+            .where { (RolePermissions.roleId inList roleIds) and (RolePermissions.isDeleted eq false) }
             .map { it[RolePermissions.permissionId]!! }
     }
     
@@ -29,7 +29,7 @@ class RolePermissionDaoImpl : AbstractBaseDao<RolePermission, RolePermissions>(R
         return database
             .from(RolePermissions)
             .select(RolePermissions.permissionId)
-            .where { RolePermissions.roleId eq roleId }
+            .where { (RolePermissions.roleId eq roleId) and (RolePermissions.isDeleted eq false) }
             .map { it[RolePermissions.permissionId]!! }
     }
     
@@ -37,18 +37,19 @@ class RolePermissionDaoImpl : AbstractBaseDao<RolePermission, RolePermissions>(R
      * 检查角色是否已分配某个权限
      */
     override fun existsByRoleIdAndPermissionId(roleId: Int, permissionId: Int): Boolean {
-        return findOne { 
+        return findOneActive { 
             (it.roleId eq roleId) and (it.permissionId eq permissionId) 
         } != null
     }
     
     /**
-     * 删除角色的特定权限
+     * 删除角色的特定权限（逻辑删除）
      */
     override fun deleteByRoleIdAndPermissionId(roleId: Int, permissionId: Int): Int {
-        return deleteIf {
+        return softDeleteIf {
             (it.roleId eq roleId) and (it.permissionId eq permissionId) 
         }
     }
 }
+
 

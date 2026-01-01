@@ -10,7 +10,10 @@ data class PermissionDto(
     val resource: String,
     val action: String,
     val description: String? = null,
-    val createdAt: Instant
+    val createdBy: Int? = null,
+    val createdAt: Instant? = null,
+    val updatedBy: Int? = null,
+    val updatedAt: Instant? = null
 )
 
 data class CreatePermissionDto(

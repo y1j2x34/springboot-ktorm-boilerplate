@@ -4,6 +4,7 @@ import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
+import org.ktorm.schema.boolean
 import org.ktorm.schema.int
 import org.ktorm.schema.timestamp
 import org.ktorm.schema.varchar
@@ -23,6 +24,10 @@ interface User: Entity<User> {
     var password: String
 
     var createdAt: Instant
+
+    var updatedAt: Instant?
+
+    var isDeleted: Boolean
 }
 
 object Users: Table<User>("user") {
@@ -37,6 +42,10 @@ object Users: Table<User>("user") {
     var password = varchar("password").bindTo { it.password }
 
     var createdAt = timestamp("created_at").bindTo { it.createdAt }
+
+    var updatedAt = timestamp("updated_at").bindTo { it.updatedAt }
+
+    var isDeleted = boolean("is_deleted").bindTo { it.isDeleted }
 
 }
 

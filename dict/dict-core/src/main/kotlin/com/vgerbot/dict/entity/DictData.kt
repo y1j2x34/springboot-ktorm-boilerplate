@@ -1,13 +1,14 @@
 package com.vgerbot.dict.entity
 
+import com.vgerbot.common.entity.AuditableEntity
+import com.vgerbot.common.entity.AuditableTable
 import com.vgerbot.dict.dto.DictDataDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.*
-import java.time.LocalDateTime
 
-interface DictData : Entity<DictData> {
+interface DictData : AuditableEntity<DictData> {
     companion object : Entity.Factory<DictData>()
     
     val id: Long
@@ -20,14 +21,10 @@ interface DictData : Entity<DictData> {
     var isDefault: Boolean
     var status: Boolean
     var sortOrder: Int
-    var createdBy: Int?
-    var createdTime: LocalDateTime
-    var updatedBy: Int?
-    var updatedTime: LocalDateTime
     var remark: String?
 }
 
-object DictDatas : Table<DictData>("dict_data") {
+object DictDatas : AuditableTable<DictData>("dict_data") {
     val id = long("id").primaryKey().bindTo { it.id }
     val dictTypeId = long("dict_type_id").bindTo { it.dictTypeId }
     val dictCode = varchar("dict_code").bindTo { it.dictCode }
@@ -38,10 +35,6 @@ object DictDatas : Table<DictData>("dict_data") {
     val isDefault = boolean("is_default").bindTo { it.isDefault }
     val status = boolean("status").bindTo { it.status }
     val sortOrder = int("sort_order").bindTo { it.sortOrder }
-    val createdBy = int("created_by").bindTo { it.createdBy }
-    val createdTime = datetime("created_time").bindTo { it.createdTime }
-    val updatedBy = int("updated_by").bindTo { it.updatedBy }
-    val updatedTime = datetime("updated_time").bindTo { it.updatedTime }
     val remark = varchar("remark").bindTo { it.remark }
 }
 
@@ -59,9 +52,9 @@ fun DictData.toDto(): DictDataDto = DictDataDto(
     status = this.status,
     sortOrder = this.sortOrder,
     createdBy = this.createdBy,
-    createdTime = this.createdTime,
+    createdAt = this.createdAt,
     updatedBy = this.updatedBy,
-    updatedTime = this.updatedTime,
+    updatedAt = this.updatedAt,
     remark = this.remark,
     children = null
 )

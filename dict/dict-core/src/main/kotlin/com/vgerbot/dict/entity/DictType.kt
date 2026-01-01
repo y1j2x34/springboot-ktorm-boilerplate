@@ -1,13 +1,14 @@
 package com.vgerbot.dict.entity
 
+import com.vgerbot.common.entity.AuditableEntity
+import com.vgerbot.common.entity.AuditableTable
 import com.vgerbot.dict.dto.DictTypeDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.*
-import java.time.LocalDateTime
 
-interface DictType : Entity<DictType> {
+interface DictType : AuditableEntity<DictType> {
     companion object : Entity.Factory<DictType>()
     
     val id: Long
@@ -21,14 +22,10 @@ interface DictType : Entity<DictType> {
     var description: String?
     var status: Boolean
     var sortOrder: Int
-    var createdBy: Int?
-    var createdTime: LocalDateTime
-    var updatedBy: Int?
-    var updatedTime: LocalDateTime
     var remark: String?
 }
 
-object DictTypes : Table<DictType>("dict_type") {
+object DictTypes : AuditableTable<DictType>("dict_type") {
     val id = long("id").primaryKey().bindTo { it.id }
     val dictCode = varchar("dict_code").bindTo { it.dictCode }
     val dictName = varchar("dict_name").bindTo { it.dictName }
@@ -40,10 +37,6 @@ object DictTypes : Table<DictType>("dict_type") {
     val description = text("description").bindTo { it.description }
     val status = boolean("status").bindTo { it.status }
     val sortOrder = int("sort_order").bindTo { it.sortOrder }
-    val createdBy = int("created_by").bindTo { it.createdBy }
-    val createdTime = datetime("created_time").bindTo { it.createdTime }
-    val updatedBy = int("updated_by").bindTo { it.updatedBy }
-    val updatedTime = datetime("updated_time").bindTo { it.updatedTime }
     val remark = varchar("remark").bindTo { it.remark }
 }
 
@@ -62,9 +55,9 @@ fun DictType.toDto(): DictTypeDto = DictTypeDto(
     status = this.status,
     sortOrder = this.sortOrder,
     createdBy = this.createdBy,
-    createdTime = this.createdTime,
+    createdAt = this.createdAt,
     updatedBy = this.updatedBy,
-    updatedTime = this.updatedTime,
+    updatedAt = this.updatedAt,
     remark = this.remark
 )
 

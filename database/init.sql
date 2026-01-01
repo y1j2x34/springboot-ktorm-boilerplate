@@ -6,9 +6,12 @@ create table `spring-boot-kt`.`user`
     phone_number varchar(20)                               null comment '手机号',
     password     char(60)                              not null comment '密码（=BCrypt(MD5(明文), salt)）',
     created_at   timestamp default current_timestamp()     null comment '创建时间',
+    updated_at   timestamp null on update current_timestamp comment '更新时间',
+    is_deleted   tinyint(1) default 0 not null comment '是否删除：0-否, 1-是',
     constraint user_pk unique (username),
     constraint user_pk3 unique (email),
-    constraint user_pk_phone unique (phone_number)
+    constraint user_pk_phone unique (phone_number),
+    index idx_is_deleted (is_deleted)
 ) comment '用户表';
 
 -- ================================================
@@ -39,10 +42,18 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`role` (
                                       `name` VARCHAR(50) NOT NULL COMMENT '角色名称',
     `code` VARCHAR(50) NOT NULL UNIQUE COMMENT '角色代码',
     `description` VARCHAR(255) COMMENT '角色描述',
-    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP,
+    `created_by` INT NULL COMMENT '创建人ID',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_by` INT NULL COMMENT '更新人ID',
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     PRIMARY KEY (`id`),
-    INDEX `idx_code` (`code`)
+    INDEX `idx_code` (`code`),
+    INDEX `idx_created_by` (`created_by`),
+    INDEX `idx_updated_by` (`updated_by`),
+    INDEX `idx_is_deleted` (`is_deleted`),
+    CONSTRAINT `fk_role_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_role_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
 
 -- 权限表
@@ -53,10 +64,19 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`permission` (
     `resource` VARCHAR(50) NOT NULL COMMENT '资源',
     `action` VARCHAR(50) NOT NULL COMMENT '操作',
     `description` VARCHAR(255) COMMENT '权限描述',
-    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_by` INT NULL COMMENT '创建人ID',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_by` INT NULL COMMENT '更新人ID',
+    `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     PRIMARY KEY (`id`),
     INDEX `idx_code` (`code`),
-    INDEX `idx_resource_action` (`resource`, `action`)
+    INDEX `idx_resource_action` (`resource`, `action`),
+    INDEX `idx_created_by` (`created_by`),
+    INDEX `idx_updated_by` (`updated_by`),
+    INDEX `idx_is_deleted` (`is_deleted`),
+    CONSTRAINT `fk_permission_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_permission_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 
 -- 用户角色关联表
@@ -64,11 +84,13 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_role` (
                                            `id` INT NOT NULL AUTO_INCREMENT,
                                            `user_id` INT NOT NULL COMMENT '用户ID',
                                            `role_id` INT NOT NULL COMMENT '角色ID',
-                                           `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                           `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                           `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
                                            PRIMARY KEY (`id`),
     UNIQUE KEY `uk_user_role` (`user_id`, `role_id`),
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_role_id` (`role_id`),
+    INDEX `idx_is_deleted` (`is_deleted`),
     CONSTRAINT `fk_user_role_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_user_role_role` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
@@ -78,11 +100,13 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`role_permission` (
                                                  `id` INT NOT NULL AUTO_INCREMENT,
                                                  `role_id` INT NOT NULL COMMENT '角色ID',
                                                  `permission_id` INT NOT NULL COMMENT '权限ID',
-                                                 `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                                 `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                                 `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
                                                  PRIMARY KEY (`id`),
     UNIQUE KEY `uk_role_permission` (`role_id`, `permission_id`),
     INDEX `idx_role_id` (`role_id`),
     INDEX `idx_permission_id` (`permission_id`),
+    INDEX `idx_is_deleted` (`is_deleted`),
     CONSTRAINT `fk_role_permission_role` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_role_permission_permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
@@ -155,9 +179,11 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`tenant` (
     `status` INT NOT NULL DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     PRIMARY KEY (`id`),
     INDEX `idx_code` (`code`),
-    INDEX `idx_status` (`status`)
+    INDEX `idx_status` (`status`),
+    INDEX `idx_is_deleted` (`is_deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='租户表';
 
 -- 用户租户关联表
@@ -166,10 +192,12 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_tenant` (
     `user_id` INT NOT NULL COMMENT '用户ID',
     `tenant_id` INT NOT NULL COMMENT '租户ID',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_user_tenant` (`user_id`, `tenant_id`),
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_tenant_id` (`tenant_id`),
+    INDEX `idx_is_deleted` (`is_deleted`),
     CONSTRAINT `fk_user_tenant_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_user_tenant_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户租户关联表';
@@ -210,14 +238,16 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_type` (
     status TINYINT(1) DEFAULT 1 COMMENT '状态：0-停用, 1-启用',
     sort_order INT DEFAULT 0 COMMENT '排序顺序',
     created_by INT COMMENT '创建人',
-    created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_by INT COMMENT '更新人',
-    updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_deleted TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     remark VARCHAR(500) COMMENT '备注',
     
     INDEX idx_dict_code (dict_code),
     INDEX idx_dict_category (dict_category),
-    INDEX idx_status (status)
+    INDEX idx_status (status),
+    INDEX idx_is_deleted (is_deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='字典类型定义表';
 
 CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_data` (
@@ -232,9 +262,10 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_data` (
     status TINYINT(1) DEFAULT 1 COMMENT '状态：0-停用, 1-启用',
     sort_order INT DEFAULT 0 COMMENT '排序顺序',
     created_by INT COMMENT '创建人',
-    created_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_by INT COMMENT '更新人',
-    updated_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    is_deleted TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     remark VARCHAR(500) COMMENT '备注',
     
     INDEX idx_dict_type_id (dict_type_id),
@@ -242,6 +273,7 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_data` (
     INDEX idx_parent_id (parent_id),
     INDEX idx_status (status),
     INDEX idx_data_value (data_value),
+    INDEX idx_is_deleted (is_deleted),
     UNIQUE KEY uk_dict_code_value (dict_code, data_value),
     
     CONSTRAINT fk_dict_data_type FOREIGN KEY (dict_type_id) 
@@ -253,7 +285,7 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_data` (
 -- ================================================
 
 -- 插入示例字典类型
-INSERT INTO `dict_type` (`dict_code`, `dict_name`, `dict_category`, `value_type`, `is_tree`, `description`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+INSERT INTO `dict_type` (`dict_code`, `dict_name`, `dict_category`, `value_type`, `is_tree`, `description`, `status`, `sort_order`, `created_at`, `updated_at`) VALUES
 ('user_status', '用户状态', 'system', 'STRING', 0, '用户账号状态定义', 1, 1, NOW(), NOW()),
 ('gender', '性别', 'common', 'STRING', 0, '性别类型', 1, 2, NOW(), NOW()),
 ('region', '地区', 'common', 'STRING', 1, '地区树形结构', 1, 3, NOW(), NOW()),
@@ -261,7 +293,7 @@ INSERT INTO `dict_type` (`dict_code`, `dict_name`, `dict_category`, `value_type`
 ON DUPLICATE KEY UPDATE `dict_name` = VALUES(`dict_name`);
 
 -- 插入字典数据 - 用户状态
-INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_at`, `updated_at`) VALUES
 ((SELECT id FROM `dict_type` WHERE dict_code = 'user_status'), 'user_status', 'active', '正常', 0, 1, 1, 1, 1, NOW(), NOW()),
 ((SELECT id FROM `dict_type` WHERE dict_code = 'user_status'), 'user_status', 'inactive', '停用', 0, 1, 0, 1, 2, NOW(), NOW()),
 ((SELECT id FROM `dict_type` WHERE dict_code = 'user_status'), 'user_status', 'locked', '锁定', 0, 1, 0, 1, 3, NOW(), NOW()),
@@ -269,14 +301,14 @@ INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`
 ON DUPLICATE KEY UPDATE `data_label` = VALUES(`data_label`);
 
 -- 插入字典数据 - 性别
-INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_at`, `updated_at`) VALUES
 ((SELECT id FROM `dict_type` WHERE dict_code = 'gender'), 'gender', 'male', '男', 0, 1, 0, 1, 1, NOW(), NOW()),
 ((SELECT id FROM `dict_type` WHERE dict_code = 'gender'), 'gender', 'female', '女', 0, 1, 0, 1, 2, NOW(), NOW()),
 ((SELECT id FROM `dict_type` WHERE dict_code = 'gender'), 'gender', 'unknown', '未知', 0, 1, 1, 1, 3, NOW(), NOW())
 ON DUPLICATE KEY UPDATE `data_label` = VALUES(`data_label`);
 
 -- 插入字典数据 - 地区（树形结构示例）
-INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_at`, `updated_at`) VALUES
 -- 省级
 ((SELECT id FROM `dict_type` WHERE dict_code = 'region'), 'region', '110000', '北京市', 0, 1, 0, 1, 1, NOW(), NOW()),
 ((SELECT id FROM `dict_type` WHERE dict_code = 'region'), 'region', '310000', '上海市', 0, 1, 0, 1, 2, NOW(), NOW()),
@@ -291,7 +323,7 @@ INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`
 ON DUPLICATE KEY UPDATE `data_label` = VALUES(`data_label`);
 
 -- 插入字典数据 - 订单状态
-INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_time`, `updated_time`) VALUES
+INSERT INTO `dict_data` (`dict_type_id`, `dict_code`, `data_value`, `data_label`, `parent_id`, `level`, `is_default`, `status`, `sort_order`, `created_at`, `updated_at`) VALUES
 ((SELECT id FROM `dict_type` WHERE dict_code = 'order_status'), 'order_status', 'pending', '待支付', 0, 1, 1, 1, 1, NOW(), NOW()),
 ((SELECT id FROM `dict_type` WHERE dict_code = 'order_status'), 'order_status', 'paid', '已支付', 0, 1, 0, 1, 2, NOW(), NOW()),
 ((SELECT id FROM `dict_type` WHERE dict_code = 'order_status'), 'order_status', 'shipped', '已发货', 0, 1, 0, 1, 3, NOW(), NOW()),

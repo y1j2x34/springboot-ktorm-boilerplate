@@ -20,8 +20,8 @@ class RoleServiceImpl : RoleService {
     
     @Transactional
     override fun createRole(dto: CreateRoleDto): RoleDto? {
-        // 检查角色代码是否已存在
-        val existing = roleDao.findOne { it.code eq dto.code }
+        // 检查角色代码是否已存在（只查询未删除的）
+        val existing = roleDao.findOneActive { it.code eq dto.code }
         if (existing != null) {
             return null
         }
@@ -31,13 +31,14 @@ class RoleServiceImpl : RoleService {
         role.code = dto.code
         role.description = dto.description
         role.createdAt = Instant.now()
+        role.isDeleted = false
         
         return if (roleDao.add(role) == 1) role.toDto() else null
     }
     
     @Transactional
     override fun updateRole(id: Int, dto: UpdateRoleDto): Boolean {
-        val role = roleDao.findOne { it.id eq id } ?: return false
+        val role = roleDao.findOneActive { it.id eq id } ?: return false
         
         dto.name?.let { role.name = it }
         dto.code?.let { role.code = it }
@@ -49,19 +50,20 @@ class RoleServiceImpl : RoleService {
     
     @Transactional
     override fun deleteRole(id: Int): Boolean {
-        return roleDao.deleteIf { it.id eq id } == 1
+        return roleDao.softDelete(id)
     }
     
     override fun getRoleById(id: Int): RoleDto? {
-        return roleDao.findOne { it.id eq id }?.toDto()
+        return roleDao.findOneActive { it.id eq id }?.toDto()
     }
     
     override fun getRoleByCode(code: String): RoleDto? {
-        return roleDao.findOne { it.code eq code }?.toDto()
+        return roleDao.findOneActive { it.code eq code }?.toDto()
     }
     
     override fun getAllRoles(): List<RoleDto> {
-        return roleDao.findAll().map { it.toDto() }
+        return roleDao.findAllActive().map { it.toDto() }
     }
 }
+
 

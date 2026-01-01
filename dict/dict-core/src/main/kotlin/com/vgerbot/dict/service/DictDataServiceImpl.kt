@@ -6,13 +6,14 @@ import com.vgerbot.dict.dto.CreateDictDataDto
 import com.vgerbot.dict.dto.DictDataDto
 import com.vgerbot.dict.dto.UpdateDictDataDto
 import com.vgerbot.dict.entity.DictData
+import com.vgerbot.dict.entity.toDto
 import com.vgerbot.dict.validation.DictValidator
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Service
 class DictDataServiceImpl : DictDataService {
@@ -28,15 +29,15 @@ class DictDataServiceImpl : DictDataService {
     
     @Transactional
     override fun createDictData(dto: CreateDictDataDto): DictDataDto? {
-        // 验证字典类型是否存在
-        val dictType = dictTypeDao.findOne { it.id eq dto.dictTypeId } ?: return null
+        // 验证字典类型是否存在（未删除的）
+        val dictType = dictTypeDao.findOneActive { it.id eq dto.dictTypeId } ?: return null
         
         // 校验数据值
         dictValidator.validateOrThrow(dictType, dto.dataValue)
         
-        // 检查同一字典编码下值是否已存在
-        val existing = dictDataDao.findOne { 
-            (it.dictCode eq dto.dictCode) and (it.dataValue eq dto.dataValue) 
+        // 检查同一字典编码下值是否已存在（只查询未删除的）
+        val existing = dictDataDao.findOneActive { 
+            (it.dictCode eq dto.dictCode) and (it.dataValue eq dto.dataValue)
         }
         if (existing != null) {
             return null
@@ -53,15 +54,15 @@ class DictDataServiceImpl : DictDataService {
         dictData.status = dto.status
         dictData.sortOrder = dto.sortOrder
         dictData.remark = dto.remark
-        dictData.createdTime = LocalDateTime.now()
-        dictData.updatedTime = LocalDateTime.now()
+        dictData.createdAt = Instant.now()
+        dictData.isDeleted = false
         
         return if (dictDataDao.add(dictData) == 1) dictData.toDto() else null
     }
     
     @Transactional
     override fun updateDictData(id: Long, dto: UpdateDictDataDto): Boolean {
-        val dictData = dictDataDao.findOne { it.id eq id } ?: return false
+        val dictData = dictDataDao.findOneActive { it.id eq id } ?: return false
         
         // 如果更新了数据值，需要校验
         dto.dataValue?.let { newValue ->
@@ -79,47 +80,47 @@ class DictDataServiceImpl : DictDataService {
         dto.status?.let { dictData.status = it }
         dto.sortOrder?.let { dictData.sortOrder = it }
         dto.remark?.let { dictData.remark = it }
-        dictData.updatedTime = LocalDateTime.now()
+        dictData.updatedAt = Instant.now()
         
         return dictDataDao.update(dictData) == 1
     }
     
     @Transactional
     override fun deleteDictData(id: Long): Boolean {
-        return dictDataDao.deleteIf { it.id eq id } == 1
+        return dictDataDao.softDelete(id)
     }
     
     override fun getDictDataById(id: Long): DictDataDto? {
-        return dictDataDao.findOne { it.id eq id }?.toDto()
+        return dictDataDao.findOneActive { it.id eq id }?.toDto()
     }
     
     override fun getDictDataByCode(dictCode: String): List<DictDataDto> {
-        return dictDataDao.findList { it.dictCode eq dictCode }.map { it.toDto() }
+        return dictDataDao.findListActive { it.dictCode eq dictCode }.map { it.toDto() }
     }
     
     override fun getActiveDictDataByCode(dictCode: String): List<DictDataDto> {
-        return dictDataDao.findList { (it.dictCode eq dictCode) and (it.status eq true) }.map { it.toDto() }
+        return dictDataDao.findListActive { (it.dictCode eq dictCode) and (it.status eq true) }.map { it.toDto() }
     }
     
     override fun getDictDataTreeByCode(dictCode: String): List<DictDataDto> {
-        val allData = getActiveDictDataByCode(dictCode)
+        val allData = dictDataDao.findListActive { (it.dictCode eq dictCode) and (it.status eq true) }
         return buildTree(allData, 0)
     }
     
     override fun getDictDataByCodeAndParent(dictCode: String, parentId: Long): List<DictDataDto> {
-        return dictDataDao.findList { (it.dictCode eq dictCode) and (it.parentId eq parentId) }.map { it.toDto() }
+        return dictDataDao.findListActive { (it.dictCode eq dictCode) and (it.parentId eq parentId) }.map { it.toDto() }
     }
     
     override fun getDictDataByTypeId(dictTypeId: Long): List<DictDataDto> {
-        return dictDataDao.findList { it.dictTypeId eq dictTypeId }.map { it.toDto() }
+        return dictDataDao.findListActive { it.dictTypeId eq dictTypeId }.map { it.toDto() }
     }
     
     override fun getDictDataByCodeAndValue(dictCode: String, dataValue: String): DictDataDto? {
-        return dictDataDao.findOne { (it.dictCode eq dictCode) and (it.dataValue eq dataValue) }?.toDto()
+        return dictDataDao.findOneActive { (it.dictCode eq dictCode) and (it.dataValue eq dataValue) }?.toDto()
     }
     
     override fun getDefaultDictDataByCode(dictCode: String): DictDataDto? {
-        return dictDataDao.findOne { (it.dictCode eq dictCode) and (it.isDefault eq true) }?.toDto()
+        return dictDataDao.findOneActive { (it.dictCode eq dictCode) and (it.isDefault eq true) }?.toDto()
     }
     
     /**
@@ -142,13 +143,14 @@ class DictDataServiceImpl : DictDataService {
                     status = data.status,
                     sortOrder = data.sortOrder,
                     createdBy = data.createdBy,
-                    createdTime = data.createdTime,
+                    createdAt = data.createdAt,
                     updatedBy = data.updatedBy,
-                    updatedTime = data.updatedTime,
+                    updatedAt = data.updatedAt,
                     remark = data.remark,
                     children = buildTree(allData, data.id)
                 )
             }
     }
 }
+
 

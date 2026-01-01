@@ -1,6 +1,6 @@
 package com.vgerbot.dict.dto
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class DictTypeDto(
     val id: Long? = null,
@@ -15,9 +15,9 @@ data class DictTypeDto(
     val status: Boolean = true,
     val sortOrder: Int = 0,
     val createdBy: Int? = null,
-    val createdTime: LocalDateTime? = null,
+    val createdAt: Instant? = null,
     val updatedBy: Int? = null,
-    val updatedTime: LocalDateTime? = null,
+    val updatedAt: Instant? = null,
     val remark: String? = null
 )
 

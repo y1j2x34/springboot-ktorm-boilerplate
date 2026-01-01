@@ -14,5 +14,7 @@ data class UserInfoDto (
 
     val phoneNumber: String?,
 
-    val createdAt: Instant
+    val createdAt: Instant,
+    
+    val updatedAt: Instant? = null
 )
