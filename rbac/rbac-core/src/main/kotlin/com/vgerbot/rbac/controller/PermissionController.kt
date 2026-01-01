@@ -1,7 +1,6 @@
 package com.vgerbot.rbac.controller
 
 import com.vgerbot.rbac.dto.*
-import com.vgerbot.rbac.model.Permission
 import com.vgerbot.rbac.service.PermissionService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -66,7 +65,7 @@ class PermissionController {
     }
     
     @GetMapping
-    fun getAllPermissions(): ResponseEntity<List<Permission>> {
+    fun getAllPermissions(): ResponseEntity<List<PermissionDto>> {
         val permissions = permissionService.getAllPermissions()
         return ResponseEntity.ok(permissions)
     }

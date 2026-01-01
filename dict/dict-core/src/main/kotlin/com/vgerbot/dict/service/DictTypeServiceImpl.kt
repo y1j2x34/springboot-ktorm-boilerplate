@@ -3,7 +3,7 @@ package com.vgerbot.dict.service
 import com.vgerbot.dict.dao.DictTypeDao
 import com.vgerbot.dict.dto.CreateDictTypeDto
 import com.vgerbot.dict.dto.UpdateDictTypeDto
-import com.vgerbot.dict.model.DictType
+import com.vgerbot.dict.entity.DictType
 import org.ktorm.dsl.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -17,7 +17,7 @@ class DictTypeServiceImpl : DictTypeService {
     lateinit var dictTypeDao: DictTypeDao
     
     @Transactional
-    override fun createDictType(dto: CreateDictTypeDto): DictType? {
+    override fun createDictType(dto: CreateDictTypeDto): DictTypeDto? {
         // 检查字典编码是否已存在
         val existing = dictTypeDao.findOne { it.dictCode eq dto.dictCode }
         if (existing != null) {
@@ -39,7 +39,7 @@ class DictTypeServiceImpl : DictTypeService {
         dictType.createdTime = LocalDateTime.now()
         dictType.updatedTime = LocalDateTime.now()
         
-        return if (dictTypeDao.add(dictType) == 1) dictType else null
+        return if (dictTypeDao.add(dictType) == 1) dictType.toDto() else null
     }
     
     @Transactional
@@ -67,24 +67,24 @@ class DictTypeServiceImpl : DictTypeService {
         return dictTypeDao.deleteIf { it.id eq id } == 1
     }
     
-    override fun getDictTypeById(id: Long): DictType? {
-        return dictTypeDao.findOne { it.id eq id }
+    override fun getDictTypeById(id: Long): DictTypeDto? {
+        return dictTypeDao.findOne { it.id eq id }?.toDto()
     }
     
-    override fun getDictTypeByCode(dictCode: String): DictType? {
-        return dictTypeDao.findOne { it.dictCode eq dictCode }
+    override fun getDictTypeByCode(dictCode: String): DictTypeDto? {
+        return dictTypeDao.findOne { it.dictCode eq dictCode }?.toDto()
     }
     
-    override fun getAllDictTypes(): List<DictType> {
-        return dictTypeDao.findAll()
+    override fun getAllDictTypes(): List<DictTypeDto> {
+        return dictTypeDao.findAll().map { it.toDto() }
     }
     
-    override fun getDictTypesByCategory(category: String): List<DictType> {
-        return dictTypeDao.findList { it.dictCategory eq category }
+    override fun getDictTypesByCategory(category: String): List<DictTypeDto> {
+        return dictTypeDao.findList { it.dictCategory eq category }.map { it.toDto() }
     }
     
-    override fun getDictTypesByStatus(status: Boolean): List<DictType> {
-        return dictTypeDao.findList { it.status eq status }
+    override fun getDictTypesByStatus(status: Boolean): List<DictTypeDto> {
+        return dictTypeDao.findList { it.status eq status }.map { it.toDto() }
     }
 }
 

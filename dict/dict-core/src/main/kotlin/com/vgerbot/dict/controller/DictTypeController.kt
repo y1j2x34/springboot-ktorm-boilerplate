@@ -1,8 +1,8 @@
 package com.vgerbot.dict.controller
 
 import com.vgerbot.dict.dto.CreateDictTypeDto
+import com.vgerbot.dict.dto.DictTypeDto
 import com.vgerbot.dict.dto.UpdateDictTypeDto
-import com.vgerbot.dict.model.DictType
 import com.vgerbot.dict.service.DictTypeService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -68,7 +68,7 @@ class DictTypeController {
     
     @GetMapping
     fun getAllDictTypes(@RequestParam(required = false) category: String?, 
-                       @RequestParam(required = false) status: Boolean?): ResponseEntity<List<DictType>> {
+                       @RequestParam(required = false) status: Boolean?): ResponseEntity<List<DictTypeDto>> {
         val dictTypes = when {
             category != null -> dictTypeService.getDictTypesByCategory(category)
             status != null -> dictTypeService.getDictTypesByStatus(status)

@@ -1,4 +1,4 @@
-package com.vgerbot.rbac.model
+package com.vgerbot.rbac.entity
 
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity

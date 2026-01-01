@@ -3,7 +3,7 @@ package com.vgerbot.dict.validation
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.vgerbot.dict.model.DictType
+import com.vgerbot.dict.entity.DictType
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 

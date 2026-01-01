@@ -1,7 +1,9 @@
 package com.vgerbot.rbac.service
 
 import com.vgerbot.rbac.dao.*
-import com.vgerbot.rbac.model.*
+import com.vgerbot.rbac.dto.PermissionDto
+import com.vgerbot.rbac.dto.RoleDto
+import com.vgerbot.rbac.entity.*
 import org.ktorm.dsl.inList
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -42,15 +44,15 @@ class RbacServiceImpl : RbacService {
         return userRoleDao.deleteByUserIdAndRoleId(userId, roleId) > 0
     }
     
-    override fun getUserRoles(userId: Int): List<Role> {
+    override fun getUserRoles(userId: Int): List<RoleDto> {
         val roleIds = userRoleDao.getRoleIdsByUserId(userId)
         
         if (roleIds.isEmpty()) return emptyList()
         
-        return roleDao.findList { it.id inList roleIds }
+        return roleDao.findList { it.id inList roleIds }.map { it.toDto() }
     }
     
-    override fun getUserPermissions(userId: Int): List<Permission> {
+    override fun getUserPermissions(userId: Int): List<PermissionDto> {
         // 通过用户的角色查询所有权限
         val roleIds = userRoleDao.getRoleIdsByUserId(userId)
         
@@ -60,7 +62,7 @@ class RbacServiceImpl : RbacService {
         
         if (permissionIds.isEmpty()) return emptyList()
         
-        return permissionDao.findList { it.id inList permissionIds }
+        return permissionDao.findList { it.id inList permissionIds }.map { it.toDto() }
     }
     
     @Transactional
@@ -82,12 +84,12 @@ class RbacServiceImpl : RbacService {
         return rolePermissionDao.deleteByRoleIdAndPermissionId(roleId, permissionId) > 0
     }
     
-    override fun getRolePermissions(roleId: Int): List<Permission> {
+    override fun getRolePermissions(roleId: Int): List<PermissionDto> {
         val permissionIds = rolePermissionDao.getPermissionIdsByRoleId(roleId)
         
         if (permissionIds.isEmpty()) return emptyList()
         
-        return permissionDao.findList { it.id inList permissionIds }
+        return permissionDao.findList { it.id inList permissionIds }.map { it.toDto() }
     }
     
     override fun hasPermission(userId: Int, permissionCode: String): Boolean {

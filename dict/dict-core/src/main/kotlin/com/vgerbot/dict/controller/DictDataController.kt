@@ -3,7 +3,6 @@ package com.vgerbot.dict.controller
 import com.vgerbot.dict.dto.CreateDictDataDto
 import com.vgerbot.dict.dto.DictDataDto
 import com.vgerbot.dict.dto.UpdateDictDataDto
-import com.vgerbot.dict.model.DictData
 import com.vgerbot.dict.service.DictDataService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -59,7 +58,7 @@ class DictDataController {
     
     @GetMapping("/code/{code}")
     fun getDictDataByCode(@PathVariable code: String, 
-                         @RequestParam(required = false) activeOnly: Boolean?): ResponseEntity<List<DictData>> {
+                         @RequestParam(required = false) activeOnly: Boolean?): ResponseEntity<List<DictDataDto>> {
         val dictData = if (activeOnly == true) {
             dictDataService.getActiveDictDataByCode(code)
         } else {
@@ -76,13 +75,13 @@ class DictDataController {
     
     @GetMapping("/code/{code}/parent/{parentId}")
     fun getDictDataByCodeAndParent(@PathVariable code: String, 
-                                   @PathVariable parentId: Long): ResponseEntity<List<DictData>> {
+                                   @PathVariable parentId: Long): ResponseEntity<List<DictDataDto>> {
         val dictData = dictDataService.getDictDataByCodeAndParent(code, parentId)
         return ResponseEntity.ok(dictData)
     }
     
     @GetMapping("/type/{typeId}")
-    fun getDictDataByTypeId(@PathVariable typeId: Long): ResponseEntity<List<DictData>> {
+    fun getDictDataByTypeId(@PathVariable typeId: Long): ResponseEntity<List<DictDataDto>> {
         val dictData = dictDataService.getDictDataByTypeId(typeId)
         return ResponseEntity.ok(dictData)
     }

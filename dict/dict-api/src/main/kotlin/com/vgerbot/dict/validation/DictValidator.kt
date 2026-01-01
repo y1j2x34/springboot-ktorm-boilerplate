@@ -1,6 +1,6 @@
 package com.vgerbot.dict.validation
 
-import com.vgerbot.dict.model.DictType
+import com.vgerbot.dict.entity.DictType
 
 /**
  * 字典数据校验器接口
@@ -35,4 +35,5 @@ data class ValidationResult(
         fun failure(message: String) = ValidationResult(false, message)
     }
 }
+
 

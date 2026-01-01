@@ -8,7 +8,7 @@ tasks.jar {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":dict:dict-api"))
+    api(project(":dict:dict-api"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     
     // SLF4J for logging

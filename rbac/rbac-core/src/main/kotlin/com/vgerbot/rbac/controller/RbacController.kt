@@ -1,8 +1,6 @@
 package com.vgerbot.rbac.controller
 
 import com.vgerbot.rbac.dto.*
-import com.vgerbot.rbac.model.Permission
-import com.vgerbot.rbac.model.Role
 import com.vgerbot.rbac.service.RbacService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -38,13 +36,13 @@ class RbacController {
     }
     
     @GetMapping("/users/{userId}/roles")
-    fun getUserRoles(@PathVariable userId: Int): ResponseEntity<List<Role>> {
+    fun getUserRoles(@PathVariable userId: Int): ResponseEntity<List<RoleDto>> {
         val roles = rbacService.getUserRoles(userId)
         return ResponseEntity.ok(roles)
     }
     
     @GetMapping("/users/{userId}/permissions")
-    fun getUserPermissions(@PathVariable userId: Int): ResponseEntity<List<Permission>> {
+    fun getUserPermissions(@PathVariable userId: Int): ResponseEntity<List<PermissionDto>> {
         val permissions = rbacService.getUserPermissions(userId)
         return ResponseEntity.ok(permissions)
     }
@@ -71,7 +69,7 @@ class RbacController {
     }
     
     @GetMapping("/roles/{roleId}/permissions")
-    fun getRolePermissions(@PathVariable roleId: Int): ResponseEntity<List<Permission>> {
+    fun getRolePermissions(@PathVariable roleId: Int): ResponseEntity<List<PermissionDto>> {
         val permissions = rbacService.getRolePermissions(roleId)
         return ResponseEntity.ok(permissions)
     }

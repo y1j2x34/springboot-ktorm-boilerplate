@@ -1,5 +1,6 @@
-package com.vgerbot.rbac.model
+package com.vgerbot.rbac.entity
 
+import com.vgerbot.rbac.dto.PermissionDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
@@ -30,3 +31,12 @@ object Permissions : Table<Permission>("permission") {
 
 val Database.permissions get() = this.sequenceOf(Permissions)
 
+fun Permission.toDto(): PermissionDto = PermissionDto(
+    id = this.id,
+    name = this.name,
+    code = this.code,
+    resource = this.resource,
+    action = this.action,
+    description = this.description,
+    createdAt = this.createdAt,
+)

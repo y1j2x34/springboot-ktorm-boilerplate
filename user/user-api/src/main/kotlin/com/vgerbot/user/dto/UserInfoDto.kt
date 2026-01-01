@@ -5,11 +5,13 @@ import java.time.Instant
 data class UserInfoDto (
     val id: Int,
 
-    var username: String,
+    val username: String,
 
-    var email: String,
+    val password: String,
 
-    var phoneNumber: String?,
+    val email: String,
 
-    var createdAt: Instant
+    val phoneNumber: String?,
+
+    val createdAt: Instant
 )

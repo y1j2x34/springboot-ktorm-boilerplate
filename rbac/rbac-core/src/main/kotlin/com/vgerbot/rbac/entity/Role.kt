@@ -1,5 +1,6 @@
-package com.vgerbot.rbac.model
+package com.vgerbot.rbac.entity
 
+import com.vgerbot.rbac.dto.RoleDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
@@ -27,4 +28,11 @@ object Roles : Table<Role>("role") {
 }
 
 val Database.roles get() = this.sequenceOf(Roles)
+
+fun Role.toDto(): RoleDto = RoleDto(
+    id = this.id,
+    name = this.name,
+    code = this.code,
+    description = this.description
+)
 

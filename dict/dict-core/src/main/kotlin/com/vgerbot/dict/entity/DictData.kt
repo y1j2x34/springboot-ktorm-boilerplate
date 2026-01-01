@@ -1,5 +1,6 @@
-package com.vgerbot.dict.model
+package com.vgerbot.dict.entity
 
+import com.vgerbot.dict.dto.DictDataDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
@@ -45,4 +46,23 @@ object DictDatas : Table<DictData>("dict_data") {
 }
 
 val Database.dictDatas get() = this.sequenceOf(DictDatas)
+
+fun DictData.toDto(): DictDataDto = DictDataDto(
+    id = this.id,
+    dictTypeId = this.dictTypeId,
+    dictCode = this.dictCode,
+    dataValue = this.dataValue,
+    dataLabel = this.dataLabel,
+    parentId = this.parentId,
+    level = this.level,
+    isDefault = this.isDefault,
+    status = this.status,
+    sortOrder = this.sortOrder,
+    createdBy = this.createdBy,
+    createdTime = this.createdTime,
+    updatedBy = this.updatedBy,
+    updatedTime = this.updatedTime,
+    remark = this.remark,
+    children = null
+)
 

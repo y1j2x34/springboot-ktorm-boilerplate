@@ -8,6 +8,7 @@ tasks.jar {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":common"))
     implementation(project(":user:user-api"))
     implementation(project(":tenant:tenant-api"))
     implementation("org.springframework.boot:spring-boot-starter-security")

@@ -1,13 +1,13 @@
-package com.vgerbot.com.vgerbot.tenant.service
+package com.vgerbot.tenant.service
 
-import com.vgerbot.tenant.com.vgerbot.tenant.dao.TenantDao
-import com.vgerbot.tenant.com.vgerbot.tenant.dao.UserTenantDao
 import com.vgerbot.tenant.com.vgerbot.tenant.dto.TenantInfo
 import com.vgerbot.tenant.com.vgerbot.tenant.service.TenantService
+import com.vgerbot.tenant.dao.TenantDao
+import com.vgerbot.tenant.dao.UserTenantDao
+import com.vgerbot.tenant.entity.toDto
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 /**
  * 租户服务
@@ -27,7 +27,7 @@ class TenantServiceImpl: TenantService {
     override fun getTenantByCode(code: String): TenantInfo? {
         TODO("Not yet implemented")
     }
-    override fun getTenantById(id: Int): TenantInfo? = tenantDao.findById(id)?.let { TenantInfo.from(it) }
+    override fun getTenantById(id: Int): TenantInfo? = tenantDao.findById(id)?.toDto()
 
 
     override fun isUserBelongsToTenant(userId: Int, tenantId: Int): Boolean {

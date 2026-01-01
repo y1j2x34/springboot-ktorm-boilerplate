@@ -1,5 +1,6 @@
-package com.vgerbot.dict.model
+package com.vgerbot.dict.entity
 
+import com.vgerbot.dict.dto.DictTypeDto
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
@@ -47,4 +48,23 @@ object DictTypes : Table<DictType>("dict_type") {
 }
 
 val Database.dictTypes get() = this.sequenceOf(DictTypes)
+
+fun DictType.toDto(): DictTypeDto = DictTypeDto(
+    id = this.id,
+    dictCode = this.dictCode,
+    dictName = this.dictName,
+    dictCategory = this.dictCategory,
+    valueType = this.valueType,
+    validationRule = this.validationRule,
+    validationMessage = this.validationMessage,
+    isTree = this.isTree,
+    description = this.description,
+    status = this.status,
+    sortOrder = this.sortOrder,
+    createdBy = this.createdBy,
+    createdTime = this.createdTime,
+    updatedBy = this.updatedBy,
+    updatedTime = this.updatedTime,
+    remark = this.remark
+)
 

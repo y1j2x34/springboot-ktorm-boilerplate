@@ -1,7 +1,6 @@
 package com.vgerbot.rbac.controller
 
 import com.vgerbot.rbac.dto.*
-import com.vgerbot.rbac.model.Role
 import com.vgerbot.rbac.service.RoleService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -66,7 +65,7 @@ class RoleController {
     }
     
     @GetMapping
-    fun getAllRoles(): ResponseEntity<List<Role>> {
+    fun getAllRoles(): ResponseEntity<List<RoleDto>> {
         val roles = roleService.getAllRoles()
         return ResponseEntity.ok(roles)
     }

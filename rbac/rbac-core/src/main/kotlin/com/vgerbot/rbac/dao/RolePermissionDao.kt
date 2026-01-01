@@ -1,8 +1,8 @@
 package com.vgerbot.rbac.dao
 
 import com.vgerbot.common.dao.BaseDao
-import com.vgerbot.rbac.model.RolePermission
-import com.vgerbot.rbac.model.RolePermissions
+import com.vgerbot.rbac.entity.RolePermission
+import com.vgerbot.rbac.entity.RolePermissions
 
 interface RolePermissionDao : BaseDao<RolePermission, RolePermissions> {
     /**

@@ -1,4 +1,4 @@
-package com.vgerbot.tenant.com.vgerbot.tenant.model
+package com.vgerbot.tenant.entity
 
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity

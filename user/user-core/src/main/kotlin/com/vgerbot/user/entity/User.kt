@@ -1,4 +1,4 @@
-package com.vgerbot.user.model
+package com.vgerbot.user.entity
 
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
@@ -25,7 +25,7 @@ interface User: Entity<User> {
     var createdAt: Instant
 }
 
-object Users: Table<User>("com/vgerbot/user") {
+object Users: Table<User>("user") {
     val id = int("id").primaryKey().bindTo { it.id }
 
     var username = varchar("username").bindTo { it.username }
@@ -41,3 +41,4 @@ object Users: Table<User>("com/vgerbot/user") {
 }
 
 val Database.users get() = this.sequenceOf(Users)
+

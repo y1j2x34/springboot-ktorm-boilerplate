@@ -3,13 +3,12 @@ package com.vgerbot.dict.service
 import com.vgerbot.dict.dto.CreateDictTypeDto
 import com.vgerbot.dict.dto.DictTypeDto
 import com.vgerbot.dict.dto.UpdateDictTypeDto
-import com.vgerbot.dict.model.DictType
 
 interface DictTypeService {
     /**
      * 创建字典类型
      */
-    fun createDictType(dto: CreateDictTypeDto): DictType?
+    fun createDictType(dto: CreateDictTypeDto): DictTypeDto?
     
     /**
      * 更新字典类型
@@ -24,26 +23,26 @@ interface DictTypeService {
     /**
      * 根据ID获取字典类型
      */
-    fun getDictTypeById(id: Long): DictType?
+    fun getDictTypeById(id: Long): DictTypeDto?
     
     /**
      * 根据字典编码获取字典类型
      */
-    fun getDictTypeByCode(dictCode: String): DictType?
+    fun getDictTypeByCode(dictCode: String): DictTypeDto?
     
     /**
      * 获取所有字典类型
      */
-    fun getAllDictTypes(): List<DictType>
+    fun getAllDictTypes(): List<DictTypeDto>
     
     /**
      * 根据分类获取字典类型
      */
-    fun getDictTypesByCategory(category: String): List<DictType>
+    fun getDictTypesByCategory(category: String): List<DictTypeDto>
     
     /**
      * 根据状态获取字典类型
      */
-    fun getDictTypesByStatus(status: Boolean): List<DictType>
+    fun getDictTypesByStatus(status: Boolean): List<DictTypeDto>
 }
 

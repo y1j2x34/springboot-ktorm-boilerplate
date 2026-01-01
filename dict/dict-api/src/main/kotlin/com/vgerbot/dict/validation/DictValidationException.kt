@@ -10,3 +10,4 @@ class DictValidationException(
     val validationRule: String? = null
 ) : RuntimeException(message)
 
+

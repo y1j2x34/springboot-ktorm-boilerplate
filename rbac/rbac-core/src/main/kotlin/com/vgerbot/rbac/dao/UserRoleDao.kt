@@ -1,8 +1,8 @@
 package com.vgerbot.rbac.dao
 
 import com.vgerbot.common.dao.BaseDao
-import com.vgerbot.rbac.model.UserRole
-import com.vgerbot.rbac.model.UserRoles
+import com.vgerbot.rbac.entity.UserRole
+import com.vgerbot.rbac.entity.UserRoles
 
 interface UserRoleDao : BaseDao<UserRole, UserRoles> {
     /**

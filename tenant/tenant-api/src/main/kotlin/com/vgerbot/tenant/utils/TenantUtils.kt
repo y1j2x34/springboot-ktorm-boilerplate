@@ -15,12 +15,12 @@ object TenantUtils {
     /**
      * 从 Spring Security Context 获取租户信息
      */
-    fun getTenantFromSecurityContext(): TenantInfo? {
+    fun getTenantFromSecurityContext(): BasicTenantInfo? {
         val authentication = SecurityContextHolder.getContext().authentication ?: return null
         
         // 如果是 TenantAuthenticationToken，直接获取租户信息
         if (authentication is TenantAuthenticationToken) {
-            return TenantInfo(
+            return BasicTenantInfo(
                 tenantId = authentication.tenantId,
                 tenantCode = authentication.tenantCode,
                 tenantName = authentication.tenantName
@@ -30,7 +30,7 @@ object TenantUtils {
         // 如果 principal 是 TenantPrincipal，从中获取租户信息
         val principal = authentication.principal
         if (principal is TenantPrincipal) {
-            return TenantInfo(
+            return BasicTenantInfo(
                 tenantId = principal.tenantId,
                 tenantCode = principal.tenantCode,
                 tenantName = principal.tenantName
@@ -43,9 +43,9 @@ object TenantUtils {
     /**
      * 从 TenantContextHolder 获取租户信息
      */
-    fun getTenantFromContext(): TenantInfo? {
+    fun getTenantFromContext(): BasicTenantInfo? {
         val context = TenantContextHolder.getContext() ?: return null
-        return TenantInfo(
+        return BasicTenantInfo(
             tenantId = context.tenantId,
             tenantCode = context.tenantCode,
             tenantName = context.tenantName
@@ -55,7 +55,7 @@ object TenantUtils {
     /**
      * 获取当前租户信息（优先从 Security Context，其次从 ThreadLocal）
      */
-    fun getCurrentTenant(): TenantInfo? {
+    fun getCurrentTenant(): BasicTenantInfo? {
         return getTenantFromSecurityContext() ?: getTenantFromContext()
     }
     
@@ -84,7 +84,7 @@ object TenantUtils {
 /**
  * 租户信息数据类
  */
-data class TenantInfo(
+data class BasicTenantInfo(
     val tenantId: Int?,
     val tenantCode: String?,
     val tenantName: String?

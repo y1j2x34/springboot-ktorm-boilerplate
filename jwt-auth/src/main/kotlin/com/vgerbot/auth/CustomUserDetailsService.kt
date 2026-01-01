@@ -1,7 +1,6 @@
 package com.vgerbot.auth
 
-import com.vgerbot.user.dao.UserDao
-import org.ktorm.dsl.eq
+import com.vgerbot.user.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -11,11 +10,11 @@ import org.springframework.stereotype.Component
 @Component
 class CustomUserDetailsService : UserDetailsService {
     @Autowired
-    lateinit var userDao: UserDao;
+    lateinit var userService: UserService;
 
     override fun loadUserByUsername(username: String?): UserDetails? {
         return username ?.let {
-            val user = userDao.findOne { it.username eq username } ?: return null;
+            val user = userService.findUser(username) ?: return null;
 
             return object : UserDetails {
                 override fun getAuthorities(): MutableCollection<out GrantedAuthority> = mutableListOf<GrantedAuthority>()

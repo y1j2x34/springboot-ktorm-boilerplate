@@ -1,8 +1,8 @@
 package com.vgerbot.rbac.dao
 
 import com.vgerbot.common.dao.AbstractBaseDao
-import com.vgerbot.rbac.model.RolePermission
-import com.vgerbot.rbac.model.RolePermissions
+import com.vgerbot.rbac.entity.RolePermission
+import com.vgerbot.rbac.entity.RolePermissions
 import org.ktorm.dsl.*
 import org.springframework.stereotype.Repository
 

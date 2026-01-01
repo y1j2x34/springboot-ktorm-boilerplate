@@ -1,8 +1,8 @@
 package com.vgerbot.dict.dao
 
 import com.vgerbot.common.dao.AbstractBaseDao
-import com.vgerbot.dict.model.DictData
-import com.vgerbot.dict.model.DictDatas
+import com.vgerbot.dict.entity.DictData
+import com.vgerbot.dict.entity.DictDatas
 import org.springframework.stereotype.Repository
 
 @Repository

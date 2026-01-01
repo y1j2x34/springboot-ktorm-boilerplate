@@ -5,7 +5,7 @@ import com.vgerbot.dict.dao.DictTypeDao
 import com.vgerbot.dict.dto.CreateDictDataDto
 import com.vgerbot.dict.dto.DictDataDto
 import com.vgerbot.dict.dto.UpdateDictDataDto
-import com.vgerbot.dict.model.DictData
+import com.vgerbot.dict.entity.DictData
 import com.vgerbot.dict.validation.DictValidator
 import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
@@ -27,7 +27,7 @@ class DictDataServiceImpl : DictDataService {
     lateinit var dictValidator: DictValidator
     
     @Transactional
-    override fun createDictData(dto: CreateDictDataDto): DictData? {
+    override fun createDictData(dto: CreateDictDataDto): DictDataDto? {
         // 验证字典类型是否存在
         val dictType = dictTypeDao.findOne { it.id eq dto.dictTypeId } ?: return null
         
@@ -56,7 +56,7 @@ class DictDataServiceImpl : DictDataService {
         dictData.createdTime = LocalDateTime.now()
         dictData.updatedTime = LocalDateTime.now()
         
-        return if (dictDataDao.add(dictData) == 1) dictData else null
+        return if (dictDataDao.add(dictData) == 1) dictData.toDto() else null
     }
     
     @Transactional
@@ -89,16 +89,16 @@ class DictDataServiceImpl : DictDataService {
         return dictDataDao.deleteIf { it.id eq id } == 1
     }
     
-    override fun getDictDataById(id: Long): DictData? {
-        return dictDataDao.findOne { it.id eq id }
+    override fun getDictDataById(id: Long): DictDataDto? {
+        return dictDataDao.findOne { it.id eq id }?.toDto()
     }
     
-    override fun getDictDataByCode(dictCode: String): List<DictData> {
-        return dictDataDao.findList { it.dictCode eq dictCode }
+    override fun getDictDataByCode(dictCode: String): List<DictDataDto> {
+        return dictDataDao.findList { it.dictCode eq dictCode }.map { it.toDto() }
     }
     
-    override fun getActiveDictDataByCode(dictCode: String): List<DictData> {
-        return dictDataDao.findList { (it.dictCode eq dictCode) and (it.status eq true) }
+    override fun getActiveDictDataByCode(dictCode: String): List<DictDataDto> {
+        return dictDataDao.findList { (it.dictCode eq dictCode) and (it.status eq true) }.map { it.toDto() }
     }
     
     override fun getDictDataTreeByCode(dictCode: String): List<DictDataDto> {
@@ -106,20 +106,20 @@ class DictDataServiceImpl : DictDataService {
         return buildTree(allData, 0)
     }
     
-    override fun getDictDataByCodeAndParent(dictCode: String, parentId: Long): List<DictData> {
-        return dictDataDao.findList { (it.dictCode eq dictCode) and (it.parentId eq parentId) }
+    override fun getDictDataByCodeAndParent(dictCode: String, parentId: Long): List<DictDataDto> {
+        return dictDataDao.findList { (it.dictCode eq dictCode) and (it.parentId eq parentId) }.map { it.toDto() }
     }
     
-    override fun getDictDataByTypeId(dictTypeId: Long): List<DictData> {
-        return dictDataDao.findList { it.dictTypeId eq dictTypeId }
+    override fun getDictDataByTypeId(dictTypeId: Long): List<DictDataDto> {
+        return dictDataDao.findList { it.dictTypeId eq dictTypeId }.map { it.toDto() }
     }
     
-    override fun getDictDataByCodeAndValue(dictCode: String, dataValue: String): DictData? {
-        return dictDataDao.findOne { (it.dictCode eq dictCode) and (it.dataValue eq dataValue) }
+    override fun getDictDataByCodeAndValue(dictCode: String, dataValue: String): DictDataDto? {
+        return dictDataDao.findOne { (it.dictCode eq dictCode) and (it.dataValue eq dataValue) }?.toDto()
     }
     
-    override fun getDefaultDictDataByCode(dictCode: String): DictData? {
-        return dictDataDao.findOne { (it.dictCode eq dictCode) and (it.isDefault eq true) }
+    override fun getDefaultDictDataByCode(dictCode: String): DictDataDto? {
+        return dictDataDao.findOne { (it.dictCode eq dictCode) and (it.isDefault eq true) }?.toDto()
     }
     
     /**

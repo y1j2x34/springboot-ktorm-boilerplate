@@ -1,10 +1,7 @@
 package com.vgerbot.user.dao
 
-import com.vgerbot.common.dao.AbstractBaseDao
-import com.vgerbot.user.model.User
-import com.vgerbot.user.model.Users
-import org.springframework.stereotype.Repository
+import com.vgerbot.common.dao.BaseDao
+import com.vgerbot.user.entity.User
+import com.vgerbot.user.entity.Users
 
-@Repository
-class UserDaoImpl: AbstractBaseDao<User, Users>(Users), UserDao {
-}
+interface UserDao: BaseDao<User, Users>

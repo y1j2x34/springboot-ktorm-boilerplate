@@ -1,12 +1,16 @@
 package com.vgerbot.rbac.dto
 
+import java.time.Instant
+import java.time.LocalDateTime
+
 data class PermissionDto(
     val id: Int? = null,
     val name: String,
     val code: String,
     val resource: String,
     val action: String,
-    val description: String? = null
+    val description: String? = null,
+    val createdAt: Instant
 )
 
 data class CreatePermissionDto(

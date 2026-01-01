@@ -4,7 +4,7 @@ import com.vgerbot.common.event.UserCreatedEvent
 import com.vgerbot.user.dto.CreateUserDto
 import com.vgerbot.user.dto.UserInfoDto
 import com.vgerbot.user.dao.UserDao
-import com.vgerbot.user.model.User
+import com.vgerbot.user.entity.User
 import org.ktorm.dsl.eq
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationEventPublisher
@@ -54,6 +54,7 @@ class UserServiceImpl : UserService {
         if (it != null) UserInfoDto(
             it.id,
             it.username,
+            it.password,
             it.email,
             it.phoneNumber,
             it.createdAt
