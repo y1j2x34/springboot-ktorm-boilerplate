@@ -1,11 +1,13 @@
 package com.vgerbot.dict.controller
 
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.ConflictException
+import com.vgerbot.common.exception.NotFoundException
 import com.vgerbot.dict.dto.CreateDictTypeDto
 import com.vgerbot.dict.dto.DictTypeDto
 import com.vgerbot.dict.dto.UpdateDictTypeDto
 import com.vgerbot.dict.service.DictTypeService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -17,64 +19,53 @@ class DictTypeController {
     lateinit var dictTypeService: DictTypeService
     
     @PostMapping
-    fun createDictType(@RequestBody dto: CreateDictTypeDto): ResponseEntity<Any> {
+    fun createDictType(@RequestBody dto: CreateDictTypeDto): ResponseEntity<Map<String, Any>> {
         val dictType = dictTypeService.createDictType(dto)
-        return if (dictType != null) {
-            ResponseEntity.status(HttpStatus.CREATED).body(dictType)
-        } else {
-            ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to "Dictionary type code already exists"))
-        }
+            ?: throw ConflictException("字典类型代码已存在")
+        return dictType.created("字典类型创建成功")
     }
     
     @PutMapping("/{id}")
-    fun updateDictType(@PathVariable id: Long, @RequestBody dto: UpdateDictTypeDto): ResponseEntity<Any> {
+    fun updateDictType(@PathVariable id: Long, @RequestBody dto: UpdateDictTypeDto): ResponseEntity<Map<String, Any>> {
         val updated = dictTypeService.updateDictType(id, dto)
-        return if (updated) {
-            ResponseEntity.ok(mapOf("message" to "Dictionary type updated successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Dictionary type not found"))
+        if (!updated) {
+            throw NotFoundException("字典类型不存在")
         }
+        return ok("字典类型更新成功")
     }
     
     @DeleteMapping("/{id}")
-    fun deleteDictType(@PathVariable id: Long): ResponseEntity<Any> {
+    fun deleteDictType(@PathVariable id: Long): ResponseEntity<Map<String, Any>> {
         val deleted = dictTypeService.deleteDictType(id)
-        return if (deleted) {
-            ResponseEntity.ok(mapOf("message" to "Dictionary type deleted successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Dictionary type not found"))
+        if (!deleted) {
+            throw NotFoundException("字典类型不存在")
         }
+        return ok("字典类型删除成功")
     }
     
     @GetMapping("/{id}")
-    fun getDictTypeById(@PathVariable id: Long): ResponseEntity<Any> {
+    fun getDictTypeById(@PathVariable id: Long): ResponseEntity<Map<String, Any>> {
         val dictType = dictTypeService.getDictTypeById(id)
-        return if (dictType != null) {
-            ResponseEntity.ok(dictType)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Dictionary type not found"))
-        }
+            ?: throw NotFoundException("字典类型不存在")
+        return dictType.ok()
     }
     
     @GetMapping("/code/{code}")
-    fun getDictTypeByCode(@PathVariable code: String): ResponseEntity<Any> {
+    fun getDictTypeByCode(@PathVariable code: String): ResponseEntity<Map<String, Any>> {
         val dictType = dictTypeService.getDictTypeByCode(code)
-        return if (dictType != null) {
-            ResponseEntity.ok(dictType)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Dictionary type not found"))
-        }
+            ?: throw NotFoundException("字典类型不存在")
+        return dictType.ok()
     }
     
     @GetMapping
     fun getAllDictTypes(@RequestParam(required = false) category: String?, 
-                       @RequestParam(required = false) status: Boolean?): ResponseEntity<List<DictTypeDto>> {
+                       @RequestParam(required = false) status: Boolean?): ResponseEntity<Map<String, Any>> {
         val dictTypes = when {
             category != null -> dictTypeService.getDictTypesByCategory(category)
             status != null -> dictTypeService.getDictTypesByStatus(status)
             else -> dictTypeService.getAllDictTypes()
         }
-        return ResponseEntity.ok(dictTypes)
+        return dictTypes.ok()
     }
 }
 

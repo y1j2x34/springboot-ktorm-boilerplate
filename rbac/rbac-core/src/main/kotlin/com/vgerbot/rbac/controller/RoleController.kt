@@ -1,9 +1,11 @@
 package com.vgerbot.rbac.controller
 
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.ConflictException
+import com.vgerbot.common.exception.NotFoundException
 import com.vgerbot.rbac.dto.*
 import com.vgerbot.rbac.service.RoleService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -15,59 +17,48 @@ class RoleController {
     lateinit var roleService: RoleService
     
     @PostMapping
-    fun createRole(@RequestBody dto: CreateRoleDto): ResponseEntity<Any> {
+    fun createRole(@RequestBody dto: CreateRoleDto): ResponseEntity<Map<String, Any>> {
         val role = roleService.createRole(dto)
-        return if (role != null) {
-            ResponseEntity.status(HttpStatus.CREATED).body(role)
-        } else {
-            ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to "Role code already exists"))
-        }
+            ?: throw ConflictException("角色代码已存在")
+        return role.created("角色创建成功")
     }
     
     @PutMapping("/{id}")
-    fun updateRole(@PathVariable id: Int, @RequestBody dto: UpdateRoleDto): ResponseEntity<Any> {
+    fun updateRole(@PathVariable id: Int, @RequestBody dto: UpdateRoleDto): ResponseEntity<Map<String, Any>> {
         val updated = roleService.updateRole(id, dto)
-        return if (updated) {
-            ResponseEntity.ok(mapOf("message" to "Role updated successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Role not found"))
+        if (!updated) {
+            throw NotFoundException("角色不存在")
         }
+        return ok("角色更新成功")
     }
     
     @DeleteMapping("/{id}")
-    fun deleteRole(@PathVariable id: Int): ResponseEntity<Any> {
+    fun deleteRole(@PathVariable id: Int): ResponseEntity<Map<String, Any>> {
         val deleted = roleService.deleteRole(id)
-        return if (deleted) {
-            ResponseEntity.ok(mapOf("message" to "Role deleted successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Role not found"))
+        if (!deleted) {
+            throw NotFoundException("角色不存在")
         }
+        return ok("角色删除成功")
     }
     
     @GetMapping("/{id}")
-    fun getRoleById(@PathVariable id: Int): ResponseEntity<Any> {
+    fun getRoleById(@PathVariable id: Int): ResponseEntity<Map<String, Any>> {
         val role = roleService.getRoleById(id)
-        return if (role != null) {
-            ResponseEntity.ok(role)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Role not found"))
-        }
+            ?: throw NotFoundException("角色不存在")
+        return role.ok()
     }
     
     @GetMapping("/code/{code}")
-    fun getRoleByCode(@PathVariable code: String): ResponseEntity<Any> {
+    fun getRoleByCode(@PathVariable code: String): ResponseEntity<Map<String, Any>> {
         val role = roleService.getRoleByCode(code)
-        return if (role != null) {
-            ResponseEntity.ok(role)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Role not found"))
-        }
+            ?: throw NotFoundException("角色不存在")
+        return role.ok()
     }
     
     @GetMapping
-    fun getAllRoles(): ResponseEntity<List<RoleDto>> {
+    fun getAllRoles(): ResponseEntity<Map<String, Any>> {
         val roles = roleService.getAllRoles()
-        return ResponseEntity.ok(roles)
+        return roles.ok()
     }
 }
 
