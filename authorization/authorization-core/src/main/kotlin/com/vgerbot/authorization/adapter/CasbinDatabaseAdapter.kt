@@ -1,11 +1,9 @@
 package com.vgerbot.authorization.adapter
 
+import com.vgerbot.authorization.dao.CasbinPolicyDao
 import org.casbin.jcasbin.model.Model
 import org.casbin.jcasbin.persist.Adapter
-import org.ktorm.database.Database
 import org.slf4j.LoggerFactory
-import java.sql.Connection
-import javax.sql.DataSource
 
 /**
  * Casbin 数据库适配器
@@ -20,10 +18,13 @@ import javax.sql.DataSource
  * - user_permission: 用户权限关联表（ACL 支持）
  * - tenant: 租户表
  * - user_tenant: 用户租户关联表
+ * 
+ * @param casbinPolicyDao 策略数据访问对象
+ * @param useDomains 是否使用域模式（多租户），决定策略参数数量
  */
 class CasbinDatabaseAdapter(
-    private val database: Database,
-    private val dataSource: DataSource
+    private val casbinPolicyDao: CasbinPolicyDao,
+    private val useDomains: Boolean = false
 ) : Adapter {
     
     private val logger = LoggerFactory.getLogger(CasbinDatabaseAdapter::class.java)
@@ -40,19 +41,17 @@ class CasbinDatabaseAdapter(
         
         logger.info("Loading policies from database...")
         
-        dataSource.connection.use { conn ->
-            // 加载策略规则 (p)：角色-权限映射 (RBAC)
-            loadPoliciesFromRolePermission(conn, model)
-            
-            // 加载 ACL 策略规则 (p)：用户-权限直接映射
-            loadPoliciesFromUserPermission(conn, model)
-            
-            // 加载分组规则 (g)：用户-角色映射
-            loadGroupingFromUserRole(conn, model)
-            
-            // 加载多租户分组规则（如果启用）
-            loadGroupingFromUserTenant(conn, model)
-        }
+        // 加载策略规则 (p)：角色-权限映射 (RBAC)
+        loadPoliciesFromRolePermission(model)
+        
+        // 加载 ACL 策略规则 (p)：用户-权限直接映射
+        loadPoliciesFromUserPermission(model)
+        
+        // 加载分组规则 (g)：用户-角色映射
+        loadGroupingFromUserRole(model)
+        
+        // 加载多租户分组规则（如果启用）
+        loadGroupingFromUserTenant(model)
         
         logger.info("Policies loaded successfully")
     }
@@ -71,110 +70,79 @@ class CasbinDatabaseAdapter(
     
     /**
      * 从 role_permission 表加载策略（RBAC 模式）
-     * 格式：p, role_code, resource, action [, domain]
+     * 格式：
+     * - 域模式: p, role_code, domain, resource, action (4个参数)
+     * - 非域模式: p, role_code, resource, action (3个参数)
      */
-    private fun loadPoliciesFromRolePermission(conn: Connection, model: Model) {
-        val sql = """
-            SELECT r.code as role_code, p.resource, p.action, t.id as tenant_id
-            FROM role_permission rp
-            INNER JOIN role r ON rp.role_id = r.id AND r.status = 1
-            INNER JOIN permission p ON rp.permission_id = p.id AND p.status = 1
-            LEFT JOIN user_role ur ON ur.role_id = r.id AND ur.is_deleted = 0
-            LEFT JOIN user_tenant ut ON ut.user_id = ur.user_id AND ut.is_deleted = 0
-            LEFT JOIN tenant t ON t.id = ut.tenant_id AND t.is_deleted = 0
-            WHERE rp.is_deleted = 0
-            GROUP BY r.code, p.resource, p.action, t.id
-        """.trimIndent()
+    private fun loadPoliciesFromRolePermission(model: Model) {
+        val policies = casbinPolicyDao.loadRolePermissionPolicies()
         
-        conn.createStatement().use { stmt ->
-            stmt.executeQuery(sql).use { rs ->
-                while (rs.next()) {
-                    val roleCode = rs.getString("role_code")
-                    val resource = rs.getString("resource")
-                    val action = rs.getString("action")
-                    val tenantId = rs.getString("tenant_id")
-                    
-                    // 如果有租户信息，使用带域的策略
-                    if (tenantId != null) {
-                        // p, role, domain, resource, action
-                        model.addPolicy("p", "p", listOf(roleCode, tenantId, resource, action))
-                    } else {
-                        // p, role, resource, action
-                        model.addPolicy("p", "p", listOf(roleCode, resource, action))
-                    }
-                }
+        policies.forEach { policy ->
+            if (useDomains) {
+                // 域模式：始终使用4个参数，无租户时使用通配符 "*"
+                val domain = policy.tenantId?.toString() ?: "*"
+                model.addPolicy("p", "p", listOf(policy.roleCode, domain, policy.resource, policy.action))
+            } else {
+                // 非域模式：始终使用3个参数，忽略租户信息
+                model.addPolicy("p", "p", listOf(policy.roleCode, policy.resource, policy.action))
             }
         }
     }
     
     /**
      * 从 user_permission 表加载策略（ACL 模式）
-     * 格式：p, user_id, resource, action [, domain]
+     * 格式：
+     * - 域模式: p, user_id, domain, resource, action (4个参数)
+     * - 非域模式: p, user_id, resource, action (3个参数)
      * 
      * ACL 模式下，用户直接拥有权限，不需要通过角色
      */
-    private fun loadPoliciesFromUserPermission(conn: Connection, model: Model) {
-        val sql = """
-            SELECT up.user_id, p.resource, p.action, up.tenant_id
-            FROM user_permission up
-            INNER JOIN permission p ON up.permission_id = p.id AND p.status = 1
-            WHERE up.is_deleted = 0
-        """.trimIndent()
+    private fun loadPoliciesFromUserPermission(model: Model) {
+        val policies = casbinPolicyDao.loadUserPermissionPolicies()
         
-        conn.createStatement().use { stmt ->
-            stmt.executeQuery(sql).use { rs ->
-                while (rs.next()) {
-                    val userId = rs.getInt("user_id").toString()
-                    val resource = rs.getString("resource")
-                    val action = rs.getString("action")
-                    val tenantId = rs.getString("tenant_id")
-                    
-                    // 如果有租户信息，使用带域的策略
-                    if (tenantId != null) {
-                        // p, user, domain, resource, action
-                        model.addPolicy("p", "p", listOf(userId, tenantId, resource, action))
-                    } else {
-                        // p, user, resource, action
-                        model.addPolicy("p", "p", listOf(userId, resource, action))
-                    }
-                    
-                    logger.debug("Loaded ACL policy: user={}, resource={}, action={}, tenant={}", 
-                        userId, resource, action, tenantId)
-                }
+        policies.forEach { policy ->
+            val userId = policy.userId.toString()
+            
+            if (useDomains) {
+                // 域模式：始终使用4个参数，无租户时使用通配符 "*"
+                val domain = policy.tenantId?.toString() ?: "*"
+                model.addPolicy("p", "p", listOf(userId, domain, policy.resource, policy.action))
+                logger.debug("Loaded ACL policy (domain mode): user={}, domain={}, resource={}, action={}", 
+                    userId, domain, policy.resource, policy.action)
+            } else {
+                // 非域模式：始终使用3个参数，忽略租户信息
+                model.addPolicy("p", "p", listOf(userId, policy.resource, policy.action))
+                logger.debug("Loaded ACL policy: user={}, resource={}, action={}", 
+                    userId, policy.resource, policy.action)
             }
         }
     }
     
     /**
      * 从 user_role 表加载分组规则
-     * 格式：g, user_id, role_code [, domain]
+     * 格式：
+     * - 域模式: g, user_id, role_code, domain (3个参数)
+     * - 非域模式: g, user_id, role_code (2个参数)
+     * 
+     * 注意：参数数量必须与模型定义一致，否则会报错：
+     * "grouping policy elements do not meet role definition"
      */
-    private fun loadGroupingFromUserRole(conn: Connection, model: Model) {
-        val sql = """
-            SELECT ur.user_id, r.code as role_code, t.id as tenant_id
-            FROM user_role ur
-            INNER JOIN role r ON ur.role_id = r.id AND r.status = 1
-            LEFT JOIN user_tenant ut ON ut.user_id = ur.user_id AND ut.is_deleted = 0
-            LEFT JOIN tenant t ON t.id = ut.tenant_id AND t.is_deleted = 0
-            WHERE ur.is_deleted = 0
-        """.trimIndent()
+    private fun loadGroupingFromUserRole(model: Model) {
+        val groupings = casbinPolicyDao.loadUserRoleGroupings()
         
-        conn.createStatement().use { stmt ->
-            stmt.executeQuery(sql).use { rs ->
-                while (rs.next()) {
-                    val userId = rs.getInt("user_id").toString()
-                    val roleCode = rs.getString("role_code")
-                    val tenantId = rs.getString("tenant_id")
-                    
-                    // 如果有租户信息，使用带域的分组
-                    if (tenantId != null) {
-                        // g, user, role, domain
-                        model.addPolicy("g", "g", listOf(userId, roleCode, tenantId))
-                    } else {
-                        // g, user, role
-                        model.addPolicy("g", "g", listOf(userId, roleCode))
-                    }
-                }
+        groupings.forEach { grouping ->
+            val userId = grouping.userId.toString()
+            
+            if (useDomains) {
+                // 域模式：始终使用3个参数，无租户时使用通配符 "*"
+                val domain = grouping.tenantId?.toString() ?: "*"
+                model.addPolicy("g", "g", listOf(userId, grouping.roleCode, domain))
+                logger.debug("Loaded grouping (domain mode): user={}, role={}, domain={}", 
+                    userId, grouping.roleCode, domain)
+            } else {
+                // 非域模式：始终使用2个参数，忽略租户信息
+                model.addPolicy("g", "g", listOf(userId, grouping.roleCode))
+                logger.debug("Loaded grouping: user={}, role={}", userId, grouping.roleCode)
             }
         }
     }
@@ -183,26 +151,16 @@ class CasbinDatabaseAdapter(
      * 从 user_tenant 表加载租户分组规则
      * 这个方法用于支持多租户场景
      */
-    private fun loadGroupingFromUserTenant(conn: Connection, model: Model) {
-        val sql = """
-            SELECT ut.user_id, t.id as tenant_id, t.code as tenant_code
-            FROM user_tenant ut
-            INNER JOIN tenant t ON ut.tenant_id = t.id AND t.is_deleted = 0
-            WHERE ut.is_deleted = 0
-        """.trimIndent()
+    private fun loadGroupingFromUserTenant(@Suppress("UNUSED_PARAMETER") model: Model) {
+        val groupings = casbinPolicyDao.loadUserTenantGroupings()
         
-        conn.createStatement().use { stmt ->
-            stmt.executeQuery(sql).use { rs ->
-                while (rs.next()) {
-                    val userId = rs.getInt("user_id").toString()
-                    val tenantId = rs.getInt("tenant_id").toString()
-                    val tenantCode = rs.getString("tenant_code")
-                    
-                    // 添加用户-租户关系（用于域隔离）
-                    // 这个信息可以在权限检查时使用
-                    logger.debug("User {} belongs to tenant {} ({})", userId, tenantId, tenantCode)
-                }
-            }
+        groupings.forEach { grouping ->
+            val userId = grouping.userId.toString()
+            val tenantId = grouping.tenantId.toString()
+            
+            // 添加用户-租户关系（用于域隔离）
+            // 这个信息可以在权限检查时使用
+            logger.debug("User {} belongs to tenant {} ({})", userId, tenantId, grouping.tenantCode)
         }
     }
     

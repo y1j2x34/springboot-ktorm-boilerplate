@@ -6,20 +6,18 @@ import com.vgerbot.authorization.api.Permission
 import com.vgerbot.authorization.api.PermissionRequest
 import com.vgerbot.authorization.api.PolicyType
 import com.vgerbot.authorization.config.AuthorizationProperties
+import com.vgerbot.authorization.dao.CasbinPolicyDao
 import org.casbin.jcasbin.main.Enforcer
 import org.casbin.jcasbin.model.Model
-import org.ktorm.database.Database
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import javax.sql.DataSource
 
 /**
  * Casbin 授权服务实现
  */
 @Service
 class CasbinAuthorizationService(
-    private val database: Database,
-    private val dataSource: DataSource,
+    private val casbinPolicyDao: CasbinPolicyDao,
     private val properties: AuthorizationProperties
 ) : AuthorizationService {
     
@@ -32,9 +30,12 @@ class CasbinAuthorizationService(
         // 加载模型配置
         val model = loadModel()
         
+        // 判断是否使用域模式（多租户）
+        val useDomains = properties.policyType == PolicyType.RBAC_WITH_DOMAINS
+        
         // 创建适配器
         val adapter = if (properties.useDatabaseAdapter) {
-            CasbinDatabaseAdapter(database, dataSource)
+            CasbinDatabaseAdapter(casbinPolicyDao, useDomains)
         } else {
             null
         }
@@ -49,7 +50,7 @@ class CasbinAuthorizationService(
         // 设置自动保存
         enforcer.enableAutoSave(properties.autoSave)
         
-        logger.info("Casbin Authorization Service initialized successfully")
+        logger.info("Casbin Authorization Service initialized successfully (useDomains={})", useDomains)
     }
     
     /**
