@@ -38,28 +38,28 @@ ON DUPLICATE KEY UPDATE `username` = VALUES(`username`);
 
 -- 角色表
 CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`role` (
-                                      `id` INT NOT NULL AUTO_INCREMENT,
-                                      `name` VARCHAR(50) NOT NULL COMMENT '角色名称',
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL COMMENT '角色名称',
     `code` VARCHAR(50) NOT NULL UNIQUE COMMENT '角色代码',
     `description` VARCHAR(255) COMMENT '角色描述',
     `created_by` INT NULL COMMENT '创建人ID',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_by` INT NULL COMMENT '更新人ID',
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
+    `status` INT NOT NULL DEFAULT 1 COMMENT '状态：1-启用, 0-禁用',
     PRIMARY KEY (`id`),
     INDEX `idx_code` (`code`),
     INDEX `idx_created_by` (`created_by`),
     INDEX `idx_updated_by` (`updated_by`),
-    INDEX `idx_is_deleted` (`is_deleted`),
+    INDEX `idx_status` (`status`),
     CONSTRAINT `fk_role_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_role_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色表';
 
 -- 权限表
 CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`permission` (
-                                            `id` INT NOT NULL AUTO_INCREMENT,
-                                            `name` VARCHAR(50) NOT NULL COMMENT '权限名称',
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL COMMENT '权限名称',
     `code` VARCHAR(100) NOT NULL UNIQUE COMMENT '权限代码',
     `resource` VARCHAR(50) NOT NULL COMMENT '资源',
     `action` VARCHAR(50) NOT NULL COMMENT '操作',
@@ -68,48 +68,48 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`permission` (
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_by` INT NULL COMMENT '更新人ID',
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
+    `status` INT NOT NULL DEFAULT 1 COMMENT '状态：1-启用, 0-禁用',
     PRIMARY KEY (`id`),
     INDEX `idx_code` (`code`),
     INDEX `idx_resource_action` (`resource`, `action`),
     INDEX `idx_created_by` (`created_by`),
     INDEX `idx_updated_by` (`updated_by`),
-    INDEX `idx_is_deleted` (`is_deleted`),
+    INDEX `idx_status` (`status`),
     CONSTRAINT `fk_permission_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL,
     CONSTRAINT `fk_permission_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 
 -- 用户角色关联表
 CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_role` (
-                                           `id` INT NOT NULL AUTO_INCREMENT,
-                                           `user_id` INT NOT NULL COMMENT '用户ID',
-                                           `role_id` INT NOT NULL COMMENT '角色ID',
-                                           `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                           `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
-                                           PRIMARY KEY (`id`),
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `user_id` INT NOT NULL COMMENT '用户ID',
+    `role_id` INT NOT NULL COMMENT '角色ID',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
+    PRIMARY KEY (`id`),
     UNIQUE KEY `uk_user_role` (`user_id`, `role_id`),
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_role_id` (`role_id`),
     INDEX `idx_is_deleted` (`is_deleted`),
     CONSTRAINT `fk_user_role_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_user_role_role` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户角色关联表';
 
 -- 角色权限关联表
 CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`role_permission` (
-                                                 `id` INT NOT NULL AUTO_INCREMENT,
-                                                 `role_id` INT NOT NULL COMMENT '角色ID',
-                                                 `permission_id` INT NOT NULL COMMENT '权限ID',
-                                                 `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                                 `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
-                                                 PRIMARY KEY (`id`),
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `role_id` INT NOT NULL COMMENT '角色ID',
+    `permission_id` INT NOT NULL COMMENT '权限ID',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
+    PRIMARY KEY (`id`),
     UNIQUE KEY `uk_role_permission` (`role_id`, `permission_id`),
     INDEX `idx_role_id` (`role_id`),
     INDEX `idx_permission_id` (`permission_id`),
     INDEX `idx_is_deleted` (`is_deleted`),
     CONSTRAINT `fk_role_permission_role` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_role_permission_permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色权限关联表';
 
 -- ================================================
 -- 初始化数据
@@ -177,13 +177,19 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`tenant` (
     `description` VARCHAR(500) NULL COMMENT '租户描述',
     `email_domains` VARCHAR(500) NULL COMMENT '邮箱域名（支持匹配语法，例如：baidu.{com,cn} 表示支持 baidu.com, baidu.cn，多个用逗号分隔）',
     `status` INT NOT NULL DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
+    `created_by` INT NULL COMMENT '创建人ID',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_by` INT NULL COMMENT '更新人ID',
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     PRIMARY KEY (`id`),
     INDEX `idx_code` (`code`),
     INDEX `idx_status` (`status`),
-    INDEX `idx_is_deleted` (`is_deleted`)
+    INDEX `idx_is_deleted` (`is_deleted`),
+    INDEX `idx_created_by` (`created_by`),
+    INDEX `idx_updated_by` (`updated_by`),
+    CONSTRAINT `fk_tenant_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_tenant_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='租户表';
 
 -- 用户租户关联表
@@ -201,6 +207,25 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_tenant` (
     CONSTRAINT `fk_user_tenant_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_user_tenant_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户租户关联表';
+
+-- 用户权限关联表（ACL 模式，需要在 tenant 表之后创建）
+CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_permission` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `user_id` INT NOT NULL COMMENT '用户ID',
+    `permission_id` INT NOT NULL COMMENT '权限ID',
+    `tenant_id` INT NULL COMMENT '租户ID（可选，支持多租户 ACL）',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_user_permission_tenant` (`user_id`, `permission_id`, `tenant_id`),
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_permission_id` (`permission_id`),
+    INDEX `idx_tenant_id` (`tenant_id`),
+    INDEX `idx_is_deleted` (`is_deleted`),
+    CONSTRAINT `fk_user_permission_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_user_permission_permission` FOREIGN KEY (`permission_id`) REFERENCES `permission` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_user_permission_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户权限关联表（ACL 模式）';
 
 -- ================================================
 -- Tenant 模块初始化数据

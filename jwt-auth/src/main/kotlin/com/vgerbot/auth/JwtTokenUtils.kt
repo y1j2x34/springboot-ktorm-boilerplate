@@ -84,3 +84,8 @@ class JwtTokenUtils : Serializable {
         const val JWT_TOKEN_VALIDITY = (5 * 60 * 60).toLong()
     }
 }
+
+fun main() {
+    val base64 = java.util.Base64.getEncoder().encode(Jwts.SIG.HS256.key().build().encoded).let { it -> String(it)};
+    println(base64)
+}

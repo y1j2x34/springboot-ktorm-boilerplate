@@ -20,6 +20,9 @@ dependencies {
     // Common module
     implementation(project(":common"))
     
+    // Tenant API module (only for DTOs/interfaces, not entities)
+    implementation(project(":tenant:tenant-api"))
+    
     // jCasbin - 使用最新稳定版本
     implementation("org.casbin:jcasbin:1.78.0")
     
