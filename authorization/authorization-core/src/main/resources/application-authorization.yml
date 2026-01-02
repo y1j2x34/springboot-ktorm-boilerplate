@@ -1,0 +1,38 @@
+# Authorization 模块配置示例
+
+# 授权模块配置
+authorization:
+  # 是否启用授权模块
+  enabled: true
+  
+  # 策略类型: RBAC, ACL, ABAC, RBAC_WITH_DOMAINS
+  # RBAC: 基于角色的访问控制
+  # ACL: 访问控制列表
+  # ABAC: 基于属性的访问控制
+  # RBAC_WITH_DOMAINS: 多租户RBAC（推荐用于多租户系统）
+  policy-type: RBAC_WITH_DOMAINS
+  
+  # 自定义模型配置文件路径（可选）
+  # 如果不指定，将使用内置的模型配置
+  # custom-model-path: classpath:custom_model.conf
+  
+  # 是否使用数据库适配器
+  # true: 从数据库加载策略（生产环境推荐）
+  # false: 从文件加载策略（仅用于测试）
+  use-database-adapter: true
+  
+  # 是否自动保存策略到数据库
+  auto-save: true
+  
+  # 是否启用角色继承
+  enable-role-hierarchy: true
+  
+  # 缓存配置
+  cache:
+    # 是否启用缓存
+    enabled: true
+    # 缓存过期时间（秒）
+    expire-after-write: 3600
+    # 最大缓存条目数
+    maximum-size: 10000
+

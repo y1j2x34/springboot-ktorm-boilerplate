@@ -2,7 +2,7 @@ dependencies {
     implementation(project(":captcha"))
     implementation(project(":common"))
     implementation(project(":jwt-auth"))
-    implementation(project(":rbac:rbac-core"))
+    implementation(project(":authorization:authorization-core"))
     implementation(project(":tenant:tenant-core"))
     implementation(project(":user:user-core"))
 

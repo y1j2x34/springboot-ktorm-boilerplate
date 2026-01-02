@@ -3,8 +3,8 @@ package com.vgerbot.tenant.entity
 import com.vgerbot.common.entity.AuditableEntity
 import com.vgerbot.common.entity.AuditableTable
 import com.vgerbot.common.utils.EmailDomainMatcher
-import com.vgerbot.tenant.com.vgerbot.tenant.dto.TenantInfo
-import com.vgerbot.tenant.com.vgerbot.tenant.dto.TenantStatus
+import com.vgerbot.tenant.dto.TenantDto
+import com.vgerbot.tenant.dto.TenantStatus
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
@@ -38,11 +38,13 @@ object Tenants : AuditableTable<Tenant>("tenant") {
 
 val Database.tenants get() = this.sequenceOf(Tenants)
 
-fun Tenant.toDto() = TenantInfo(
-    this.id,
-    this.code,
-    this.name,
-    this.description ?: "",
-    EmailDomainMatcher.expandPattern(this.emailDomains ?: "*"),
-    TenantStatus.from(this.status)
+fun Tenant.toDto() = TenantDto(
+    id = this.id,
+    code = this.code,
+    name = this.name,
+    description = this.description,
+    emailDomains = EmailDomainMatcher.expandPattern(this.emailDomains ?: "*"),
+    status = TenantStatus.from(this.status),
+    createdAt = this.createdAt,
+    updatedAt = this.updatedAt
 )
