@@ -10,6 +10,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("me.paulschwarz:springboot3-dotenv:5.0.1")
     
+    // Swagger/OpenAPI documentation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+    
     runtimeOnly("com.github.anji-plus:captcha")
     implementation("io.projectreactor:reactor-core")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

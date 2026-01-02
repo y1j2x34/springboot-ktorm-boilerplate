@@ -22,3 +22,11 @@ server:
   port: ${APP_PORT}
   application:
     name: spring-boot-kt
+
+# SpringDoc OpenAPI 配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true

@@ -74,6 +74,8 @@ class AppSecurityConfiguration {
                 authorize.requestMatchers(HttpMethod.POST, "/public/**").permitAll()
                 authorize.requestMatchers(HttpMethod.GET, "/public/**").permitAll()
                 authorize.requestMatchers(HttpMethod.PUT, "/public/**").permitAll()
+                // Swagger UI 和 API 文档（公开访问）
+                authorize.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 // 其他所有端点都需要认证
                 authorize.anyRequest().authenticated()
             }

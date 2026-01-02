@@ -31,6 +31,10 @@ class RbacWebConfiguration : WebMvcConfigurer {
                 // 排除健康检查端点
                 "/actuator/**",
                 "/health",
+                // 排除 Swagger UI 和 API 文档
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/swagger-ui.html",
                 // 排除登录注册相关端点（根据实际情况调整）
                 "/api/auth/**",
                 "/api/captcha/**"
