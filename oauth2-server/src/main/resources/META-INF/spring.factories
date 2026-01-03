@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.vgerbot.oauth2server.config.OAuth2AuthorizationServerConfig,\
+com.vgerbot.oauth2server.config.OAuth2AuthorizationServiceConfig,\
+com.vgerbot.oauth2server.config.OAuth2AuthorizationServerPropertiesConfiguration
+

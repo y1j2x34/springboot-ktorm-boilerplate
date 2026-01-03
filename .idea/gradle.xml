@@ -20,6 +20,8 @@
             <option value="$PROJECT_DIR$/dict/dict-api" />
             <option value="$PROJECT_DIR$/dict/dict-core" />
             <option value="$PROJECT_DIR$/jwt-auth" />
+            <option value="$PROJECT_DIR$/oauth-auth" />
+            <option value="$PROJECT_DIR$/oauth2-server" />
             <option value="$PROJECT_DIR$/security" />
             <option value="$PROJECT_DIR$/tenant" />
             <option value="$PROJECT_DIR$/tenant/tenant-api" />
