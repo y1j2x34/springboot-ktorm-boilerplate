@@ -16,8 +16,8 @@ import org.springframework.context.annotation.Configuration
  * 配置 API 文档的基本信息和安全认证方式（JWT）
  * 
  * 访问地址（注意：项目配置了 context-path: /api）：
- * - Swagger UI: http://localhost:8082/api/swagger-ui/index.html
- * - OpenAPI JSON: http://localhost:8082/api/v3/api-docs
+ * - Swagger UI: http://localhost:8082/swagger-ui/index.html
+ * - OpenAPI JSON: http://localhost:8082/v3/api-docs
  */
 @Configuration
 class SwaggerConfiguration {

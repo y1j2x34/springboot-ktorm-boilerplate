@@ -19,7 +19,7 @@ rule_files:
 scrape_configs:
   # Spring Boot Application metrics
   - job_name: 'springboot-app'
-    metrics_path: '/api/actuator/prometheus'
+    metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['springboot-app:8081']
         labels:

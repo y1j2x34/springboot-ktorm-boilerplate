@@ -52,7 +52,7 @@ dependencies {
 
 2. **创建字典**
 ```bash
-curl -X POST http://localhost:8080/api/dict/types \
+curl -X POST http://localhost:8080/dict/types \
   -H "Content-Type: application/json" \
   -d '{"dictCode": "gender", "dictName": "性别", "isTree": false}'
 ```
@@ -74,18 +74,18 @@ val genderList = dictDataService.getActiveDictDataByCode("gender")
 ## 🔗 API 端点速查
 
 ### 字典类型
-- `POST /api/dict/types` - 创建
-- `GET /api/dict/types/code/{code}` - 查询
-- `PUT /api/dict/types/{id}` - 更新
-- `DELETE /api/dict/types/{id}` - 删除
+- `POST /dict/types` - 创建
+- `GET /dict/types/code/{code}` - 查询
+- `PUT /dict/types/{id}` - 更新
+- `DELETE /dict/types/{id}` - 删除
 
 ### 字典数据
-- `POST /api/dict/data` - 创建
-- `GET /api/dict/data/code/{code}` - 查询列表
-- `GET /api/dict/data/code/{code}/tree` - 查询树形结构
-- `GET /api/dict/data/code/{code}/default` - 查询默认值
-- `PUT /api/dict/data/{id}` - 更新
-- `DELETE /api/dict/data/{id}` - 删除
+- `POST /dict/data` - 创建
+- `GET /dict/data/code/{code}` - 查询列表
+- `GET /dict/data/code/{code}/tree` - 查询树形结构
+- `GET /dict/data/code/{code}/default` - 查询默认值
+- `PUT /dict/data/{id}` - 更新
+- `DELETE /dict/data/{id}` - 删除
 
 详细说明请查看 [API-GUIDE.md](./API-GUIDE.md)
 

@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/dict/types")
+@RequestMapping("/dict/types")
 class DictTypeController {
     
     @Autowired

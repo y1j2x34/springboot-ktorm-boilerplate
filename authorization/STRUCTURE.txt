@@ -1,7 +1,7 @@
 authorization/ARCHITECTURE.md
 authorization/authorization-api/build.gradle.kts
-authorization/authorization-api/src/main/kotlin/com/vgerbot/authorization/api/AuthorizationService.kt
-authorization/authorization-api/src/main/kotlin/com/vgerbot/authorization/api/PolicyType.kt
+authorization/authorization-api/src/main/kotlin/com/vgerbot/authorization/AuthorizationService.kt
+authorization/authorization-api/src/main/kotlin/com/vgerbot/authorization/PolicyType.kt
 authorization/authorization-core/build.gradle.kts
 authorization/authorization-core/src/main/kotlin/com/vgerbot/authorization/adapter/CasbinDatabaseAdapter.kt
 authorization/authorization-core/src/main/kotlin/com/vgerbot/authorization/annotation/RequiresPermission.kt

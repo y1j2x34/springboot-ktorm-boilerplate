@@ -382,7 +382,7 @@ docker network inspect springboot-ktorm-boilerplate_app-network
 
 # 测试服务连通性
 docker exec springboot-ktorm-app ping mariadb
-docker exec springboot-ktorm-app curl http://localhost:8081/api/actuator/health
+docker exec springboot-ktorm-app curl http://localhost:8081/actuator/health
 ```
 
 ## 升级和回滚
@@ -481,7 +481,7 @@ sysctl -p
 遇到问题？
 
 1. 查看日志: `docker compose -f docker-compose.prod.yml logs`
-2. 检查健康状态: `curl http://localhost:8081/api/actuator/health`
+2. 检查健康状态: `curl http://localhost:8081/actuator/health`
 3. 查看监控面板: Grafana Dashboard
 4. 提交 Issue: [GitHub Issues](your-repo-issues)
 

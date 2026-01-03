@@ -67,24 +67,24 @@ dict/
 ## REST API 端点
 
 ### 字典类型接口
-- `POST /api/dict/types` - 创建字典类型
-- `PUT /api/dict/types/{id}` - 更新字典类型
-- `DELETE /api/dict/types/{id}` - 删除字典类型
-- `GET /api/dict/types/{id}` - 根据ID查询
-- `GET /api/dict/types/code/{code}` - 根据编码查询
-- `GET /api/dict/types` - 查询所有/按条件查询
+- `POST /dict/types` - 创建字典类型
+- `PUT /dict/types/{id}` - 更新字典类型
+- `DELETE /dict/types/{id}` - 删除字典类型
+- `GET /dict/types/{id}` - 根据ID查询
+- `GET /dict/types/code/{code}` - 根据编码查询
+- `GET /dict/types` - 查询所有/按条件查询
 
 ### 字典数据接口
-- `POST /api/dict/data` - 创建字典数据
-- `PUT /api/dict/data/{id}` - 更新字典数据
-- `DELETE /api/dict/data/{id}` - 删除字典数据
-- `GET /api/dict/data/{id}` - 根据ID查询
-- `GET /api/dict/data/code/{code}` - 根据编码查询
-- `GET /api/dict/data/code/{code}/tree` - 查询树形结构
-- `GET /api/dict/data/code/{code}/parent/{parentId}` - 查询子节点
-- `GET /api/dict/data/type/{typeId}` - 根据类型ID查询
-- `GET /api/dict/data/code/{code}/value/{value}` - 根据编码和值查询
-- `GET /api/dict/data/code/{code}/default` - 查询默认值
+- `POST /dict/data` - 创建字典数据
+- `PUT /dict/data/{id}` - 更新字典数据
+- `DELETE /dict/data/{id}` - 删除字典数据
+- `GET /dict/data/{id}` - 根据ID查询
+- `GET /dict/data/code/{code}` - 根据编码查询
+- `GET /dict/data/code/{code}/tree` - 查询树形结构
+- `GET /dict/data/code/{code}/parent/{parentId}` - 查询子节点
+- `GET /dict/data/type/{typeId}` - 根据类型ID查询
+- `GET /dict/data/code/{code}/value/{value}` - 根据编码和值查询
+- `GET /dict/data/code/{code}/default` - 查询默认值
 
 ## 数据库表
 

@@ -24,7 +24,7 @@ chmod 600 .env.prod
 
 ```bash
 # Check health
-curl http://localhost:8081/api/actuator/health
+curl http://localhost:8081/actuator/health
 
 # View logs
 docker compose -f docker-compose.prod.yml logs -f

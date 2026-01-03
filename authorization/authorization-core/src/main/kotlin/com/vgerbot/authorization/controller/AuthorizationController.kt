@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
  * 提供权限检查、策略管理、角色管理等 API
  */
 @RestController
-@RequestMapping("/api/authorization")
+@RequestMapping("/authorization")
 class AuthorizationController(
     private val authorizationService: AuthorizationService
 ) {

@@ -314,7 +314,7 @@ try {
 
 ```bash
 # 创建带校验规则的字典类型
-curl -X POST http://localhost:8080/api/dict/types \
+curl -X POST http://localhost:8080/dict/types \
   -H "Content-Type: application/json" \
   -d '{
     "dictCode": "email_contact",
@@ -324,7 +324,7 @@ curl -X POST http://localhost:8080/api/dict/types \
   }'
 
 # 添加有效数据
-curl -X POST http://localhost:8080/api/dict/data \
+curl -X POST http://localhost:8080/dict/data \
   -H "Content-Type: application/json" \
   -d '{
     "dictTypeId": 1,
@@ -335,7 +335,7 @@ curl -X POST http://localhost:8080/api/dict/data \
 # 响应: 201 Created
 
 # 添加无效数据
-curl -X POST http://localhost:8080/api/dict/data \
+curl -X POST http://localhost:8080/dict/data \
   -H "Content-Type: application/json" \
   -d '{
     "dictTypeId": 1,
@@ -589,6 +589,8 @@ if (!result.isValid) {
 - ✅ 实现配置化的数据规则管理
 
 建议在生产环境中为关键字典配置适当的校验规则，提升系统的数据质量和可靠性。
+
+
 
 
 

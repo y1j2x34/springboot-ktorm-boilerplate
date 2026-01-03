@@ -307,7 +307,7 @@ vim .env.prod  # 修改所有密码！
 ./deploy-prod.sh --with-monitoring
 
 # 3. 验证
-curl http://localhost:8081/api/actuator/health
+curl http://localhost:8081/actuator/health
 ```
 
 ### 日常操作
@@ -330,7 +330,7 @@ docker compose -f docker-compose.prod.yml restart springboot-app
 
 - Grafana: http://localhost:3000 (admin/admin)
 - Prometheus: http://localhost:9090
-- Spring Boot: http://localhost:8081/api/actuator
+- Spring Boot: http://localhost:8081/actuator
 
 ---
 

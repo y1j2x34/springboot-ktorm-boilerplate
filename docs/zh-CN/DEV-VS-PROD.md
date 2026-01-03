@@ -65,7 +65,7 @@ services:
           memory: 2560M
     # ✅ 健康检查
     healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:8081/api/actuator/health"]
+      test: ["CMD", "wget", "--spider", "http://localhost:8081/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -128,7 +128,7 @@ LABEL version="${VERSION}" build-date="${BUILD_DATE}"
 
 # ✅ 详细健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8081/api/actuator/health || exit 1
+  CMD curl -f http://localhost:8081/actuator/health || exit 1
 
 # ✅ JVM 优化参数
 ENV JAVA_OPTS="-server -Xms512m -Xmx2g -XX:+UseG1GC ..."

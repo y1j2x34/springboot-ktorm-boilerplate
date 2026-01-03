@@ -68,7 +68,7 @@ class YourBusinessService {
 
 ```javascript
 // JavaScript/TypeScript 示例
-const response = await fetch('/api/dict/data/code/user_status?activeOnly=true');
+const response = await fetch('/dict/data/code/user_status?activeOnly=true');
 const statusList = await response.json();
 ```
 
@@ -95,10 +95,10 @@ fun main(args: Array<String>) {
 
 ```bash
 # 查询字典类型
-curl http://localhost:8080/api/dict/types
+curl http://localhost:8080/dict/types
 
 # 查询字典数据
-curl http://localhost:8080/api/dict/data/code/user_status
+curl http://localhost:8080/dict/data/code/user_status
 ```
 
 如果返回数据，说明集成成功！
@@ -167,11 +167,11 @@ const regionTree = ref([]);
 
 onMounted(async () => {
   // 加载性别字典
-  const genderRes = await fetch('/api/dict/data/code/gender?activeOnly=true');
+  const genderRes = await fetch('/dict/data/code/gender?activeOnly=true');
   genderOptions.value = await genderRes.json();
   
   // 加载地区树形字典
-  const regionRes = await fetch('/api/dict/data/code/region/tree');
+  const regionRes = await fetch('/dict/data/code/region/tree');
   regionTree.value = await regionRes.json();
 });
 </script>
@@ -253,7 +253,7 @@ const COMMON_DICTS = ['gender', 'user_status', 'order_status'];
 
 export const preloadDicts = async () => {
   const promises = COMMON_DICTS.map(async (code) => {
-    const res = await fetch(`/api/dict/data/code/${code}?activeOnly=true`);
+    const res = await fetch(`/dict/data/code/${code}?activeOnly=true`);
     const data = await res.json();
     localStorage.setItem(`dict_${code}`, JSON.stringify(data));
   });
@@ -284,7 +284,7 @@ spring:
 import com.vgerbot.common.annotation.RequirePermission
 
 @RestController
-@RequestMapping("/api/dict/types")
+@RequestMapping("/dict/types")
 class DictTypeController {
     
     @RequirePermission("dict:create")

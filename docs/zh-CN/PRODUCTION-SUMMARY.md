@@ -163,7 +163,7 @@ chmod 600 .env.prod
 
 ```bash
 # 检查健康状态
-curl http://localhost:8081/api/actuator/health
+curl http://localhost:8081/actuator/health
 
 # 查看服务状态
 docker compose -f docker-compose.prod.yml ps
@@ -303,7 +303,7 @@ tar -czf backup_$(date +%Y%m%d).tar.gz /var/lib/springboot-ktorm-app
 
 1. **PRODUCTION.md** - 故障排除章节
 2. **日志**: `docker compose -f docker-compose.prod.yml logs`
-3. **健康检查**: `curl http://localhost:8081/api/actuator/health`
+3. **健康检查**: `curl http://localhost:8081/actuator/health`
 4. **监控面板**: Grafana Dashboard
 
 ---

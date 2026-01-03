@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
  * 用于管理用户角色关联、角色权限关联和用户直接权限（ACL）
  */
 @RestController
-@RequestMapping("/api/rbac")
+@RequestMapping("/rbac")
 class RbacDataController {
     
     @Autowired

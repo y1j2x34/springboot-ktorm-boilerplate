@@ -30,7 +30,7 @@ dependencies {
 #### 1. 创建字典类型
 
 ```bash
-curl -X POST http://localhost:8080/api/dict/types \
+curl -X POST http://localhost:8080/dict/types \
   -H "Content-Type: application/json" \
   -d '{
     "dictCode": "user_status",
@@ -66,31 +66,31 @@ curl -X POST http://localhost:8080/api/dict/types \
 #### 2. 查询所有字典类型
 
 ```bash
-curl http://localhost:8080/api/dict/types
+curl http://localhost:8080/dict/types
 ```
 
 #### 3. 根据编码查询字典类型
 
 ```bash
-curl http://localhost:8080/api/dict/types/code/user_status
+curl http://localhost:8080/dict/types/code/user_status
 ```
 
 #### 4. 按分类查询字典类型
 
 ```bash
-curl http://localhost:8080/api/dict/types?category=system
+curl http://localhost:8080/dict/types?category=system
 ```
 
 #### 5. 按状态查询字典类型
 
 ```bash
-curl http://localhost:8080/api/dict/types?status=true
+curl http://localhost:8080/dict/types?status=true
 ```
 
 #### 6. 更新字典类型
 
 ```bash
-curl -X PUT http://localhost:8080/api/dict/types/1 \
+curl -X PUT http://localhost:8080/dict/types/1 \
   -H "Content-Type: application/json" \
   -d '{
     "dictName": "用户状态（已更新）",
@@ -101,7 +101,7 @@ curl -X PUT http://localhost:8080/api/dict/types/1 \
 #### 7. 删除字典类型
 
 ```bash
-curl -X DELETE http://localhost:8080/api/dict/types/1
+curl -X DELETE http://localhost:8080/dict/types/1
 ```
 
 ### 字典数据管理
@@ -109,7 +109,7 @@ curl -X DELETE http://localhost:8080/api/dict/types/1
 #### 1. 创建字典数据
 
 ```bash
-curl -X POST http://localhost:8080/api/dict/data \
+curl -X POST http://localhost:8080/dict/data \
   -H "Content-Type: application/json" \
   -d '{
     "dictTypeId": 1,
@@ -146,10 +146,10 @@ curl -X POST http://localhost:8080/api/dict/data \
 
 ```bash
 # 查询所有数据（包括停用的）
-curl http://localhost:8080/api/dict/data/code/user_status
+curl http://localhost:8080/dict/data/code/user_status
 
 # 只查询启用的数据
-curl http://localhost:8080/api/dict/data/code/user_status?activeOnly=true
+curl http://localhost:8080/dict/data/code/user_status?activeOnly=true
 ```
 
 **响应示例：**
@@ -185,7 +185,7 @@ curl http://localhost:8080/api/dict/data/code/user_status?activeOnly=true
 #### 3. 查询树形结构数据
 
 ```bash
-curl http://localhost:8080/api/dict/data/code/region/tree
+curl http://localhost:8080/dict/data/code/region/tree
 ```
 
 **响应示例（树形结构）：**
@@ -222,25 +222,25 @@ curl http://localhost:8080/api/dict/data/code/region/tree
 #### 4. 根据编码和值查询
 
 ```bash
-curl http://localhost:8080/api/dict/data/code/user_status/value/active
+curl http://localhost:8080/dict/data/code/user_status/value/active
 ```
 
 #### 5. 获取默认值
 
 ```bash
-curl http://localhost:8080/api/dict/data/code/user_status/default
+curl http://localhost:8080/dict/data/code/user_status/default
 ```
 
 #### 6. 根据父节点查询子节点
 
 ```bash
-curl http://localhost:8080/api/dict/data/code/region/parent/1
+curl http://localhost:8080/dict/data/code/region/parent/1
 ```
 
 #### 7. 更新字典数据
 
 ```bash
-curl -X PUT http://localhost:8080/api/dict/data/1 \
+curl -X PUT http://localhost:8080/dict/data/1 \
   -H "Content-Type: application/json" \
   -d '{
     "dataLabel": "激活",
@@ -251,7 +251,7 @@ curl -X PUT http://localhost:8080/api/dict/data/1 \
 #### 8. 删除字典数据
 
 ```bash
-curl -X DELETE http://localhost:8080/api/dict/data/1
+curl -X DELETE http://localhost:8080/dict/data/1
 ```
 
 ## 在代码中使用
@@ -344,19 +344,19 @@ public class OrderService {
 export const dictService = {
   // 获取字典数据
   async getDictData(dictCode) {
-    const response = await fetch(`/api/dict/data/code/${dictCode}?activeOnly=true`);
+    const response = await fetch(`/dict/data/code/${dictCode}?activeOnly=true`);
     return await response.json();
   },
   
   // 获取树形字典数据
   async getDictTree(dictCode) {
-    const response = await fetch(`/api/dict/data/code/${dictCode}/tree`);
+    const response = await fetch(`/dict/data/code/${dictCode}/tree`);
     return await response.json();
   },
   
   // 获取字典标签
   async getDictLabel(dictCode, value) {
-    const response = await fetch(`/api/dict/data/code/${dictCode}/value/${value}`);
+    const response = await fetch(`/dict/data/code/${dictCode}/value/${value}`);
     const data = await response.json();
     return data.dataLabel;
   }
@@ -395,7 +395,7 @@ function UserForm() {
   
   useEffect(() => {
     // 加载性别字典
-    fetch('/api/dict/data/code/gender?activeOnly=true')
+    fetch('/dict/data/code/gender?activeOnly=true')
       .then(res => res.json())
       .then(data => setGenderOptions(data));
   }, []);

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
  * 提供租户管理的 REST API
  */
 @RestController
-@RequestMapping("/api/tenants")
+@RequestMapping("/tenants")
 class TenantController {
     
     @Autowired

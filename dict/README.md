@@ -50,7 +50,7 @@ dict/
 
 #### 创建字典类型
 ```http
-POST /api/dict/types
+POST /dict/types
 Content-Type: application/json
 
 {
@@ -67,7 +67,7 @@ Content-Type: application/json
 
 #### 更新字典类型
 ```http
-PUT /api/dict/types/{id}
+PUT /dict/types/{id}
 Content-Type: application/json
 
 {
@@ -78,32 +78,32 @@ Content-Type: application/json
 
 #### 删除字典类型
 ```http
-DELETE /api/dict/types/{id}
+DELETE /dict/types/{id}
 ```
 
 #### 查询字典类型
 ```http
 # 根据 ID 查询
-GET /api/dict/types/{id}
+GET /dict/types/{id}
 
 # 根据编码查询
-GET /api/dict/types/code/{code}
+GET /dict/types/code/{code}
 
 # 查询所有
-GET /api/dict/types
+GET /dict/types
 
 # 根据分类查询
-GET /api/dict/types?category=system
+GET /dict/types?category=system
 
 # 根据状态查询
-GET /api/dict/types?status=true
+GET /dict/types?status=true
 ```
 
 ### 字典数据接口
 
 #### 创建字典数据
 ```http
-POST /api/dict/data
+POST /dict/data
 Content-Type: application/json
 
 {
@@ -121,7 +121,7 @@ Content-Type: application/json
 
 #### 更新字典数据
 ```http
-PUT /api/dict/data/{id}
+PUT /dict/data/{id}
 Content-Type: application/json
 
 {
@@ -132,34 +132,34 @@ Content-Type: application/json
 
 #### 删除字典数据
 ```http
-DELETE /api/dict/data/{id}
+DELETE /dict/data/{id}
 ```
 
 #### 查询字典数据
 ```http
 # 根据 ID 查询
-GET /api/dict/data/{id}
+GET /dict/data/{id}
 
 # 根据字典编码查询所有数据
-GET /api/dict/data/code/{code}
+GET /dict/data/code/{code}
 
 # 根据字典编码查询启用的数据
-GET /api/dict/data/code/{code}?activeOnly=true
+GET /dict/data/code/{code}?activeOnly=true
 
 # 根据字典编码查询树形结构数据
-GET /api/dict/data/code/{code}/tree
+GET /dict/data/code/{code}/tree
 
 # 根据字典编码和父ID查询
-GET /api/dict/data/code/{code}/parent/{parentId}
+GET /dict/data/code/{code}/parent/{parentId}
 
 # 根据字典类型ID查询
-GET /api/dict/data/type/{typeId}
+GET /dict/data/type/{typeId}
 
 # 根据字典编码和值查询
-GET /api/dict/data/code/{code}/value/{value}
+GET /dict/data/code/{code}/value/{value}
 
 # 获取默认值
-GET /api/dict/data/code/{code}/default
+GET /dict/data/code/{code}/default
 ```
 
 ## 使用示例

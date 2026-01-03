@@ -370,7 +370,7 @@ docker network inspect springboot-ktorm-boilerplate_app-network
 
 # Test connectivity
 docker exec springboot-ktorm-app ping mariadb
-docker exec springboot-ktorm-app curl http://localhost:8081/api/actuator/health
+docker exec springboot-ktorm-app curl http://localhost:8081/actuator/health
 ```
 
 ## Upgrade and Rollback
@@ -469,7 +469,7 @@ sysctl -p
 Having issues?
 
 1. Check logs: `docker compose -f docker-compose.prod.yml logs`
-2. Verify health: `curl http://localhost:8081/api/actuator/health`
+2. Verify health: `curl http://localhost:8081/actuator/health`
 3. Review monitoring dashboards: Grafana
 4. Refer to checklist: [PRODUCTION-CHECKLIST.md](PRODUCTION-CHECKLIST.md)
 5. Submit issue: [GitHub Issues](your-repo-issues)
