@@ -1,0 +1,5 @@
+com.vgerbot.oauth.OAuth2ConfigurationProperties
+com.vgerbot.oauth.OAuth2Configuration
+com.vgerbot.oauth.OAuth2ClientRegistrationConfig
+com.vgerbot.oauth.OAuth2SecurityConfig
+

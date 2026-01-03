@@ -1,0 +1,52 @@
+# OAuth2/OIDC 配置示例
+# 将此文件复制到应用配置目录并重命名为 application-oauth2.yml
+
+oauth2:
+  # 是否启用 OAuth2 认证
+  enabled: true
+  
+  # 默认重定向 URI 模板（可选）
+  default-redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+  
+  # 默认权限范围（可选）
+  default-scopes: "openid,profile,email"
+  
+  # 默认用户名属性（可选）
+  default-user-name-attribute: "sub"
+
+# ================================================
+# 注意：OAuth2 提供商配置现在从数据库读取！
+# ================================================
+# 
+# 使用管理 API 来管理 OAuth2 提供商配置：
+#
+# 1. 获取所有提供商：
+#    GET /admin/oauth2/providers
+#
+# 2. 创建提供商：
+#    POST /admin/oauth2/providers
+#    {
+#      "registration_id": "google",
+#      "name": "Google",
+#      "client_id": "your-client-id",
+#      "client_secret": "your-client-secret",
+#      "issuer_uri": "https://accounts.google.com",
+#      "scopes": "openid,profile,email",
+#      "user_name_attribute_name": "sub"
+#    }
+#
+# 3. 更新提供商：
+#    PUT /admin/oauth2/providers/{id}
+#
+# 4. 删除提供商：
+#    DELETE /admin/oauth2/providers/{id}
+#
+# 5. 刷新配置缓存：
+#    POST /admin/oauth2/providers/refresh
+#
+# 6. 获取公开的提供商列表（用于前端显示登录选项）：
+#    GET /public/oauth2/providers
+#
+# 数据库初始化脚本：
+# oauth-auth/src/main/resources/db/oauth2_provider.sql
+
