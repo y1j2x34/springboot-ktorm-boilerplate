@@ -19,7 +19,7 @@ class OAuth2FailureHandler : SimpleUrlAuthenticationFailureHandler() {
     
     init {
         // 设置默认的失败 URL
-        defaultFailureUrl = "/public/oauth2/login/failure"
+        super.setDefaultFailureUrl("/public/oauth2/login/failure")
     }
     
     override fun onAuthenticationFailure(

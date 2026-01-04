@@ -4,6 +4,7 @@ include("captcha")
 include("common")
 include("jwt-auth")
 include("oauth-auth")
+include("wechat-auth")
 
 include("tenant")
 include("core")

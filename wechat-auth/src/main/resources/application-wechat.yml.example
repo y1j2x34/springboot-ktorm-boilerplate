@@ -1,0 +1,41 @@
+# 微信登录配置示例
+# 将此文件复制到应用配置目录并重命名为 application-wechat.yml
+
+wechat:
+  # 是否启用微信登录
+  enabled: true
+
+# ================================================
+# 注意：微信配置从数据库读取！
+# ================================================
+# 
+# 使用管理 API 来管理微信配置：
+#
+# 1. 获取所有配置：
+#    GET /admin/wechat/configs
+#
+# 2. 创建配置：
+#    POST /admin/wechat/configs
+#    {
+#      "config_id": "wechat_open",
+#      "name": "微信扫码登录",
+#      "login_type": "OPEN_PLATFORM",
+#      "app_id": "your-app-id",
+#      "app_secret": "your-app-secret"
+#    }
+#
+# 3. 更新配置：
+#    PUT /admin/wechat/configs/{id}
+#
+# 4. 删除配置：
+#    DELETE /admin/wechat/configs/{id}
+#
+# 5. 刷新配置缓存：
+#    POST /admin/wechat/configs/refresh
+#
+# 6. 获取公开的配置列表（用于前端显示登录选项）：
+#    GET /public/wechat/configs
+#
+# 数据库初始化脚本：
+# wechat-auth/src/main/resources/db/wechat_config.sql
+

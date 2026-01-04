@@ -8,6 +8,7 @@ import org.ktorm.dsl.and
 import org.ktorm.dsl.eq
 import org.ktorm.entity.filter
 import org.ktorm.entity.find
+import org.ktorm.entity.sequenceOf
 import org.ktorm.entity.sortedBy
 import org.ktorm.entity.toList
 import org.ktorm.schema.ColumnDeclaring

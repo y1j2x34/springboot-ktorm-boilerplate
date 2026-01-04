@@ -180,7 +180,7 @@ class OAuth2ProviderServiceImpl(
     }
     
     override fun getAll(): List<OAuth2ProviderResponseDto> {
-        return oauth2ProviderDao.findAllActive { _ -> true }.map { toResponseDto(it) }
+        return oauth2ProviderDao.findAllActive().map { toResponseDto(it) }
     }
     
     override fun getByRegistrationId(registrationId: String): OAuth2Provider? {

@@ -4,6 +4,7 @@ import com.vgerbot.auth.JwtTokenUtils
 import com.vgerbot.auth.data.TokenResponse
 import com.vgerbot.oauth.service.CustomOidcUser
 import com.vgerbot.oauth.service.CustomOAuth2User
+import com.vgerbot.oauth.service.CustomOAuth2UserService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

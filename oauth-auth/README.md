@@ -237,4 +237,6 @@ GET /public/oauth2/providers
 
 - [集成指南](./INTEGRATION.md)
 - [配置示例](./src/main/resources/application-oauth2.yml.example)
-- [数据库脚本](./src/main/resources/db/oauth2_provider.sql)
+- [OAuth2 数据库脚本](./src/main/resources/db/oauth2_provider.sql)
+
+**注意**：微信登录功能已独立到 `wechat-auth` 模块，如需使用请单独引入该模块。

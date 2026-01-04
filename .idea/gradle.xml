@@ -29,6 +29,7 @@
             <option value="$PROJECT_DIR$/user" />
             <option value="$PROJECT_DIR$/user/user-api" />
             <option value="$PROJECT_DIR$/user/user-core" />
+            <option value="$PROJECT_DIR$/wechat-auth" />
           </set>
         </option>
       </GradleProjectSettings>
