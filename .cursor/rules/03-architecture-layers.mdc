@@ -1,0 +1,118 @@
+---
+description: Patterns and rules for different architectural layers (Controller, Service, DAO, Entity, DTO).
+globs: 
+---
+
+# Architectural Layers
+
+## 1. Controller Layer
+
+- Use `@RestController` annotation
+- Use constructor injection (preferred) or `@Autowired` for dependencies
+- Use `@RequestMapping` for base path
+- Avoid returning raw `Map`; return `ApiResponse` via `ControllerExtensions` helpers (e.g., `data.ok()`), or `ResponseEntity<Map<String, Any>>` constructed from `ApiResponse` when needed; prefer typed DTOs for data.
+- Use extension functions: `data.ok()`, `ok()`, `error()`, `notFound()`, `created()`, `noContent()`
+
+Example:
+
+```kotlin
+@RestController
+@RequestMapping("/example")
+class ExampleController(
+    private val exampleService: ExampleService
+) {
+    @GetMapping("/{id}")
+    fun getById(@PathVariable id: Int): ResponseEntity<Map<String, Any>> {
+        val data = exampleService.findById(id)
+        return data?.ok() ?: notFound()
+    }
+}
+```
+
+## 2. Service Layer
+
+- Define interface in `-api` module: `ExampleService`
+- Implement in `-core` module: `ExampleServiceImpl`
+- Use `@Service` annotation for implementations
+- Throw `BusinessException` for business logic errors
+
+Example:
+
+```kotlin
+// In -api module
+interface ExampleService {
+    fun findById(id: Int): ExampleDto?
+}
+
+// In -core module
+@Service
+class ExampleServiceImpl(
+    private val exampleDao: ExampleDao
+) : ExampleService {
+    override fun findById(id: Int): ExampleDto? {
+        return exampleDao.findById(id)?.toDto()
+    }
+}
+```
+
+## 3. DAO Layer
+
+- Define interface: `ExampleDao extends BaseDao<Example, Examples>` or `SoftDeleteDao<Example, Examples>`
+- Implement: `ExampleDaoImpl extends AuditableDaoImpl<Example, Examples>(Examples)`
+- Use `@Repository` annotation
+- Use Ktorm DSL for queries: `findOneActive { it.id eq id }`
+
+Example:
+
+```kotlin
+interface ExampleDao : SoftDeleteDao<Example, Examples> {
+    fun findById(id: Int): Example?
+}
+
+@Repository
+class ExampleDaoImpl : AuditableDaoImpl<Example, Examples>(Examples), ExampleDao {
+    override fun findById(id: Int): Example? = findOneActive { it.id eq id }
+}
+```
+
+## 4. Entity & Table
+
+- Entity: `data class Example : Entity<Example>`
+- Table: `object Examples : Table<Example>("table_name")`
+- Use `AuditableEntity` or `SimpleAuditableEntity` for audit fields
+- Use `StatusAuditableEntity` for status management
+
+Example:
+
+```kotlin
+interface Example : Entity<Example>, AuditableEntity {
+    companion object : Entity.Factory<Example>()
+    var id: Int
+    var name: String
+}
+
+object Examples : AuditableTable<Example>("examples") {
+    val id = int("id").primaryKey().bindTo { it.id }
+    val name = varchar("name").bindTo { it.name }
+}
+```
+
+## 5. DTO Pattern
+
+- Use `data class` for DTOs
+- Place in `dto` package
+- Use `toDto()` extension functions for entity-to-DTO conversion
+
+Example:
+
+```kotlin
+data class ExampleDto(
+    val id: Int,
+    val name: String
+)
+
+fun Example.toDto() = ExampleDto(
+    id = this.id,
+    name = this.name
+)
+```

@@ -1,0 +1,35 @@
+---
+description: Database and ORM usage rules using Ktorm, including audit fields and soft delete.
+globs: 
+---
+
+# Database & ORM (Ktorm)
+
+## Ktorm Usage
+
+- Use `Database.connectWithSpringSupport(dataSource)` for database connection
+- Use Ktorm entity DSL: `database.sequenceOf(Table).find { ... }`
+- Use `@Autowired lateinit var database: Database` in DAO implementations
+- Prefer entity extension functions: `findOne()`, `findList()`, `add()`, `update()`, `removeIf()`
+
+## Audit Fields
+
+- Use `AuditableEntity` for entities with audit fields (createdAt, updatedAt, createdBy, updatedBy)
+- Use `SimpleAuditableEntity` for simple audit (createdAt, updatedAt)
+- Use `StatusAuditableEntity` for status management
+- DAO implementations should extend `AuditableDaoImpl` or `SimpleAuditableDaoImpl`
+
+## Soft Delete
+
+- Use `SoftDeleteDao` interface for soft delete support
+- Use `findOneActive()`, `findListActive()`, `findAllActive()` for queries excluding deleted records
+- Use `softDelete()` for logical deletion
+
+### Tables not suitable for logical delete
+
+- Authorization/policy/role bindings that must take effect/expire immediately (e.g., Casbin policies, role-permission links); prefer physical delete.
+- Pure join/pivot tables (many-to-many links such as user-role, role-permission).
+- Small, highly-cached or unique-key config/constant tables (global settings, system params).
+- Audit/log/trace/ledger tables: usually retained or archived/partitioned.
+- Workflow/queue/task/event tables driven by status fields.
+- Resources whose identifiers must be fully released/reusable (API keys, client IDs).

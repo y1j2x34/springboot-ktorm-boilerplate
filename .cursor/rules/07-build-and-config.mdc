@@ -1,0 +1,33 @@
+---
+description: Gradle build configuration and Spring Boot auto-configuration notes.
+globs: "**/build.gradle.kts"
+---
+
+# Build Configuration
+
+## Module build.gradle.kts Pattern
+
+- Library modules (non-executable): Disable `bootJar`, enable `jar`
+- Dependencies: Use `api()` for transitive dependencies, `implementation()` for internal
+
+Example:
+
+```kotlin
+tasks.bootJar {
+    enabled = false
+}
+tasks.jar {
+    enabled = true
+}
+
+dependencies {
+    implementation(project(":core"))
+    api(project(":module-api"))  // If exposing API to other modules
+}
+```
+
+## Auto-configuration Note
+
+- Modules are ordinary application modules, not published starters.
+- **Do not** add `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` unless building an auto-configuration starter.
+- Rely on normal `@Configuration` and component scanning.

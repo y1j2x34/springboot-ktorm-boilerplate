@@ -1,0 +1,54 @@
+---
+description: Rules for module structure, package naming conventions, and file organization.
+globs: 
+---
+
+# Module Structure & Organization
+
+## Module Categories
+
+### Core Modules
+
+- `app/`: Main application entry point
+- `core/`: Common utilities, base classes, DTOs, exceptions
+- `common/`: Shared utilities
+- `security/`: Security configurations
+
+### Feature Modules Pattern
+
+Most feature modules follow the `-api` and `-core` separation:
+
+- `{module}-api/`: Interfaces, DTOs, Entity definitions (no implementation)
+- `{module}-core/`: Implementations, Controllers, Services, DAOs
+
+Examples: `dict-api/dict-core`, `user-api/user-core`, `tenant-api/tenant-core`, `authorization-api/authorization-core`
+
+### Standalone Modules
+
+- `jwt-auth/`: JWT authentication
+- `oauth-auth/`: OAuth authentication
+- `oauth2-server/`: OAuth2 server
+- `wechat-auth/`: WeChat authentication
+- `captcha/`: Captcha module
+
+## Package Naming Convention
+
+- Base package: `com.vgerbot`
+- Module packages: `com.vgerbot.{module}`
+- Sub-packages: `controller`, `service`, `dao`, `entity`, `dto`, `config`, `exception`
+
+## File Organization
+
+```log
+{module}/
+├── build.gradle.kts
+├── src/main/kotlin/com/vgerbot/{module}/
+│   ├── controller/     # REST controllers
+│   ├── service/        # Service interfaces/implementations
+│   ├── dao/            # DAO interfaces/implementations
+│   ├── entity/         # Ktorm entities and tables
+│   ├── dto/            # Data transfer objects
+│   ├── config/         # Configuration classes
+│   └── exception/      # Custom exceptions
+└── src/test/kotlin/    # Test files
+```

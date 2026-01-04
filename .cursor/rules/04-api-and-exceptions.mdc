@@ -1,0 +1,39 @@
+---
+description: Standardized API response format, exception handling, and validation rules.
+globs: 
+---
+
+# API Response & Error Handling
+
+## 1. API Response Format
+
+- Use `ApiResponse` sealed class for responses
+- Use `ApiResponses` builder functions: `success()`, `error()`, `notFound()`, etc.
+- Convert to `ResponseEntity` using `.toResponseEntity()` extension
+- Response format:
+
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": { ... }
+}
+```
+
+## 2. Exception Handling
+
+- Use `BusinessException` for business logic errors
+- Global exception handler: `GlobalExceptionHandler` in `core` module
+- All exceptions are automatically converted to `ApiResponse.Error`
+
+Example:
+
+```kotlin
+throw BusinessException("Resource not found", code = 404)
+```
+
+## 3. Validation
+
+- Use `@Valid` or `@Validated` annotations
+- Use Jakarta validation annotations: `@NotNull`, `@NotBlank`, `@Size`, etc.
+- Validation errors are automatically handled by `GlobalExceptionHandler`

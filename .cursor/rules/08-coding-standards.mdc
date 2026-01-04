@@ -1,0 +1,29 @@
+---
+description: General coding standards, Kotlin idioms, and common patterns used in the project.
+globs: "**/*.kt"
+---
+
+# Coding Standards & Patterns
+
+## Kotlin Idioms
+
+- Use data classes for DTOs and simple entities.
+- Use sealed classes for controlled hierarchies (e.g., `ApiResponse`).
+- Use extension functions for common operations (e.g., `toDto()`, `toEntity()`).
+- Use Kotlin null safety features (`?.`, `?:`).
+- Use coroutines for async operations when needed.
+
+## Dependency Injection
+
+- Prefer constructor injection.
+- Use `@Autowired` only when necessary (e.g., circular dependencies).
+
+## Common Patterns
+
+- **Standardized Response**: Always return `ApiResponse` format.
+- **Null Safety**: Return nullable types when appropriate: `fun findById(id: Int): Entity?`
+- **Controller Extensions**: Use `ControllerExtensions` helpers for responses.
+- **Important Notes**:
+  - Always use `com.vgerbot` as base package.
+  - Follow API/Core separation for feature modules.
+  - Use `AuditableDaoImpl` and `SoftDeleteDao` where appropriate.

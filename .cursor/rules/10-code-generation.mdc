@@ -1,0 +1,19 @@
+---
+description: Guidelines for generating new code in the project.
+globs: 
+---
+
+# Code Generation Guidelines
+
+When generating code, strictly follow these rules:
+
+1. **Module Structure**: Follow the API/Core separation pattern.
+2. **Package Naming**: Use `com.vgerbot.{module}`.
+3. **DAO Inheritance**: Implement proper DAO inheritance hierarchy (`AuditableDaoImpl`, etc.).
+4. **API Response**: Use `ApiResponse` for all controller responses.
+5. **Documentation**: Add proper KDoc comments in Chinese.
+6. **Naming Conventions**: Follow (Controller, Service, Dao, Entity, DTO) suffixes.
+7. **Dependency Injection**: Use constructor injection.
+8. **Error Handling**: Implement proper error handling via `BusinessException`.
+9. **Validation**: Add Jakarta validation annotations where appropriate.
+10. **Database Queries**: Use Ktorm DSL for database queries.

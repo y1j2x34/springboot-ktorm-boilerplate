@@ -1,0 +1,18 @@
+---
+description: Overview of the project, including the tech stack and architecture pattern.
+globs: 
+---
+
+# Project Overview
+
+This is a multi-module Spring Boot 3.2.4 application using Kotlin 1.9.23 and Ktorm 3.6.0 ORM. The project follows a modular architecture with API/Core separation pattern.
+
+## Tech Stack
+
+- **Framework**: Spring Boot 3.2.4
+- **Language**: Kotlin 1.9.23 (JVM Target: 17)
+- **ORM**: Ktorm 3.6.0
+- **Database**: MariaDB
+- **Build Tool**: Gradle Kotlin DSL
+- **Authentication**: JWT, OAuth2, WeChat Auth
+- **Security**: Spring Security

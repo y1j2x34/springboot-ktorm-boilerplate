@@ -1,0 +1,18 @@
+---
+description: Standards for testing (JUnit 5) and documentation (KDoc, README).
+globs: "**/src/test/kotlin/**"
+---
+
+# Testing & Documentation
+
+## Testing
+
+- Use JUnit 5 (Jupiter).
+- Test files should be in `src/test/kotlin`.
+- Use `@SpringBootTest` for integration tests.
+
+## Documentation
+
+- Code comments should be in Chinese (中文).
+- API documentation: Use KDoc comments.
+- Module documentation: Provide a `README.md` in the module root.

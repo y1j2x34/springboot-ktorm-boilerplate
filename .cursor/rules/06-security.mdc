@@ -1,0 +1,20 @@
+---
+description: Security rules for authentication (JWT, OAuth2, WeChat) and authorization (Casbin).
+globs: 
+---
+
+# Security
+
+## Authentication
+
+- JWT authentication: `jwt-auth` module
+- OAuth2 authentication: `oauth-auth` module
+- WeChat authentication: `wechat-auth` module
+- Use `@PublicAccess` annotation for public endpoints
+- **Routing rule**: all public (no-auth) endpoints must be under `/public` prefix; all other endpoints require authentication.
+
+## Authorization
+
+- Use `@RequirePermission` or `@RequiresPermission` for permission checks
+- Use `@RequireRole` or `@RequiresRole` for role checks
+- Authorization module uses Casbin for policy management
