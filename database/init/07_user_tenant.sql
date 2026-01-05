@@ -8,12 +8,10 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_tenant` (
     `user_id` INT NOT NULL COMMENT '用户ID',
     `tenant_id` INT NOT NULL COMMENT '租户ID',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_user_tenant` (`user_id`, `tenant_id`),
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_tenant_id` (`tenant_id`),
-    INDEX `idx_is_deleted` (`is_deleted`),
     CONSTRAINT `fk_user_tenant_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_user_tenant_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户租户关联表';

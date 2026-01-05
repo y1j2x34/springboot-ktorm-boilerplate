@@ -2,12 +2,17 @@ package com.vgerbot.authorization.dao
 
 import com.vgerbot.authorization.entity.UserRole
 import com.vgerbot.authorization.entity.UserRoles
-import com.vgerbot.common.dao.SimpleAuditableDaoImpl
+import com.vgerbot.common.dao.AbstractBaseDao
 import org.ktorm.dsl.*
 import org.springframework.stereotype.Repository
 
+/**
+ * 用户角色关联 DAO 实现
+ * 
+ * 作为纯关联表，使用物理删除，不支持逻辑删除
+ */
 @Repository
-class UserRoleDaoImpl : SimpleAuditableDaoImpl<UserRole, UserRoles>(UserRoles), UserRoleDao {
+class UserRoleDaoImpl : AbstractBaseDao<UserRole, UserRoles>(UserRoles), UserRoleDao {
     
     /**
      * 根据用户ID获取所有角色ID列表
@@ -16,7 +21,7 @@ class UserRoleDaoImpl : SimpleAuditableDaoImpl<UserRole, UserRoles>(UserRoles), 
         return database
             .from(UserRoles)
             .select(UserRoles.roleId)
-            .where { (UserRoles.userId eq userId) and (UserRoles.isDeleted eq false) }
+            .where { UserRoles.userId eq userId }
             .map { it[UserRoles.roleId]!! }
     }
     
@@ -24,16 +29,16 @@ class UserRoleDaoImpl : SimpleAuditableDaoImpl<UserRole, UserRoles>(UserRoles), 
      * 检查用户是否已分配某个角色
      */
     override fun existsByUserIdAndRoleId(userId: Int, roleId: Int): Boolean {
-        return findOneActive { 
+        return findOne { 
             (it.userId eq userId) and (it.roleId eq roleId) 
         } != null
     }
     
     /**
-     * 删除用户的特定角色（逻辑删除）
+     * 删除用户的特定角色（物理删除）
      */
     override fun deleteByUserIdAndRoleId(userId: Int, roleId: Int): Int {
-        return softDeleteIf {
+        return deleteIf {
             (it.userId eq userId) and (it.roleId eq roleId) 
         }
     }

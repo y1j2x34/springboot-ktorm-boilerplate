@@ -2,12 +2,17 @@ package com.vgerbot.authorization.dao
 
 import com.vgerbot.authorization.entity.RolePermission
 import com.vgerbot.authorization.entity.RolePermissions
-import com.vgerbot.common.dao.SimpleAuditableDaoImpl
+import com.vgerbot.common.dao.AbstractBaseDao
 import org.ktorm.dsl.*
 import org.springframework.stereotype.Repository
 
+/**
+ * 角色权限关联 DAO 实现
+ * 
+ * 作为纯关联表，使用物理删除，不支持逻辑删除
+ */
 @Repository
-class RolePermissionDaoImpl : SimpleAuditableDaoImpl<RolePermission, RolePermissions>(RolePermissions), RolePermissionDao {
+class RolePermissionDaoImpl : AbstractBaseDao<RolePermission, RolePermissions>(RolePermissions), RolePermissionDao {
     
     /**
      * 根据角色ID列表获取所有权限ID列表
@@ -18,7 +23,7 @@ class RolePermissionDaoImpl : SimpleAuditableDaoImpl<RolePermission, RolePermiss
         return database
             .from(RolePermissions)
             .select(RolePermissions.permissionId)
-            .where { (RolePermissions.roleId inList roleIds) and (RolePermissions.isDeleted eq false) }
+            .where { RolePermissions.roleId inList roleIds }
             .map { it[RolePermissions.permissionId]!! }
     }
     
@@ -29,7 +34,7 @@ class RolePermissionDaoImpl : SimpleAuditableDaoImpl<RolePermission, RolePermiss
         return database
             .from(RolePermissions)
             .select(RolePermissions.permissionId)
-            .where { (RolePermissions.roleId eq roleId) and (RolePermissions.isDeleted eq false) }
+            .where { RolePermissions.roleId eq roleId }
             .map { it[RolePermissions.permissionId]!! }
     }
     
@@ -37,16 +42,16 @@ class RolePermissionDaoImpl : SimpleAuditableDaoImpl<RolePermission, RolePermiss
      * 检查角色是否已分配某个权限
      */
     override fun existsByRoleIdAndPermissionId(roleId: Int, permissionId: Int): Boolean {
-        return findOneActive { 
+        return findOne { 
             (it.roleId eq roleId) and (it.permissionId eq permissionId) 
         } != null
     }
     
     /**
-     * 删除角色的特定权限（逻辑删除）
+     * 删除角色的特定权限（物理删除）
      */
     override fun deleteByRoleIdAndPermissionId(roleId: Int, permissionId: Int): Int {
-        return softDeleteIf {
+        return deleteIf {
             (it.roleId eq roleId) and (it.permissionId eq permissionId) 
         }
     }

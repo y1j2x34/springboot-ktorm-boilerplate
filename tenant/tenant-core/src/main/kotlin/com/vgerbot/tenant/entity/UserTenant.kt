@@ -1,30 +1,33 @@
 package com.vgerbot.tenant.entity
 
-import com.vgerbot.common.entity.SimpleAuditableEntity
-import com.vgerbot.common.entity.SimpleAuditableTable
 import org.ktorm.database.Database
 import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.*
+import java.time.Instant
 
 /**
  * 用户租户关联实体
+ * 
+ * 作为纯关联表，不支持逻辑删除，只记录创建时间
  */
-interface UserTenant : SimpleAuditableEntity<UserTenant> {
+interface UserTenant : Entity<UserTenant> {
     companion object : Entity.Factory<UserTenant>()
 
     val id: Int
     var userId: Int
     var tenantId: Int
+    var createdAt: Instant
 }
 
 /**
  * 用户租户关联表结构
  */
-object UserTenants : SimpleAuditableTable<UserTenant>("user_tenant") {
+object UserTenants : Table<UserTenant>("user_tenant") {
     val id = int("id").primaryKey().bindTo { it.id }
     val userId = int("user_id").bindTo { it.userId }
     val tenantId = int("tenant_id").bindTo { it.tenantId }
+    val createdAt = timestamp("created_at").bindTo { it.createdAt }
 }
 
 val Database.userTenants get() = this.sequenceOf(UserTenants)
