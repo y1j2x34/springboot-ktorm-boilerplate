@@ -8,6 +8,13 @@ import com.vgerbot.auth.exception.InvalidTokenException
 import com.vgerbot.auth.exception.JwtAuthenticationException
 import com.vgerbot.user.dto.CreateUserDto
 import com.vgerbot.user.service.UserService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -19,10 +26,11 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 /**
- * 认证控制器
+ * Authentication Controller
  * 
- * 提供登录、注册、Token 刷新、登出等接口
+ * Provides login, registration, token refresh, logout APIs
  */
+@Tag(name = "Authentication", description = "Authentication and authorization APIs")
 @RestController
 @RequestMapping("public/auth")
 class AuthController(
@@ -36,13 +44,22 @@ class AuthController(
     private val logger = LoggerFactory.getLogger(AuthController::class.java)
     
     /**
-     * 用户登录
+     * User login
      * 
-     * @param req 认证请求（用户名和密码）
-     * @return Token 响应
+     * @param req Authentication request (username and password)
+     * @return Token response
      */
+    @Operation(summary = "User login", description = "Authenticate user and return JWT tokens")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Login successful"),
+        ApiResponse(responseCode = "401", description = "Invalid credentials"),
+        ApiResponse(responseCode = "500", description = "Internal server error")
+    )
     @PostMapping("login")
-    fun login(@Valid @RequestBody req: AuthRequest): ResponseEntity<TokenResponse> {
+    fun login(
+        @Parameter(description = "Authentication request", required = true)
+        @Valid @RequestBody req: AuthRequest
+    ): ResponseEntity<TokenResponse> {
         try {
             // 认证用户
             val authentication = authenticationManager.authenticate(
@@ -71,13 +88,22 @@ class AuthController(
     }
     
     /**
-     * 用户注册
+     * User registration
      * 
-     * @param userDto 用户创建 DTO
-     * @return 注册结果
+     * @param userDto User creation DTO
+     * @return Registration result
      */
+    @Operation(summary = "User registration", description = "Register a new user account")
+    @ApiResponses(
+        ApiResponse(responseCode = "201", description = "User registered successfully"),
+        ApiResponse(responseCode = "409", description = "User already exists"),
+        ApiResponse(responseCode = "500", description = "Registration failed")
+    )
     @PostMapping("register")
-    fun register(@Valid @RequestBody userDto: CreateUserDto): ResponseEntity<Map<String, Any>> {
+    fun register(
+        @Parameter(description = "User creation data", required = true)
+        @Valid @RequestBody userDto: CreateUserDto
+    ): ResponseEntity<Map<String, Any>> {
         return try {
             val success = userService.createUser(userDto)
             
@@ -109,15 +135,24 @@ class AuthController(
     }
     
     /**
-     * 刷新 Token
+     * Refresh token
      * 
-     * 使用 Refresh Token 获取新的 Access Token 和 Refresh Token
+     * Use refresh token to get new access token and refresh token
      * 
-     * @param req Refresh Token 请求
-     * @return 新的 Token 响应
+     * @param req Refresh token request
+     * @return New token response
      */
+    @Operation(summary = "Refresh token", description = "Refresh access token using refresh token")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+        ApiResponse(responseCode = "401", description = "Invalid or expired refresh token"),
+        ApiResponse(responseCode = "500", description = "Token refresh failed")
+    )
     @PostMapping("refresh")
-    fun refresh(@Valid @RequestBody req: RefreshTokenRequest): ResponseEntity<TokenResponse> {
+    fun refresh(
+        @Parameter(description = "Refresh token request", required = true)
+        @Valid @RequestBody req: RefreshTokenRequest
+    ): ResponseEntity<TokenResponse> {
         return try {
             val refreshToken = req.refreshToken
             
@@ -161,12 +196,17 @@ class AuthController(
     }
     
     /**
-     * 登出
+     * User logout
      * 
-     * 撤销当前用户的 Token
+     * Revoke current user's tokens
      */
+    @Operation(summary = "User logout", description = "Logout user and revoke tokens")
+    @ApiResponse(responseCode = "200", description = "Logout successful")
     @PostMapping("logout")
-    fun logout(@RequestHeader("Authorization") authHeader: String?): ResponseEntity<Map<String, Any>> {
+    fun logout(
+        @Parameter(description = "Authorization header with Bearer token")
+        @RequestHeader("Authorization") authHeader: String?
+    ): ResponseEntity<Map<String, Any>> {
         return try {
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return ResponseEntity.ok(mapOf("success" to true, "message" to "Already logged out"))
@@ -200,8 +240,13 @@ class AuthController(
     }
     
     /**
-     * 获取当前用户信息
+     * Get current user information
      */
+    @Operation(summary = "Get current user", description = "Get information about the currently authenticated user")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "User information retrieved successfully"),
+        ApiResponse(responseCode = "401", description = "User not authenticated")
+    )
     @GetMapping("me")
     fun getCurrentUser(): ResponseEntity<Map<String, Any?>> {
         val authentication = SecurityContextHolder.getContext().authentication

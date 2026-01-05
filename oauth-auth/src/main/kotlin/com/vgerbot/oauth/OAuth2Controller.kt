@@ -5,6 +5,10 @@ import com.vgerbot.auth.data.TokenResponse
 import com.vgerbot.oauth.service.CustomOidcUser
 import com.vgerbot.oauth.service.CustomOAuth2User
 import com.vgerbot.oauth.service.CustomOAuth2UserService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -15,10 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * OAuth2 认证控制器
+ * OAuth2 Controller
  * 
- * 处理 OAuth2/OIDC 授权码流程的回调和用户信息获取
+ * Handles OAuth2/OIDC authorization code flow callbacks and user information retrieval
  */
+@Tag(name = "OAuth2", description = "OAuth2 authentication APIs")
 @RestController
 @RequestMapping("public/oauth2")
 class OAuth2Controller(
@@ -29,11 +34,17 @@ class OAuth2Controller(
     private val logger = LoggerFactory.getLogger(OAuth2Controller::class.java)
     
     /**
-     * OAuth2 登录成功后的回调端点
+     * OAuth2 login success callback endpoint
      * 
-     * 这个端点会被 Spring Security OAuth2 自动调用
-     * 在 OAuth2 认证成功后，生成 JWT Token 并返回
+     * This endpoint is automatically called by Spring Security OAuth2
+     * After successful OAuth2 authentication, generates JWT token and returns it
      */
+    @Operation(summary = "OAuth2 login success", description = "Callback endpoint for successful OAuth2 authentication")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "OAuth2 login successful"),
+        ApiResponse(responseCode = "401", description = "User details not found"),
+        ApiResponse(responseCode = "500", description = "OAuth2 login failed")
+    )
     @GetMapping("login/success")
     fun loginSuccess(
         @AuthenticationPrincipal principal: Any?
@@ -75,8 +86,10 @@ class OAuth2Controller(
     }
     
     /**
-     * OAuth2 登录失败的回调端点
+     * OAuth2 login failure callback endpoint
      */
+    @Operation(summary = "OAuth2 login failure", description = "Callback endpoint for failed OAuth2 authentication")
+    @ApiResponse(responseCode = "401", description = "OAuth2 authentication failed")
     @GetMapping("login/failure")
     fun loginFailure(): ResponseEntity<Map<String, Any>> {
         logger.warn("OAuth2 login failed")
@@ -89,8 +102,14 @@ class OAuth2Controller(
     }
     
     /**
-     * 获取当前 OAuth2 用户信息
+     * Get current OAuth2 user information
      */
+    @Operation(summary = "Get current OAuth2 user", description = "Get information about the currently authenticated OAuth2 user")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "User information retrieved successfully"),
+        ApiResponse(responseCode = "401", description = "User not authenticated"),
+        ApiResponse(responseCode = "500", description = "Failed to get user info")
+    )
     @GetMapping("user")
     fun getCurrentOAuth2User(
         @AuthenticationPrincipal principal: Any?

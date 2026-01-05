@@ -4,6 +4,12 @@ import com.vgerbot.oauth.dto.CreateOAuth2ProviderDto
 import com.vgerbot.oauth.dto.OAuth2ProviderResponseDto
 import com.vgerbot.oauth.dto.UpdateOAuth2ProviderDto
 import com.vgerbot.oauth.service.OAuth2ProviderService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -12,13 +18,15 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 /**
- * OAuth2 Provider 管理控制器
+ * OAuth2 Provider Controller
  * 
- * 提供 OAuth2 提供商的 CRUD 操作
+ * Provides CRUD operations for OAuth2 providers
  */
+@Tag(name = "OAuth2 Provider", description = "OAuth2 provider management APIs")
 @RestController
 @RequestMapping("admin/oauth2/providers")
 @PreAuthorize("hasRole('ADMIN')")
+@SecurityRequirement(name = "bearer-jwt")
 class OAuth2ProviderController(
     private val oauth2ProviderService: OAuth2ProviderService
 ) {
@@ -26,10 +34,13 @@ class OAuth2ProviderController(
     private val logger = LoggerFactory.getLogger(OAuth2ProviderController::class.java)
     
     /**
-     * 获取所有 OAuth2 提供商
+     * Get all OAuth2 providers
      */
+    @Operation(summary = "Get all OAuth2 providers", description = "Retrieve all OAuth2 providers, optionally including disabled ones")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved providers")
     @GetMapping
     fun getAll(
+        @Parameter(description = "Include disabled providers")
         @RequestParam(required = false, defaultValue = "false") includeDisabled: Boolean
     ): ResponseEntity<Map<String, Any>> {
         val providers = if (includeDisabled) {
@@ -46,11 +57,16 @@ class OAuth2ProviderController(
         )
     }
     
-    /**
-     * 获取单个 OAuth2 提供商
-     */
+    @Operation(summary = "Get OAuth2 provider by ID", description = "Retrieve a single OAuth2 provider by its ID")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Provider found"),
+        ApiResponse(responseCode = "404", description = "Provider not found")
+    )
     @GetMapping("{id}")
-    fun getById(@PathVariable id: Int): ResponseEntity<Map<String, Any>> {
+    fun getById(
+        @Parameter(description = "Provider ID", required = true)
+        @PathVariable id: Int
+    ): ResponseEntity<Map<String, Any>> {
         val provider = oauth2ProviderService.getById(id)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 mapOf(
@@ -67,11 +83,16 @@ class OAuth2ProviderController(
         )
     }
     
-    /**
-     * 创建 OAuth2 提供商
-     */
+    @Operation(summary = "Create OAuth2 provider", description = "Create a new OAuth2 provider")
+    @ApiResponses(
+        ApiResponse(responseCode = "201", description = "Provider created successfully"),
+        ApiResponse(responseCode = "409", description = "Provider with this registration ID already exists")
+    )
     @PostMapping
-    fun create(@Valid @RequestBody dto: CreateOAuth2ProviderDto): ResponseEntity<Map<String, Any>> {
+    fun create(
+        @Parameter(description = "Provider creation data", required = true)
+        @Valid @RequestBody dto: CreateOAuth2ProviderDto
+    ): ResponseEntity<Map<String, Any>> {
         val result = oauth2ProviderService.create(dto)
             ?: return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 mapOf(
@@ -91,12 +112,16 @@ class OAuth2ProviderController(
         )
     }
     
-    /**
-     * 更新 OAuth2 提供商
-     */
+    @Operation(summary = "Update OAuth2 provider", description = "Update an existing OAuth2 provider")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Provider updated successfully"),
+        ApiResponse(responseCode = "404", description = "Provider not found")
+    )
     @PutMapping("{id}")
     fun update(
+        @Parameter(description = "Provider ID", required = true)
         @PathVariable id: Int,
+        @Parameter(description = "Provider update data", required = true)
         @Valid @RequestBody dto: UpdateOAuth2ProviderDto
     ): ResponseEntity<Map<String, Any>> {
         val result = oauth2ProviderService.update(id, dto)
@@ -118,11 +143,16 @@ class OAuth2ProviderController(
         )
     }
     
-    /**
-     * 删除 OAuth2 提供商（逻辑删除）
-     */
+    @Operation(summary = "Delete OAuth2 provider", description = "Delete an OAuth2 provider (soft delete)")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Provider deleted successfully"),
+        ApiResponse(responseCode = "404", description = "Provider not found")
+    )
     @DeleteMapping("{id}")
-    fun delete(@PathVariable id: Int): ResponseEntity<Map<String, Any>> {
+    fun delete(
+        @Parameter(description = "Provider ID", required = true)
+        @PathVariable id: Int
+    ): ResponseEntity<Map<String, Any>> {
         val result = oauth2ProviderService.delete(id)
         
         if (!result) {
@@ -144,9 +174,8 @@ class OAuth2ProviderController(
         )
     }
     
-    /**
-     * 刷新 OAuth2 客户端注册缓存
-     */
+    @Operation(summary = "Refresh OAuth2 client registrations", description = "Refresh OAuth2 client registration cache")
+    @ApiResponse(responseCode = "200", description = "Client registrations refreshed successfully")
     @PostMapping("refresh")
     fun refresh(): ResponseEntity<Map<String, Any>> {
         oauth2ProviderService.refreshClientRegistrations()
@@ -163,8 +192,10 @@ class OAuth2ProviderController(
 }
 
 /**
- * 公开的 OAuth2 提供商列表接口（用于前端显示登录选项）
+ * Public OAuth2 Provider Controller
+ * Public endpoint for listing enabled OAuth2 providers (for frontend login options)
  */
+@Tag(name = "OAuth2 Provider", description = "OAuth2 provider management APIs")
 @RestController
 @RequestMapping("public/oauth2/providers")
 class PublicOAuth2ProviderController(
@@ -172,8 +203,10 @@ class PublicOAuth2ProviderController(
 ) {
     
     /**
-     * 获取所有启用的 OAuth2 提供商（仅返回公开信息）
+     * Get all enabled OAuth2 providers (public information only)
      */
+    @Operation(summary = "Get enabled OAuth2 providers", description = "Retrieve all enabled OAuth2 providers (public information only)")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved providers")
     @GetMapping
     fun getEnabledProviders(): ResponseEntity<Map<String, Any>> {
         val providers = oauth2ProviderService.getAllEnabled().map { provider ->

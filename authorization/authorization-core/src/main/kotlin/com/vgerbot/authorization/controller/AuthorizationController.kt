@@ -3,12 +3,17 @@ package com.vgerbot.authorization.controller
 import com.vgerbot.authorization.api.AuthorizationService
 import com.vgerbot.authorization.api.PermissionRequest
 import com.vgerbot.authorization.dto.*
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.*
 
 /**
- * 授权管理控制器
- * 提供权限检查、策略管理、角色管理等 API
+ * Authorization Controller
+ * Provides permission checking, policy management, and role management APIs
  */
+@Tag(name = "Authorization", description = "Authorization and policy management APIs")
 @RestController
 @RequestMapping("/authorization")
 class AuthorizationController(
@@ -16,10 +21,15 @@ class AuthorizationController(
 ) {
     
     /**
-     * 检查权限
+     * Check permission
      */
+    @Operation(summary = "Enforce permission", description = "Check if a subject has permission to perform an action on a resource")
+    @ApiResponse(responseCode = "200", description = "Permission check completed")
     @PostMapping("/enforce")
-    fun enforce(@RequestBody request: EnforceRequest): EnforceResponse {
+    fun enforce(
+        @Parameter(description = "Permission enforcement request", required = true)
+        @RequestBody request: EnforceRequest
+    ): EnforceResponse {
         val allowed = authorizationService.enforce(
             request.subject,
             request.resource,
@@ -30,10 +40,15 @@ class AuthorizationController(
     }
     
     /**
-     * 批量检查权限
+     * Batch check permissions
      */
+    @Operation(summary = "Batch enforce permissions", description = "Check multiple permissions in a single request")
+    @ApiResponse(responseCode = "200", description = "Batch permission check completed")
     @PostMapping("/enforce/batch")
-    fun batchEnforce(@RequestBody request: BatchEnforceRequest): BatchEnforceResponse {
+    fun batchEnforce(
+        @Parameter(description = "Batch permission enforcement request", required = true)
+        @RequestBody request: BatchEnforceRequest
+    ): BatchEnforceResponse {
         val permissionRequests = request.requests.map {
             PermissionRequest(it.subject, it.resource, it.action, it.domain)
         }
@@ -47,10 +62,15 @@ class AuthorizationController(
     }
     
     /**
-     * 添加策略
+     * Add policy
      */
+    @Operation(summary = "Add policy", description = "Add a new authorization policy")
+    @ApiResponse(responseCode = "200", description = "Policy added successfully")
     @PostMapping("/policies")
-    fun addPolicy(@RequestBody request: PolicyRequest): Map<String, Boolean> {
+    fun addPolicy(
+        @Parameter(description = "Policy request", required = true)
+        @RequestBody request: PolicyRequest
+    ): Map<String, Boolean> {
         val success = authorizationService.addPolicy(
             request.subject,
             request.resource,
@@ -61,10 +81,15 @@ class AuthorizationController(
     }
     
     /**
-     * 删除策略
+     * Remove policy
      */
+    @Operation(summary = "Remove policy", description = "Remove an authorization policy")
+    @ApiResponse(responseCode = "200", description = "Policy removed successfully")
     @DeleteMapping("/policies")
-    fun removePolicy(@RequestBody request: PolicyRequest): Map<String, Boolean> {
+    fun removePolicy(
+        @Parameter(description = "Policy request", required = true)
+        @RequestBody request: PolicyRequest
+    ): Map<String, Boolean> {
         val success = authorizationService.removePolicy(
             request.subject,
             request.resource,
@@ -75,11 +100,15 @@ class AuthorizationController(
     }
     
     /**
-     * 获取主体的所有权限
+     * Get all permissions for a subject
      */
+    @Operation(summary = "Get permissions for subject", description = "Retrieve all permissions for a given subject")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved permissions")
     @GetMapping("/permissions/subject/{subject}")
     fun getPermissionsForSubject(
+        @Parameter(description = "Subject identifier", required = true)
         @PathVariable subject: String,
+        @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
     ): List<PermissionInfo> {
         val permissions = authorizationService.getPermissionsForSubject(subject, domain)
@@ -89,11 +118,15 @@ class AuthorizationController(
     }
     
     /**
-     * 获取资源的所有权限
+     * Get all permissions for a resource
      */
+    @Operation(summary = "Get permissions for resource", description = "Retrieve all permissions for a given resource")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved permissions")
     @GetMapping("/permissions/resource/{resource}")
     fun getPermissionsForResource(
+        @Parameter(description = "Resource identifier", required = true)
         @PathVariable resource: String,
+        @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
     ): List<PermissionInfo> {
         val permissions = authorizationService.getPermissionsForResource(resource, domain)
@@ -103,10 +136,15 @@ class AuthorizationController(
     }
     
     /**
-     * 为用户添加角色
+     * Add role for user
      */
+    @Operation(summary = "Add role for user", description = "Assign a role to a user")
+    @ApiResponse(responseCode = "200", description = "Role assigned successfully")
     @PostMapping("/users/roles")
-    fun addRoleForUser(@RequestBody request: RoleAssignmentRequest): Map<String, Boolean> {
+    fun addRoleForUser(
+        @Parameter(description = "Role assignment request", required = true)
+        @RequestBody request: RoleAssignmentRequest
+    ): Map<String, Boolean> {
         val success = authorizationService.addRoleForUser(
             request.userId,
             request.role,
@@ -116,10 +154,15 @@ class AuthorizationController(
     }
     
     /**
-     * 移除用户的角色
+     * Remove role from user
      */
+    @Operation(summary = "Remove role from user", description = "Remove a role from a user")
+    @ApiResponse(responseCode = "200", description = "Role removed successfully")
     @DeleteMapping("/users/roles")
-    fun removeRoleForUser(@RequestBody request: RoleAssignmentRequest): Map<String, Boolean> {
+    fun removeRoleForUser(
+        @Parameter(description = "Role assignment request", required = true)
+        @RequestBody request: RoleAssignmentRequest
+    ): Map<String, Boolean> {
         val success = authorizationService.removeRoleForUser(
             request.userId,
             request.role,
@@ -129,11 +172,15 @@ class AuthorizationController(
     }
     
     /**
-     * 获取用户的所有角色
+     * Get all roles for a user
      */
+    @Operation(summary = "Get roles for user", description = "Retrieve all roles assigned to a user")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved user roles")
     @GetMapping("/users/{userId}/roles")
     fun getRolesForUser(
+        @Parameter(description = "User ID", required = true)
         @PathVariable userId: Int,
+        @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
     ): UserRoleInfo {
         val roles = authorizationService.getRolesForUser(userId, domain)
@@ -141,11 +188,15 @@ class AuthorizationController(
     }
     
     /**
-     * 删除用户的所有角色
+     * Delete all roles for a user
      */
+    @Operation(summary = "Delete roles for user", description = "Remove all roles from a user")
+    @ApiResponse(responseCode = "200", description = "Roles deleted successfully")
     @DeleteMapping("/users/{userId}/roles")
     fun deleteRolesForUser(
+        @Parameter(description = "User ID", required = true)
         @PathVariable userId: Int,
+        @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
     ): Map<String, Boolean> {
         val success = authorizationService.deleteRolesForUser(userId, domain)
@@ -153,11 +204,15 @@ class AuthorizationController(
     }
     
     /**
-     * 获取拥有指定角色的所有用户
+     * Get all users with a specific role
      */
+    @Operation(summary = "Get users for role", description = "Retrieve all users assigned to a specific role")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved users")
     @GetMapping("/roles/{role}/users")
     fun getUsersForRole(
+        @Parameter(description = "Role identifier", required = true)
         @PathVariable role: String,
+        @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
     ): Map<String, List<Int>> {
         val users = authorizationService.getUsersForRole(role, domain)
@@ -165,10 +220,15 @@ class AuthorizationController(
     }
     
     /**
-     * 添加角色继承关系
+     * Add role inheritance
      */
+    @Operation(summary = "Add role inheritance", description = "Add a role inheritance relationship")
+    @ApiResponse(responseCode = "200", description = "Role inheritance added successfully")
     @PostMapping("/roles/inheritance")
-    fun addRoleInheritance(@RequestBody request: RoleInheritanceRequest): Map<String, Boolean> {
+    fun addRoleInheritance(
+        @Parameter(description = "Role inheritance request", required = true)
+        @RequestBody request: RoleInheritanceRequest
+    ): Map<String, Boolean> {
         val success = authorizationService.addRoleInheritance(
             request.role,
             request.parentRole,
@@ -178,10 +238,15 @@ class AuthorizationController(
     }
     
     /**
-     * 移除角色继承关系
+     * Remove role inheritance
      */
+    @Operation(summary = "Remove role inheritance", description = "Remove a role inheritance relationship")
+    @ApiResponse(responseCode = "200", description = "Role inheritance removed successfully")
     @DeleteMapping("/roles/inheritance")
-    fun removeRoleInheritance(@RequestBody request: RoleInheritanceRequest): Map<String, Boolean> {
+    fun removeRoleInheritance(
+        @Parameter(description = "Role inheritance request", required = true)
+        @RequestBody request: RoleInheritanceRequest
+    ): Map<String, Boolean> {
         val success = authorizationService.removeRoleInheritance(
             request.role,
             request.parentRole,
@@ -191,11 +256,15 @@ class AuthorizationController(
     }
     
     /**
-     * 删除角色
+     * Delete role
      */
+    @Operation(summary = "Delete role", description = "Delete a role from the system")
+    @ApiResponse(responseCode = "200", description = "Role deleted successfully")
     @DeleteMapping("/roles/{role}")
     fun deleteRole(
+        @Parameter(description = "Role identifier", required = true)
         @PathVariable role: String,
+        @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
     ): Map<String, Boolean> {
         val success = authorizationService.deleteRole(role, domain)
@@ -203,8 +272,10 @@ class AuthorizationController(
     }
     
     /**
-     * 重新加载策略
+     * Reload policy
      */
+    @Operation(summary = "Reload policy", description = "Reload authorization policies from storage")
+    @ApiResponse(responseCode = "200", description = "Policy reloaded successfully")
     @PostMapping("/reload")
     fun reloadPolicy(): Map<String, String> {
         authorizationService.reloadPolicy()

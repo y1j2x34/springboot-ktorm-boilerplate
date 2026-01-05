@@ -4,6 +4,12 @@ import com.vgerbot.wechat.dto.CreateWechatConfigDto
 import com.vgerbot.wechat.dto.UpdateWechatConfigDto
 import com.vgerbot.wechat.entity.WechatLoginType
 import com.vgerbot.wechat.service.WechatConfigService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -13,14 +19,16 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 /**
- * 微信配置管理控制器
+ * WeChat Config Controller
  * 
- * 提供微信配置的 CRUD 操作（需要管理员权限）
+ * Provides CRUD operations for WeChat configurations (requires admin role)
  */
+@Tag(name = "WeChat Config", description = "WeChat configuration management APIs")
 @RestController
 @RequestMapping("admin/wechat/configs")
 @PreAuthorize("hasRole('ADMIN')")
 @ConditionalOnProperty(prefix = "wechat", name = ["enabled"], havingValue = "true", matchIfMissing = false)
+@SecurityRequirement(name = "bearer-jwt")
 class WechatConfigController(
     private val wechatConfigService: WechatConfigService
 ) {
@@ -28,10 +36,13 @@ class WechatConfigController(
     private val logger = LoggerFactory.getLogger(WechatConfigController::class.java)
     
     /**
-     * 获取所有微信配置
+     * Get all WeChat configurations
      */
+    @Operation(summary = "Get all WeChat configs", description = "Retrieve all WeChat configurations, optionally including disabled ones")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved configs")
     @GetMapping
     fun getAll(
+        @Parameter(description = "Include disabled configs")
         @RequestParam(required = false, defaultValue = "false") includeDisabled: Boolean
     ): ResponseEntity<Map<String, Any>> {
         val configs = if (includeDisabled) {
@@ -48,11 +59,16 @@ class WechatConfigController(
         )
     }
     
-    /**
-     * 获取单个微信配置
-     */
+    @Operation(summary = "Get WeChat config by ID", description = "Retrieve a single WeChat configuration by its ID")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Config found"),
+        ApiResponse(responseCode = "404", description = "Config not found")
+    )
     @GetMapping("{id}")
-    fun getById(@PathVariable id: Int): ResponseEntity<Map<String, Any>> {
+    fun getById(
+        @Parameter(description = "Config ID", required = true)
+        @PathVariable id: Int
+    ): ResponseEntity<Map<String, Any>> {
         val config = wechatConfigService.getById(id)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 mapOf(
@@ -94,11 +110,17 @@ class WechatConfigController(
         }
     }
     
-    /**
-     * 创建微信配置
-     */
+    @Operation(summary = "Create WeChat config", description = "Create a new WeChat configuration")
+    @ApiResponses(
+        ApiResponse(responseCode = "201", description = "Config created successfully"),
+        ApiResponse(responseCode = "400", description = "Invalid login type"),
+        ApiResponse(responseCode = "409", description = "Config with this config ID already exists")
+    )
     @PostMapping
-    fun create(@Valid @RequestBody dto: CreateWechatConfigDto): ResponseEntity<Map<String, Any>> {
+    fun create(
+        @Parameter(description = "Config creation data", required = true)
+        @Valid @RequestBody dto: CreateWechatConfigDto
+    ): ResponseEntity<Map<String, Any>> {
         // 验证登录类型
         try {
             WechatLoginType.valueOf(dto.loginType.uppercase())
@@ -130,12 +152,16 @@ class WechatConfigController(
         )
     }
     
-    /**
-     * 更新微信配置
-     */
+    @Operation(summary = "Update WeChat config", description = "Update an existing WeChat configuration")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Config updated successfully"),
+        ApiResponse(responseCode = "404", description = "Config not found")
+    )
     @PutMapping("{id}")
     fun update(
+        @Parameter(description = "Config ID", required = true)
         @PathVariable id: Int,
+        @Parameter(description = "Config update data", required = true)
         @Valid @RequestBody dto: UpdateWechatConfigDto
     ): ResponseEntity<Map<String, Any>> {
         val result = wechatConfigService.update(id, dto)
@@ -157,11 +183,16 @@ class WechatConfigController(
         )
     }
     
-    /**
-     * 删除微信配置（逻辑删除）
-     */
+    @Operation(summary = "Delete WeChat config", description = "Delete a WeChat configuration (soft delete)")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Config deleted successfully"),
+        ApiResponse(responseCode = "404", description = "Config not found")
+    )
     @DeleteMapping("{id}")
-    fun delete(@PathVariable id: Int): ResponseEntity<Map<String, Any>> {
+    fun delete(
+        @Parameter(description = "Config ID", required = true)
+        @PathVariable id: Int
+    ): ResponseEntity<Map<String, Any>> {
         val result = wechatConfigService.delete(id)
         
         if (!result) {
@@ -183,9 +214,8 @@ class WechatConfigController(
         )
     }
     
-    /**
-     * 刷新微信服务缓存
-     */
+    @Operation(summary = "Refresh WeChat services", description = "Refresh WeChat service cache")
+    @ApiResponse(responseCode = "200", description = "Services refreshed successfully")
     @PostMapping("refresh")
     fun refresh(): ResponseEntity<Map<String, Any>> {
         wechatConfigService.refreshWechatServices()
@@ -202,8 +232,10 @@ class WechatConfigController(
 }
 
 /**
- * 公开的微信配置列表接口（用于前端显示登录选项）
+ * Public WeChat Config Controller
+ * Public endpoint for listing enabled WeChat configurations (for frontend login options)
  */
+@Tag(name = "WeChat Config", description = "WeChat configuration management APIs")
 @RestController
 @RequestMapping("public/wechat/configs")
 @ConditionalOnProperty(prefix = "wechat", name = ["enabled"], havingValue = "true", matchIfMissing = false)
@@ -212,8 +244,10 @@ class PublicWechatConfigController(
 ) {
     
     /**
-     * 获取所有启用的微信配置（仅返回公开信息）
+     * Get all enabled WeChat configurations (public information only)
      */
+    @Operation(summary = "Get enabled WeChat configs", description = "Retrieve all enabled WeChat configurations (public information only)")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved configs")
     @GetMapping
     fun getEnabledConfigs(): ResponseEntity<Map<String, Any>> {
         val configs = wechatConfigService.getAllEnabled().map { config ->
@@ -233,11 +267,16 @@ class PublicWechatConfigController(
         )
     }
     
-    /**
-     * 按登录类型获取配置
-     */
+    @Operation(summary = "Get WeChat configs by login type", description = "Retrieve enabled WeChat configurations by login type")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Successfully retrieved configs"),
+        ApiResponse(responseCode = "400", description = "Invalid login type")
+    )
     @GetMapping("type/{loginType}")
-    fun getByLoginType(@PathVariable loginType: String): ResponseEntity<Map<String, Any>> {
+    fun getByLoginType(
+        @Parameter(description = "Login type", required = true)
+        @PathVariable loginType: String
+    ): ResponseEntity<Map<String, Any>> {
         return try {
             val type = WechatLoginType.valueOf(loginType.uppercase())
             val configs = wechatConfigService.getByLoginType(type).map { config ->

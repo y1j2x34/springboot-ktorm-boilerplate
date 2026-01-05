@@ -3,6 +3,11 @@ package com.vgerbot.wechat
 import com.vgerbot.auth.data.TokenResponse
 import com.vgerbot.wechat.dto.WechatLoginCallbackRequest
 import com.vgerbot.wechat.wechat.WechatLoginService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
@@ -12,10 +17,11 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 /**
- * 微信登录控制器
+ * WeChat Login Controller
  * 
- * 处理微信开放平台、公众号、小程序登录
+ * Handles WeChat Open Platform, Official Account, and Mini Program login
  */
+@Tag(name = "WeChat Login", description = "WeChat authentication APIs")
 @RestController
 @RequestMapping("public/wechat")
 @ConditionalOnProperty(prefix = "wechat", name = ["enabled"], havingValue = "true", matchIfMissing = false)
@@ -28,16 +34,24 @@ class WechatLoginController(
     // ==================== 微信开放平台（PC 扫码登录）====================
     
     /**
-     * 获取微信开放平台授权 URL
+     * Get WeChat Open Platform authorization URL
      * 
-     * 前端获取此 URL 后，可以：
-     * 1. 重定向到此 URL 让用户扫码
-     * 2. 或者使用微信 JS-SDK 在页面内嵌二维码
+     * After getting this URL, frontend can:
+     * 1. Redirect to this URL for user to scan QR code
+     * 2. Or use WeChat JS-SDK to embed QR code in page
      */
+    @Operation(summary = "Get WeChat Open Platform auth URL", description = "Get authorization URL for WeChat Open Platform login")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Auth URL generated successfully"),
+        ApiResponse(responseCode = "404", description = "WeChat config not found or invalid type")
+    )
     @GetMapping("open/{configId}/auth-url")
     fun getOpenPlatformAuthUrl(
+        @Parameter(description = "WeChat config ID", required = true)
         @PathVariable configId: String,
+        @Parameter(description = "Redirect URI after authorization", required = true)
         @RequestParam("redirect_uri") redirectUri: String,
+        @Parameter(description = "Optional state parameter")
         @RequestParam(required = false) state: String?
     ): ResponseEntity<Map<String, Any>> {
         val authUrl = wechatLoginService.generateOpenPlatformAuthUrl(configId, redirectUri, state)
@@ -62,10 +76,11 @@ class WechatLoginController(
     }
     
     /**
-     * 微信开放平台重定向登录
+     * WeChat Open Platform redirect login
      * 
-     * 直接重定向到微信授权页面
+     * Directly redirect to WeChat authorization page
      */
+    @Operation(summary = "WeChat Open Platform redirect login", description = "Redirect to WeChat authorization page for Open Platform login")
     @GetMapping("open/{configId}/login")
     fun openPlatformLogin(
         @PathVariable configId: String,
@@ -83,9 +98,12 @@ class WechatLoginController(
         response.sendRedirect(authUrl)
     }
     
-    /**
-     * 微信开放平台回调
-     */
+    @Operation(summary = "WeChat Open Platform callback", description = "Callback endpoint for WeChat Open Platform authorization")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "WeChat login successful"),
+        ApiResponse(responseCode = "401", description = "WeChat login failed"),
+        ApiResponse(responseCode = "500", description = "WeChat login error")
+    )
     @GetMapping("open/{configId}/callback")
     fun openPlatformCallback(
         @PathVariable configId: String,
@@ -127,9 +145,11 @@ class WechatLoginController(
     
     // ==================== 微信公众号（微信内 H5 登录）====================
     
-    /**
-     * 获取微信公众号授权 URL
-     */
+    @Operation(summary = "Get WeChat Official Account auth URL", description = "Get authorization URL for WeChat Official Account login")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Auth URL generated successfully"),
+        ApiResponse(responseCode = "404", description = "WeChat config not found or invalid type")
+    )
     @GetMapping("mp/{configId}/auth-url")
     fun getMpAuthUrl(
         @PathVariable configId: String,
@@ -158,9 +178,7 @@ class WechatLoginController(
         )
     }
     
-    /**
-     * 微信公众号重定向登录
-     */
+    @Operation(summary = "WeChat Official Account redirect login", description = "Redirect to WeChat authorization page for Official Account login")
     @GetMapping("mp/{configId}/login")
     fun mpLogin(
         @PathVariable configId: String,
@@ -179,9 +197,12 @@ class WechatLoginController(
         response.sendRedirect(authUrl)
     }
     
-    /**
-     * 微信公众号回调
-     */
+    @Operation(summary = "WeChat Official Account callback", description = "Callback endpoint for WeChat Official Account authorization")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "WeChat login successful"),
+        ApiResponse(responseCode = "401", description = "WeChat login failed"),
+        ApiResponse(responseCode = "500", description = "WeChat login error")
+    )
     @GetMapping("mp/{configId}/callback")
     fun mpCallback(
         @PathVariable configId: String,
@@ -224,13 +245,21 @@ class WechatLoginController(
     // ==================== 微信小程序 ====================
     
     /**
-     * 微信小程序登录
+     * WeChat Mini Program login
      * 
-     * 小程序端使用 wx.login() 获取 code 后调用此接口
+     * Mini Program calls this endpoint after getting code from wx.login()
      */
+    @Operation(summary = "WeChat Mini Program login", description = "Login using WeChat Mini Program code")
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "WeChat login successful"),
+        ApiResponse(responseCode = "401", description = "WeChat login failed"),
+        ApiResponse(responseCode = "500", description = "WeChat login error")
+    )
     @PostMapping("mini/{configId}/login")
     fun miniProgramLogin(
+        @Parameter(description = "WeChat config ID", required = true)
         @PathVariable configId: String,
+        @Parameter(description = "Login request with code", required = true)
         @RequestBody request: WechatLoginCallbackRequest
     ): ResponseEntity<Map<String, Any>> {
         logger.info("MiniProgram login: configId=$configId")
