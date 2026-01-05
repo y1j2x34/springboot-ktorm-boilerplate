@@ -14,7 +14,7 @@ services:
       - "${DB_PORT:-3306}:3306"
     volumes:
       - mariadb-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init:/docker-entrypoint-initdb.d:ro
       - ./conf.d:/etc/mysql/conf.d:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
