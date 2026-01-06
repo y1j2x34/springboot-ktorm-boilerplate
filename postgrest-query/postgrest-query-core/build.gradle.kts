@@ -12,7 +12,10 @@ dependencies {
     implementation(project(":authorization:authorization-api"))
     
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    
+    // Ktorm ORM
+    implementation("org.ktorm:ktorm-core")
+    implementation("org.ktorm:ktorm-support-mysql")
     
     // SLF4J for logging
     implementation("org.slf4j:slf4j-api")

@@ -1,12 +1,15 @@
 package com.vgerbot.postgrest.rls
 
 import com.vgerbot.authorization.api.AuthorizationService
+import com.vgerbot.postgrest.builder.RlsCondition
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 
 /**
  * 行级安全（RLS）提供者
  * 基于 authorization 模块实现 RLS 策略
  */
+@Component
 class RowLevelSecurityProvider(
     private val authorizationService: AuthorizationService
 ) {
@@ -20,15 +23,15 @@ class RowLevelSecurityProvider(
      * @param userId 用户ID
      * @param tenantId 租户ID（可选）
      * @param operation 操作类型（select, insert, update, delete）
-     * @return RLS 条件列表（SQL WHERE 子句片段）
+     * @return RLS 条件列表
      */
     fun getRlsConditions(
         tableName: String,
         userId: String,
         tenantId: String?,
         operation: String
-    ): List<String> {
-        val conditions = mutableListOf<String>()
+    ): List<RlsCondition> {
+        val conditions = mutableListOf<RlsCondition>()
         
         // 检查用户是否有权限访问该表
         val hasPermission = authorizationService.enforce(
@@ -41,33 +44,34 @@ class RowLevelSecurityProvider(
         if (!hasPermission) {
             logger.warn("User {} does not have permission to {} on table {}", userId, operation, tableName)
             // 如果没有权限，返回一个永远为 false 的条件
-            return listOf("1 = 0")
+            // 使用一个不可能满足的条件
+            return listOf(RlsCondition("id", "eq", -999999))
         }
         
         // 根据操作类型添加不同的 RLS 条件
         when (operation.lowercase()) {
             "select" -> {
                 // SELECT 操作：检查用户是否有权限查看数据
-                // 可以添加基于用户ID或租户ID的条件
+                // 可以添加基于租户ID的条件
                 if (tenantId != null) {
-                    conditions.add("tenant_id = '$tenantId'")
+                    conditions.add(RlsCondition("tenant_id", "eq", tenantId.toIntOrNull() ?: tenantId))
                 }
                 // 可以添加基于用户ID的条件（如果表有 created_by 字段）
-                // conditions.add("(created_by = '$userId' OR is_public = true)")
+                // conditions.add(RlsCondition("created_by", "eq", userId.toIntOrNull() ?: userId))
             }
             "insert" -> {
-                // INSERT 操作：检查用户是否有权限插入数据
-                // 通常允许用户插入自己的数据
+                // INSERT 操作：通常允许用户插入自己的数据
+                // 无需额外条件
             }
             "update" -> {
-                // UPDATE 操作：检查用户是否有权限更新数据
-                // 通常只允许用户更新自己的数据
-                conditions.add("created_by = '$userId'")
+                // UPDATE 操作：通常只允许用户更新自己的数据
+                val userIdValue = userId.toIntOrNull() ?: userId
+                conditions.add(RlsCondition("created_by", "eq", userIdValue))
             }
             "delete" -> {
-                // DELETE 操作：检查用户是否有权限删除数据
-                // 通常只允许用户删除自己的数据
-                conditions.add("created_by = '$userId'")
+                // DELETE 操作：通常只允许用户删除自己的数据
+                val userIdValue = userId.toIntOrNull() ?: userId
+                conditions.add(RlsCondition("created_by", "eq", userIdValue))
             }
         }
         

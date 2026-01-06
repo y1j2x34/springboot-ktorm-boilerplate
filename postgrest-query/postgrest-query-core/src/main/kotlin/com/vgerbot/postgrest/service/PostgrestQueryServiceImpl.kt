@@ -2,22 +2,20 @@ package com.vgerbot.postgrest.service
 
 import com.vgerbot.common.exception.BusinessException
 import com.vgerbot.postgrest.api.PostgrestQueryService
-import com.vgerbot.postgrest.builder.QueryResult
-import com.vgerbot.postgrest.builder.SqlQueryBuilder
+import com.vgerbot.postgrest.builder.KtormQueryBuilder
 import com.vgerbot.postgrest.dto.QueryRequest
 import com.vgerbot.postgrest.dto.QueryResponse
 import com.vgerbot.postgrest.rls.RowLevelSecurityProvider
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import javax.sql.DataSource
-import java.sql.Connection
 
 /**
  * PostgREST 查询服务实现
+ * 使用 Ktorm 构建和执行查询，确保数据库兼容性
  */
 @Service
 class PostgrestQueryServiceImpl(
-    private val dataSource: DataSource,
+    private val queryBuilder: KtormQueryBuilder,
     private val rlsProvider: RowLevelSecurityProvider
 ) : PostgrestQueryService {
     
@@ -55,17 +53,17 @@ class PostgrestQueryServiceImpl(
             operation
         )
         
-        // 执行查询
-        val connection: Connection = dataSource.connection
+        // 使用 Ktorm 执行查询
         try {
-            val queryBuilder = SqlQueryBuilder(connection)
             val result = queryBuilder.buildAndExecute(request, rlsConditions)
             
             return QueryResponse(
                 data = result.data,
                 count = result.count,
-                headOnly = result.headOnly
+                head = result.headOnly
             )
+        } catch (e: BusinessException) {
+            throw e
         } catch (e: Exception) {
             logger.error("Error executing query", e)
             throw BusinessException(
@@ -73,8 +71,6 @@ class PostgrestQueryServiceImpl(
                 code = 500,
                 cause = e
             )
-        } finally {
-            connection.close()
         }
     }
 }

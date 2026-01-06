@@ -11,6 +11,7 @@
 - ✅ 支持计数查询（COUNT）
 - ✅ 支持 Row Level Security (RLS)，基于 authorization 模块
 - ✅ 自动权限检查
+- ✅ **使用 Ktorm DSL 构建查询，确保多数据库兼容性**
 
 ## API 端点
 
@@ -143,7 +144,6 @@
 - `ilike` - 不区分大小写 LIKE 匹配
 - `is` - IS NULL / IS NOT NULL
 - `in` - IN 列表
-- `contains` - JSON 数组包含（MariaDB）
 
 ## Row Level Security (RLS)
 
@@ -160,13 +160,75 @@
 
 ## 安全注意事项
 
-1. **SQL 注入防护**：所有表名和列名都经过清理，只允许字母、数字、下划线
-2. **参数化查询**：所有用户输入都使用 PreparedStatement 参数化
+1. **表注册控制**：只有注册过的表才能被查询，防止未授权访问
+2. **参数化查询**：使用 Ktorm DSL 构建查询，自动参数化
 3. **权限检查**：每次查询都会进行权限检查
 4. **RLS 自动应用**：RLS 条件自动添加到查询中
 
 ## 配置
 
-模块通过 Spring Boot 自动配置启用，无需额外配置。
+### 1. 注册可查询的表
 
-如果需要自定义 RLS 行为，可以实现 `RowLevelSecurityProvider` 接口。
+在使用查询 API 之前，需要先注册可查询的表。可以通过实现 `ApplicationRunner` 或在配置类中注册：
+
+```kotlin
+@Configuration
+class PostgrestTableConfiguration(
+    private val tableRegistry: TableRegistry
+) {
+    
+    @PostConstruct
+    fun registerTables() {
+        // 注册 User 表
+        tableRegistry.registerTable("users", Users)
+        
+        // 注册其他表
+        tableRegistry.registerTable("orders", Orders)
+        tableRegistry.registerTable("products", Products)
+    }
+}
+```
+
+### 2. 自动配置
+
+模块通过 Spring Boot 自动配置启用，会自动扫描并注册以下组件：
+- `DefaultTableRegistry` - 表注册表
+- `KtormQueryBuilder` - 查询构建器
+- `RowLevelSecurityProvider` - RLS 提供者
+- `PostgrestQueryServiceImpl` - 查询服务
+- `PostgrestQueryController` - REST 控制器
+
+### 3. 自定义 RLS
+
+如果需要自定义 RLS 行为，可以创建自己的 `RowLevelSecurityProvider` Bean：
+
+```kotlin
+@Component
+@Primary
+class CustomRlsProvider(
+    private val authorizationService: AuthorizationService
+) : RowLevelSecurityProvider(authorizationService) {
+    
+    override fun getRlsConditions(
+        tableName: String,
+        userId: String,
+        tenantId: String?,
+        operation: String
+    ): List<RlsCondition> {
+        // 自定义 RLS 逻辑
+        return super.getRlsConditions(tableName, userId, tenantId, operation)
+    }
+}
+```
+
+## 数据库兼容性
+
+本模块使用 Ktorm DSL 构建查询，自动处理不同数据库的 SQL 方言差异：
+
+- ✅ MySQL / MariaDB
+- ✅ PostgreSQL
+- ✅ SQLite
+- ✅ Oracle
+- ✅ SQL Server
+
+只需配置对应的 Ktorm 数据库方言即可。

@@ -7,6 +7,8 @@ dependencies {
     implementation(project(":user:user-core"))
     implementation(project(":wechat-auth"))
     implementation(project(":oauth-auth"))
+    implementation(project(":dict:dict-core"))
+    implementation(project(":postgrest-query:postgrest-query-core"))
 
     // Spring Security is needed because AppSecurityConfiguration uses it directly
     implementation("org.springframework.boot:spring-boot-starter-security")
