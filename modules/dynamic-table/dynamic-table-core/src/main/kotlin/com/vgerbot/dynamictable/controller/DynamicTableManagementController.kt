@@ -1,7 +1,7 @@
 package com.vgerbot.dynamictable.controller
 
-import com.vgerbot.common.dto.ApiResponses
-import com.vgerbot.common.dto.toResponseEntity
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.NotFoundException
 import com.vgerbot.dynamictable.api.DynamicTableManagementService
 import com.vgerbot.dynamictable.dto.*
 import io.swagger.v3.oas.annotations.Operation
@@ -52,7 +52,7 @@ class DynamicTableManagementController(
     ): ResponseEntity<Map<String, Any>> {
         logger.info("Discovering tables in schema: {}", schema ?: "default")
         val tables = tableManagementService.discoverTables(schema)
-        return ApiResponses.success(tables).toResponseEntity()
+        return tables.ok()
     }
     
     /**
@@ -65,7 +65,7 @@ class DynamicTableManagementController(
     @GetMapping
     fun getRegisteredTables(): ResponseEntity<Map<String, Any>> {
         val tables = tableManagementService.getRegisteredTables()
-        return ApiResponses.success(tables).toResponseEntity()
+        return tables.ok()
     }
     
     /**
@@ -82,11 +82,14 @@ class DynamicTableManagementController(
         logger.info("Registering table: {}", request.tableName)
         val result = tableManagementService.registerTable(request)
         
-        return if (result.success) {
-            ApiResponses.success(result).toResponseEntity()
-        } else {
-            ApiResponses.failure(result.message ?: "Registration failed", 400).toResponseEntity()
+        if (!result.success) {
+            throw com.vgerbot.common.exception.BusinessException(
+                result.message ?: "注册失败",
+                code = 400
+            )
         }
+        
+        return result.created("表注册成功")
     }
     
     /**
@@ -102,7 +105,7 @@ class DynamicTableManagementController(
     ): ResponseEntity<Map<String, Any>> {
         logger.info("Batch registering tables, registerAll={}", request.registerAll)
         val result = tableManagementService.registerTables(request)
-        return ApiResponses.success(result).toResponseEntity()
+        return result.ok()
     }
     
     /**
@@ -120,11 +123,11 @@ class DynamicTableManagementController(
         logger.info("Unregistering table: {}", tableName)
         val success = tableManagementService.unregisterTable(tableName)
         
-        return if (success) {
-            ApiResponses.success(mapOf("unregistered" to tableName)).toResponseEntity()
-        } else {
-            ApiResponses.failure("Table '$tableName' was not registered", 404).toResponseEntity()
+        if (!success) {
+            throw NotFoundException("表 '$tableName' 未注册")
         }
+        
+        return ok("表取消注册成功")
     }
     
     /**
@@ -142,7 +145,7 @@ class DynamicTableManagementController(
         @RequestParam(required = false) schema: String?
     ): ResponseEntity<Map<String, Any>> {
         val columns = tableManagementService.getTableColumns(tableName, schema)
-        return ApiResponses.success(columns).toResponseEntity()
+        return columns.ok()
     }
     
     /**
@@ -160,11 +163,14 @@ class DynamicTableManagementController(
         logger.info("Refreshing table: {}", tableName)
         val success = tableManagementService.refreshTable(tableName)
         
-        return if (success) {
-            ApiResponses.success(mapOf("refreshed" to tableName)).toResponseEntity()
-        } else {
-            ApiResponses.failure("Failed to refresh table '$tableName'", 400).toResponseEntity()
+        if (!success) {
+            throw com.vgerbot.common.exception.BusinessException(
+                "刷新表 '$tableName' 失败",
+                code = 400
+            )
         }
+        
+        return ok("表刷新成功")
     }
     
     /**
@@ -181,10 +187,10 @@ class DynamicTableManagementController(
         @RequestBody columns: Set<String>
     ): ResponseEntity<Map<String, Any>> {
         tableManagementService.setExcludedColumns(tableName, columns)
-        return ApiResponses.success(mapOf(
+        return mapOf(
             "table" to tableName,
             "excludedColumns" to columns
-        )).toResponseEntity()
+        ).ok()
     }
     
     /**
@@ -200,10 +206,10 @@ class DynamicTableManagementController(
         @PathVariable tableName: String
     ): ResponseEntity<Map<String, Any>> {
         val columns = tableManagementService.getExcludedColumns(tableName)
-        return ApiResponses.success(mapOf(
+        return mapOf(
             "table" to tableName,
             "excludedColumns" to columns
-        )).toResponseEntity()
+        ).ok()
     }
     
     /**
@@ -218,9 +224,9 @@ class DynamicTableManagementController(
         @RequestBody columns: Set<String>
     ): ResponseEntity<Map<String, Any>> {
         tableManagementService.setGlobalExcludedColumns(columns)
-        return ApiResponses.success(mapOf(
+        return mapOf(
             "globalExcludedColumns" to columns
-        )).toResponseEntity()
+        ).ok()
     }
     
     /**
@@ -233,9 +239,9 @@ class DynamicTableManagementController(
     @GetMapping("/excluded-columns")
     fun getGlobalExcludedColumns(): ResponseEntity<Map<String, Any>> {
         val columns = tableManagementService.getGlobalExcludedColumns()
-        return ApiResponses.success(mapOf(
+        return mapOf(
             "globalExcludedColumns" to columns
-        )).toResponseEntity()
+        ).ok()
     }
 }
 

@@ -1,5 +1,8 @@
 package com.vgerbot.tenant.controller
 
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.NotFoundException
+import com.vgerbot.common.exception.ValidationException
 import com.vgerbot.tenant.dto.TenantDto
 import com.vgerbot.tenant.service.TenantService
 import io.swagger.v3.oas.annotations.Operation
@@ -9,8 +12,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -21,10 +22,9 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Tenant", description = "Tenant management APIs")
 @RestController
 @RequestMapping("/tenants")
-class TenantController {
-    
-    @Autowired
-    private lateinit var tenantService: TenantService
+class TenantController(
+    private val tenantService: TenantService
+) {
     
     /**
      * Get all tenants
@@ -32,9 +32,9 @@ class TenantController {
     @Operation(summary = "Get all tenants", description = "Retrieve a list of all tenants")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved tenants")
     @GetMapping
-    fun getAllTenants(): ResponseEntity<List<TenantDto>> {
+    fun getAllTenants(): ResponseEntity<Map<String, Any>> {
         val tenants = tenantService.getAllTenants()
-        return ResponseEntity.ok(tenants)
+        return tenants.ok()
     }
     
     /**
@@ -49,13 +49,10 @@ class TenantController {
     fun getTenantById(
         @Parameter(description = "Tenant ID", required = true)
         @PathVariable id: Int
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val tenant = tenantService.getTenantById(id)
-        return if (tenant != null) {
-            ResponseEntity.ok(tenant)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Tenant not found"))
-        }
+            ?: throw NotFoundException("租户不存在")
+        return tenant.ok()
     }
     
     /**
@@ -70,13 +67,10 @@ class TenantController {
     fun getTenantByCode(
         @Parameter(description = "Tenant code", required = true)
         @PathVariable code: String
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val tenant = tenantService.getTenantByCode(code)
-        return if (tenant != null) {
-            ResponseEntity.ok(tenant)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Tenant not found"))
-        }
+            ?: throw NotFoundException("租户不存在")
+        return tenant.ok()
     }
     
     /**
@@ -92,17 +86,14 @@ class TenantController {
     fun findByEmail(
         @Parameter(description = "Email address", required = true)
         @RequestParam email: String
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         if (email.isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("error" to "Email parameter is required"))
+            throw ValidationException("邮箱参数不能为空", "email")
         }
 
         val tenant = tenantService.findTenantByEmail(email)
-        return if (tenant != null) {
-            ResponseEntity.ok(tenant)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "No matching tenant found for email"))
-        }
+            ?: throw NotFoundException("未找到匹配的租户")
+        return tenant.ok()
     }
     
     /**
@@ -114,8 +105,8 @@ class TenantController {
     fun getTenantsForUser(
         @Parameter(description = "User ID", required = true)
         @PathVariable userId: Int
-    ): ResponseEntity<List<TenantDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val tenants = tenantService.getTenantsForUser(userId)
-        return ResponseEntity.ok(tenants)
+        return tenants.ok()
     }
 }

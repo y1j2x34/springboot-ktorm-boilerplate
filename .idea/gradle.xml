@@ -10,26 +10,35 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/authorization" />
-            <option value="$PROJECT_DIR$/authorization/authorization-api" />
-            <option value="$PROJECT_DIR$/authorization/authorization-core" />
-            <option value="$PROJECT_DIR$/captcha" />
-            <option value="$PROJECT_DIR$/common" />
-            <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/dict" />
-            <option value="$PROJECT_DIR$/dict/dict-api" />
-            <option value="$PROJECT_DIR$/dict/dict-core" />
-            <option value="$PROJECT_DIR$/jwt-auth" />
-            <option value="$PROJECT_DIR$/oauth-auth" />
-            <option value="$PROJECT_DIR$/oauth2-server" />
-            <option value="$PROJECT_DIR$/security" />
-            <option value="$PROJECT_DIR$/tenant" />
-            <option value="$PROJECT_DIR$/tenant/tenant-api" />
-            <option value="$PROJECT_DIR$/tenant/tenant-core" />
-            <option value="$PROJECT_DIR$/user" />
-            <option value="$PROJECT_DIR$/user/user-api" />
-            <option value="$PROJECT_DIR$/user/user-core" />
-            <option value="$PROJECT_DIR$/wechat-auth" />
+            <option value="$PROJECT_DIR$/infrastructure" />
+            <option value="$PROJECT_DIR$/infrastructure/infrastructure-common" />
+            <option value="$PROJECT_DIR$/infrastructure/infrastructure-core" />
+            <option value="$PROJECT_DIR$/infrastructure/infrastructure-security" />
+            <option value="$PROJECT_DIR$/modules" />
+            <option value="$PROJECT_DIR$/modules/auth" />
+            <option value="$PROJECT_DIR$/modules/auth/auth-jwt" />
+            <option value="$PROJECT_DIR$/modules/auth/auth-oauth" />
+            <option value="$PROJECT_DIR$/modules/auth/auth-oauth2-server" />
+            <option value="$PROJECT_DIR$/modules/auth/auth-wechat" />
+            <option value="$PROJECT_DIR$/modules/authorization" />
+            <option value="$PROJECT_DIR$/modules/authorization/authorization-api" />
+            <option value="$PROJECT_DIR$/modules/authorization/authorization-core" />
+            <option value="$PROJECT_DIR$/modules/captcha" />
+            <option value="$PROJECT_DIR$/modules/dict" />
+            <option value="$PROJECT_DIR$/modules/dict/dict-api" />
+            <option value="$PROJECT_DIR$/modules/dict/dict-core" />
+            <option value="$PROJECT_DIR$/modules/dynamic-table" />
+            <option value="$PROJECT_DIR$/modules/dynamic-table/dynamic-table-api" />
+            <option value="$PROJECT_DIR$/modules/dynamic-table/dynamic-table-core" />
+            <option value="$PROJECT_DIR$/modules/postgrest-query" />
+            <option value="$PROJECT_DIR$/modules/postgrest-query/postgrest-query-api" />
+            <option value="$PROJECT_DIR$/modules/postgrest-query/postgrest-query-core" />
+            <option value="$PROJECT_DIR$/modules/tenant" />
+            <option value="$PROJECT_DIR$/modules/tenant/tenant-api" />
+            <option value="$PROJECT_DIR$/modules/tenant/tenant-core" />
+            <option value="$PROJECT_DIR$/modules/user" />
+            <option value="$PROJECT_DIR$/modules/user/user-api" />
+            <option value="$PROJECT_DIR$/modules/user/user-core" />
           </set>
         </option>
       </GradleProjectSettings>

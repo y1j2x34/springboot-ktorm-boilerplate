@@ -1,5 +1,8 @@
 package com.vgerbot.oauth
 
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.ConflictException
+import com.vgerbot.common.exception.NotFoundException
 import com.vgerbot.oauth.dto.CreateOAuth2ProviderDto
 import com.vgerbot.oauth.dto.OAuth2ProviderResponseDto
 import com.vgerbot.oauth.dto.UpdateOAuth2ProviderDto
@@ -12,7 +15,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -49,12 +51,7 @@ class OAuth2ProviderController(
             oauth2ProviderService.getAllEnabled()
         }
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "data" to providers
-            )
-        )
+        return providers.ok()
     }
     
     @Operation(summary = "Get OAuth2 provider by ID", description = "Retrieve a single OAuth2 provider by its ID")
@@ -68,19 +65,9 @@ class OAuth2ProviderController(
         @PathVariable id: Int
     ): ResponseEntity<Map<String, Any>> {
         val provider = oauth2ProviderService.getById(id)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "OAuth2 provider not found"
-                )
-            )
+            ?: throw NotFoundException("OAuth2 提供商不存在")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "data" to provider
-            )
-        )
+        return provider.ok()
     }
     
     @Operation(summary = "Create OAuth2 provider", description = "Create a new OAuth2 provider")
@@ -94,22 +81,11 @@ class OAuth2ProviderController(
         @Valid @RequestBody dto: CreateOAuth2ProviderDto
     ): ResponseEntity<Map<String, Any>> {
         val result = oauth2ProviderService.create(dto)
-            ?: return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "OAuth2 provider with this registration ID already exists"
-                )
-            )
+            ?: throw ConflictException("OAuth2 提供商注册ID已存在")
         
         logger.info("Created OAuth2 provider: ${dto.registrationId}")
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            mapOf(
-                "success" to true,
-                "message" to "OAuth2 provider created successfully",
-                "data" to result
-            )
-        )
+        return result.created("OAuth2 提供商创建成功")
     }
     
     @Operation(summary = "Update OAuth2 provider", description = "Update an existing OAuth2 provider")
@@ -125,22 +101,11 @@ class OAuth2ProviderController(
         @Valid @RequestBody dto: UpdateOAuth2ProviderDto
     ): ResponseEntity<Map<String, Any>> {
         val result = oauth2ProviderService.update(id, dto)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "OAuth2 provider not found"
-                )
-            )
+            ?: throw NotFoundException("OAuth2 提供商不存在")
         
         logger.info("Updated OAuth2 provider: $id")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "message" to "OAuth2 provider updated successfully",
-                "data" to result
-            )
-        )
+        return result.ok("OAuth2 提供商更新成功")
     }
     
     @Operation(summary = "Delete OAuth2 provider", description = "Delete an OAuth2 provider (soft delete)")
@@ -156,22 +121,12 @@ class OAuth2ProviderController(
         val result = oauth2ProviderService.delete(id)
         
         if (!result) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "OAuth2 provider not found"
-                )
-            )
+            throw NotFoundException("OAuth2 提供商不存在")
         }
         
         logger.info("Deleted OAuth2 provider: $id")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "message" to "OAuth2 provider deleted successfully"
-            )
-        )
+        return ok("OAuth2 提供商删除成功")
     }
     
     @Operation(summary = "Refresh OAuth2 client registrations", description = "Refresh OAuth2 client registration cache")
@@ -182,12 +137,7 @@ class OAuth2ProviderController(
         
         logger.info("Refreshed OAuth2 client registrations")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "message" to "OAuth2 client registrations refreshed successfully"
-            )
-        )
+        return ok("OAuth2 客户端注册刷新成功")
     }
 }
 
@@ -217,12 +167,7 @@ class PublicOAuth2ProviderController(
             )
         }
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "data" to providers
-            )
-        )
+        return providers.ok()
     }
 }
 

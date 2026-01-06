@@ -1,6 +1,8 @@
 package com.vgerbot.wechat
 
 import com.vgerbot.auth.data.TokenResponse
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.NotFoundException
 import com.vgerbot.wechat.dto.WechatLoginCallbackRequest
 import com.vgerbot.wechat.wechat.WechatLoginService
 import io.swagger.v3.oas.annotations.Operation
@@ -12,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -55,24 +56,9 @@ class WechatLoginController(
         @RequestParam(required = false) state: String?
     ): ResponseEntity<Map<String, Any>> {
         val authUrl = wechatLoginService.generateOpenPlatformAuthUrl(configId, redirectUri, state)
+            ?: throw NotFoundException("微信配置不存在或类型无效")
         
-        if (authUrl == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat config not found or invalid type"
-                )
-            )
-        }
-        
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "data" to mapOf(
-                    "auth_url" to authUrl
-                )
-            )
-        )
+        return mapOf("auth_url" to authUrl).ok()
     }
     
     /**
@@ -112,35 +98,11 @@ class WechatLoginController(
     ): ResponseEntity<Map<String, Any>> {
         logger.info("OpenPlatform callback: configId=$configId, code=$code, state=$state")
         
-        return try {
-            val tokenResponse = wechatLoginService.handleOpenPlatformCallback(configId, code)
-            
-            if (tokenResponse == null) {
-                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    mapOf(
-                        "success" to false,
-                        "message" to "Wechat login failed"
-                    )
-                )
-            } else {
-                logger.info("OpenPlatform login successful for config: $configId")
-                ResponseEntity.ok(
-                    mapOf(
-                        "success" to true,
-                        "message" to "Wechat login successful",
-                        "data" to tokenResponse
-                    )
-                )
-            }
-        } catch (e: Exception) {
-            logger.error("OpenPlatform callback failed", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat login failed: ${e.message}"
-                )
-            )
-        }
+        val tokenResponse = wechatLoginService.handleOpenPlatformCallback(configId, code)
+            ?: throw com.vgerbot.common.exception.UnauthorizedException("微信登录失败")
+        
+        logger.info("OpenPlatform login successful for config: $configId")
+        return tokenResponse.ok("微信登录成功")
     }
     
     // ==================== 微信公众号（微信内 H5 登录）====================
@@ -158,24 +120,9 @@ class WechatLoginController(
         @RequestParam(required = false, defaultValue = "snsapi_userinfo") scope: String
     ): ResponseEntity<Map<String, Any>> {
         val authUrl = wechatLoginService.generateMpAuthUrl(configId, redirectUri, state, scope)
+            ?: throw NotFoundException("微信配置不存在或类型无效")
         
-        if (authUrl == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat config not found or invalid type"
-                )
-            )
-        }
-        
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "data" to mapOf(
-                    "auth_url" to authUrl
-                )
-            )
-        )
+        return mapOf("auth_url" to authUrl).ok()
     }
     
     @Operation(summary = "WeChat Official Account redirect login", description = "Redirect to WeChat authorization page for Official Account login")
@@ -211,35 +158,11 @@ class WechatLoginController(
     ): ResponseEntity<Map<String, Any>> {
         logger.info("MP callback: configId=$configId, code=$code, state=$state")
         
-        return try {
-            val tokenResponse = wechatLoginService.handleMpCallback(configId, code)
-            
-            if (tokenResponse == null) {
-                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    mapOf(
-                        "success" to false,
-                        "message" to "Wechat login failed"
-                    )
-                )
-            } else {
-                logger.info("MP login successful for config: $configId")
-                ResponseEntity.ok(
-                    mapOf(
-                        "success" to true,
-                        "message" to "Wechat login successful",
-                        "data" to tokenResponse
-                    )
-                )
-            }
-        } catch (e: Exception) {
-            logger.error("MP callback failed", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat login failed: ${e.message}"
-                )
-            )
-        }
+        val tokenResponse = wechatLoginService.handleMpCallback(configId, code)
+            ?: throw com.vgerbot.common.exception.UnauthorizedException("微信登录失败")
+        
+        logger.info("MP login successful for config: $configId")
+        return tokenResponse.ok("微信登录成功")
     }
     
     // ==================== 微信小程序 ====================
@@ -264,35 +187,11 @@ class WechatLoginController(
     ): ResponseEntity<Map<String, Any>> {
         logger.info("MiniProgram login: configId=$configId")
         
-        return try {
-            val tokenResponse = wechatLoginService.handleMiniProgramLogin(configId, request.code)
-            
-            if (tokenResponse == null) {
-                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    mapOf(
-                        "success" to false,
-                        "message" to "Wechat login failed"
-                    )
-                )
-            } else {
-                logger.info("MiniProgram login successful for config: $configId")
-                ResponseEntity.ok(
-                    mapOf(
-                        "success" to true,
-                        "message" to "Wechat login successful",
-                        "data" to tokenResponse
-                    )
-                )
-            }
-        } catch (e: Exception) {
-            logger.error("MiniProgram login failed", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat login failed: ${e.message}"
-                )
-            )
-        }
+        val tokenResponse = wechatLoginService.handleMiniProgramLogin(configId, request.code)
+            ?: throw com.vgerbot.common.exception.UnauthorizedException("微信登录失败")
+        
+        logger.info("MiniProgram login successful for config: $configId")
+        return tokenResponse.ok("微信登录成功")
     }
 }
 

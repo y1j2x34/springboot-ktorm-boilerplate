@@ -1,5 +1,7 @@
 package com.vgerbot.oauth2server.controller
 
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.NotFoundException
 import com.vgerbot.oauth2server.data.OAuth2ClientCreateRequest
 import com.vgerbot.oauth2server.data.OAuth2ClientResponse
 import com.vgerbot.oauth2server.data.OAuth2ClientUpdateRequest
@@ -10,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -37,9 +38,9 @@ class OAuth2ClientController(
     fun createClient(
         @Parameter(description = "Client creation data", required = true)
         @RequestBody request: OAuth2ClientCreateRequest
-    ): ResponseEntity<OAuth2ClientResponse> {
+    ): ResponseEntity<Map<String, Any>> {
         val client = oauth2ClientService.createClient(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(client)
+        return client.created("OAuth2 客户端创建成功")
     }
 
     @Operation(summary = "Update OAuth2 client", description = "Update an existing OAuth2 client")
@@ -51,9 +52,9 @@ class OAuth2ClientController(
         @PathVariable clientId: String,
         @Parameter(description = "Client update data", required = true)
         @RequestBody request: OAuth2ClientUpdateRequest
-    ): ResponseEntity<OAuth2ClientResponse> {
+    ): ResponseEntity<Map<String, Any>> {
         val client = oauth2ClientService.updateClient(clientId, request)
-        return ResponseEntity.ok(client)
+        return client.ok("OAuth2 客户端更新成功")
     }
 
     @Operation(summary = "Delete OAuth2 client", description = "Delete an OAuth2 client")
@@ -63,9 +64,9 @@ class OAuth2ClientController(
     fun deleteClient(
         @Parameter(description = "Client ID", required = true)
         @PathVariable clientId: String
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Map<String, Any>> {
         oauth2ClientService.deleteClient(clientId)
-        return ResponseEntity.noContent().build()
+        return ok("OAuth2 客户端删除成功")
     }
 
     @Operation(summary = "Get OAuth2 client by ID", description = "Retrieve an OAuth2 client by its client ID")
@@ -78,28 +79,28 @@ class OAuth2ClientController(
     fun getClient(
         @Parameter(description = "Client ID", required = true)
         @PathVariable clientId: String
-    ): ResponseEntity<OAuth2ClientResponse> {
+    ): ResponseEntity<Map<String, Any>> {
         val client = oauth2ClientService.findByClientId(clientId)
-            ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(client)
+            ?: throw NotFoundException("OAuth2 客户端不存在")
+        return client.ok()
     }
 
     @Operation(summary = "Get all OAuth2 clients", description = "Retrieve all OAuth2 clients")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved clients")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    fun getAllClients(): ResponseEntity<List<OAuth2ClientResponse>> {
+    fun getAllClients(): ResponseEntity<Map<String, Any>> {
         val clients = oauth2ClientService.findAll()
-        return ResponseEntity.ok(clients)
+        return clients.ok()
     }
 
     @Operation(summary = "Get enabled OAuth2 clients", description = "Retrieve all enabled OAuth2 clients")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved enabled clients")
     @GetMapping("/enabled")
     @PreAuthorize("hasRole('ADMIN')")
-    fun getEnabledClients(): ResponseEntity<List<OAuth2ClientResponse>> {
+    fun getEnabledClients(): ResponseEntity<Map<String, Any>> {
         val clients = oauth2ClientService.findAllEnabled()
-        return ResponseEntity.ok(clients)
+        return clients.ok()
     }
 }
 

@@ -46,3 +46,4 @@ bin/
 .env.*.local
 
 database/.idea/
+temp/

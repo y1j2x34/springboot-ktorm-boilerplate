@@ -1,7 +1,6 @@
 package com.vgerbot.postgrest.controller
 
-import com.vgerbot.common.dto.ApiResponses
-import com.vgerbot.common.dto.toResponseEntity
+import com.vgerbot.common.controller.*
 import com.vgerbot.postgrest.api.PostgrestQueryService
 import com.vgerbot.postgrest.dto.QueryRequest
 import com.vgerbot.postgrest.dto.QueryResponse
@@ -48,7 +47,7 @@ class PostgrestQueryController(
         // 执行查询
         val response = queryService.executeQuery(request, userId, tenantId)
         
-        return ApiResponses.success(response).toResponseEntity()
+        return response.ok()
     }
     
     /**

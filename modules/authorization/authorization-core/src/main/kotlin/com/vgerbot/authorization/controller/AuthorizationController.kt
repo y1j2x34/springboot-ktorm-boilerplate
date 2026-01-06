@@ -3,10 +3,12 @@ package com.vgerbot.authorization.controller
 import com.vgerbot.authorization.api.AuthorizationService
 import com.vgerbot.authorization.api.PermissionRequest
 import com.vgerbot.authorization.dto.*
+import com.vgerbot.common.controller.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 /**
@@ -29,14 +31,14 @@ class AuthorizationController(
     fun enforce(
         @Parameter(description = "Permission enforcement request", required = true)
         @RequestBody request: EnforceRequest
-    ): EnforceResponse {
+    ): ResponseEntity<Map<String, Any>> {
         val allowed = authorizationService.enforce(
             request.subject,
             request.resource,
             request.action,
             request.domain
         )
-        return EnforceResponse(allowed)
+        return EnforceResponse(allowed).ok()
     }
     
     /**
@@ -48,7 +50,7 @@ class AuthorizationController(
     fun batchEnforce(
         @Parameter(description = "Batch permission enforcement request", required = true)
         @RequestBody request: BatchEnforceRequest
-    ): BatchEnforceResponse {
+    ): ResponseEntity<Map<String, Any>> {
         val permissionRequests = request.requests.map {
             PermissionRequest(it.subject, it.resource, it.action, it.domain)
         }
@@ -58,7 +60,7 @@ class AuthorizationController(
             EnforceResult(req, allowed)
         }
         
-        return BatchEnforceResponse(enforceResults)
+        return BatchEnforceResponse(enforceResults).ok()
     }
     
     /**
@@ -70,14 +72,14 @@ class AuthorizationController(
     fun addPolicy(
         @Parameter(description = "Policy request", required = true)
         @RequestBody request: PolicyRequest
-    ): Map<String, Boolean> {
+    ): ResponseEntity<Map<String, Any>> {
         val success = authorizationService.addPolicy(
             request.subject,
             request.resource,
             request.action,
             request.domain
         )
-        return mapOf("success" to success)
+        return mapOf("success" to success).ok()
     }
     
     /**
@@ -89,14 +91,14 @@ class AuthorizationController(
     fun removePolicy(
         @Parameter(description = "Policy request", required = true)
         @RequestBody request: PolicyRequest
-    ): Map<String, Boolean> {
+    ): ResponseEntity<Map<String, Any>> {
         val success = authorizationService.removePolicy(
             request.subject,
             request.resource,
             request.action,
             request.domain
         )
-        return mapOf("success" to success)
+        return mapOf("success" to success).ok()
     }
     
     /**
@@ -110,11 +112,12 @@ class AuthorizationController(
         @PathVariable subject: String,
         @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
-    ): List<PermissionInfo> {
+    ): ResponseEntity<Map<String, Any>> {
         val permissions = authorizationService.getPermissionsForSubject(subject, domain)
-        return permissions.map { 
+        val result = permissions.map { 
             PermissionInfo(it.subject, it.resource, it.action, it.domain)
         }
+        return result.ok()
     }
     
     /**
@@ -128,11 +131,12 @@ class AuthorizationController(
         @PathVariable resource: String,
         @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
-    ): List<PermissionInfo> {
+    ): ResponseEntity<Map<String, Any>> {
         val permissions = authorizationService.getPermissionsForResource(resource, domain)
-        return permissions.map { 
+        val result = permissions.map { 
             PermissionInfo(it.subject, it.resource, it.action, it.domain)
         }
+        return result.ok()
     }
     
     /**
@@ -144,13 +148,13 @@ class AuthorizationController(
     fun addRoleForUser(
         @Parameter(description = "Role assignment request", required = true)
         @RequestBody request: RoleAssignmentRequest
-    ): Map<String, Boolean> {
+    ): ResponseEntity<Map<String, Any>> {
         val success = authorizationService.addRoleForUser(
             request.userId,
             request.role,
             request.domain
         )
-        return mapOf("success" to success)
+        return mapOf("success" to success).ok()
     }
     
     /**
@@ -162,13 +166,13 @@ class AuthorizationController(
     fun removeRoleForUser(
         @Parameter(description = "Role assignment request", required = true)
         @RequestBody request: RoleAssignmentRequest
-    ): Map<String, Boolean> {
+    ): ResponseEntity<Map<String, Any>> {
         val success = authorizationService.removeRoleForUser(
             request.userId,
             request.role,
             request.domain
         )
-        return mapOf("success" to success)
+        return mapOf("success" to success).ok()
     }
     
     /**
@@ -182,9 +186,9 @@ class AuthorizationController(
         @PathVariable userId: Int,
         @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
-    ): UserRoleInfo {
+    ): ResponseEntity<Map<String, Any>> {
         val roles = authorizationService.getRolesForUser(userId, domain)
-        return UserRoleInfo(userId, roles, domain)
+        return UserRoleInfo(userId, roles, domain).ok()
     }
     
     /**
@@ -198,9 +202,9 @@ class AuthorizationController(
         @PathVariable userId: Int,
         @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
-    ): Map<String, Boolean> {
+    ): ResponseEntity<Map<String, Any>> {
         val success = authorizationService.deleteRolesForUser(userId, domain)
-        return mapOf("success" to success)
+        return mapOf("success" to success).ok()
     }
     
     /**
@@ -214,9 +218,9 @@ class AuthorizationController(
         @PathVariable role: String,
         @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
-    ): Map<String, List<Int>> {
+    ): ResponseEntity<Map<String, Any>> {
         val users = authorizationService.getUsersForRole(role, domain)
-        return mapOf("users" to users)
+        return mapOf("users" to users).ok()
     }
     
     /**
@@ -228,13 +232,13 @@ class AuthorizationController(
     fun addRoleInheritance(
         @Parameter(description = "Role inheritance request", required = true)
         @RequestBody request: RoleInheritanceRequest
-    ): Map<String, Boolean> {
+    ): ResponseEntity<Map<String, Any>> {
         val success = authorizationService.addRoleInheritance(
             request.role,
             request.parentRole,
             request.domain
         )
-        return mapOf("success" to success)
+        return mapOf("success" to success).ok()
     }
     
     /**
@@ -246,13 +250,13 @@ class AuthorizationController(
     fun removeRoleInheritance(
         @Parameter(description = "Role inheritance request", required = true)
         @RequestBody request: RoleInheritanceRequest
-    ): Map<String, Boolean> {
+    ): ResponseEntity<Map<String, Any>> {
         val success = authorizationService.removeRoleInheritance(
             request.role,
             request.parentRole,
             request.domain
         )
-        return mapOf("success" to success)
+        return mapOf("success" to success).ok()
     }
     
     /**
@@ -266,9 +270,9 @@ class AuthorizationController(
         @PathVariable role: String,
         @Parameter(description = "Optional domain filter")
         @RequestParam(required = false) domain: String?
-    ): Map<String, Boolean> {
+    ): ResponseEntity<Map<String, Any>> {
         val success = authorizationService.deleteRole(role, domain)
-        return mapOf("success" to success)
+        return mapOf("success" to success).ok()
     }
     
     /**
@@ -277,9 +281,9 @@ class AuthorizationController(
     @Operation(summary = "Reload policy", description = "Reload authorization policies from storage")
     @ApiResponse(responseCode = "200", description = "Policy reloaded successfully")
     @PostMapping("/reload")
-    fun reloadPolicy(): Map<String, String> {
+    fun reloadPolicy(): ResponseEntity<Map<String, Any>> {
         authorizationService.reloadPolicy()
-        return mapOf("message" to "Policy reloaded successfully")
+        return ok("策略重新加载成功")
     }
 }
 

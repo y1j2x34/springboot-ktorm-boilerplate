@@ -88,7 +88,7 @@ interface OAuth2Client : AuditableEntity<OAuth2Client> {
 
 object OAuth2Clients : com.vgerbot.common.entity.AuditableTable<OAuth2Client>("oauth2_client") {
     val id = int("id").primaryKey().bindTo { it.id }
-    val clientId = varchar("client_id").unique().bindTo { it.clientId }
+    val clientId = varchar("client_id").bindTo { it.clientId }
     val clientSecret = varchar("client_secret").bindTo { it.clientSecret }
     val clientName = varchar("client_name").bindTo { it.clientName }
     val description = text("description").bindTo { it.description }

@@ -70,8 +70,8 @@ class DynamicTableManagementServiceImpl(
         dynamicTableRegistry.registerTable(registrationName, dynamicTable)
         
         // Configure excluded columns if provided
-        if (request.excludedColumns != null && request.excludedColumns.isNotEmpty()) {
-            dynamicTableManager.addTableExcludedColumns(registrationName, request.excludedColumns)
+        request.excludedColumns?.takeIf { it.isNotEmpty() }?.let { excludedColumns ->
+            dynamicTableManager.addTableExcludedColumns(registrationName, excludedColumns)
         }
         
         logger.info("Successfully registered table '{}' with {} columns", 
@@ -103,9 +103,9 @@ class DynamicTableManagementServiceImpl(
                 ))
                 results.add(result)
             }
-        } else if (request.tables != null) {
+        } else {
             // Register specified tables
-            for (tableRequest in request.tables) {
+            request.tables?.forEach { tableRequest ->
                 val result = registerTable(tableRequest)
                 results.add(result)
             }

@@ -1,5 +1,9 @@
 package com.vgerbot.wechat
 
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.ConflictException
+import com.vgerbot.common.exception.NotFoundException
+import com.vgerbot.common.exception.ValidationException
 import com.vgerbot.wechat.dto.CreateWechatConfigDto
 import com.vgerbot.wechat.dto.UpdateWechatConfigDto
 import com.vgerbot.wechat.entity.WechatLoginType
@@ -13,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -51,12 +54,7 @@ class WechatConfigController(
             wechatConfigService.getAllEnabled()
         }
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "data" to configs
-            )
-        )
+        return configs.ok()
     }
     
     @Operation(summary = "Get WeChat config by ID", description = "Retrieve a single WeChat configuration by its ID")
@@ -70,19 +68,9 @@ class WechatConfigController(
         @PathVariable id: Int
     ): ResponseEntity<Map<String, Any>> {
         val config = wechatConfigService.getById(id)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat config not found"
-                )
-            )
+            ?: throw NotFoundException("微信配置不存在")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "data" to config
-            )
-        )
+        return config.ok()
     }
     
     /**
@@ -90,24 +78,17 @@ class WechatConfigController(
      */
     @GetMapping("type/{loginType}")
     fun getByLoginType(@PathVariable loginType: String): ResponseEntity<Map<String, Any>> {
-        return try {
-            val type = WechatLoginType.valueOf(loginType.uppercase())
-            val configs = wechatConfigService.getByLoginType(type)
-            
-            ResponseEntity.ok(
-                mapOf(
-                    "success" to true,
-                    "data" to configs
-                )
-            )
+        val type = try {
+            WechatLoginType.valueOf(loginType.uppercase())
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Invalid login type: $loginType. Valid types: ${WechatLoginType.values().joinToString()}"
-                )
+            throw ValidationException(
+                "无效的登录类型: $loginType. 有效类型: ${WechatLoginType.values().joinToString()}",
+                "loginType"
             )
         }
+        
+        val configs = wechatConfigService.getByLoginType(type)
+        return configs.ok()
     }
     
     @Operation(summary = "Create WeChat config", description = "Create a new WeChat configuration")
@@ -125,31 +106,18 @@ class WechatConfigController(
         try {
             WechatLoginType.valueOf(dto.loginType.uppercase())
         } catch (e: IllegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Invalid login type: ${dto.loginType}. Valid types: ${WechatLoginType.values().joinToString()}"
-                )
+            throw ValidationException(
+                "无效的登录类型: ${dto.loginType}. 有效类型: ${WechatLoginType.values().joinToString()}",
+                "loginType"
             )
         }
         
         val result = wechatConfigService.create(dto.copy(loginType = dto.loginType.uppercase()))
-            ?: return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat config with this config ID already exists"
-                )
-            )
+            ?: throw ConflictException("微信配置ID已存在")
         
         logger.info("Created Wechat config: ${dto.configId}")
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            mapOf(
-                "success" to true,
-                "message" to "Wechat config created successfully",
-                "data" to result
-            )
-        )
+        return result.created("微信配置创建成功")
     }
     
     @Operation(summary = "Update WeChat config", description = "Update an existing WeChat configuration")
@@ -165,22 +133,11 @@ class WechatConfigController(
         @Valid @RequestBody dto: UpdateWechatConfigDto
     ): ResponseEntity<Map<String, Any>> {
         val result = wechatConfigService.update(id, dto)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat config not found"
-                )
-            )
+            ?: throw NotFoundException("微信配置不存在")
         
         logger.info("Updated Wechat config: $id")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "message" to "Wechat config updated successfully",
-                "data" to result
-            )
-        )
+        return result.ok("微信配置更新成功")
     }
     
     @Operation(summary = "Delete WeChat config", description = "Delete a WeChat configuration (soft delete)")
@@ -196,22 +153,12 @@ class WechatConfigController(
         val result = wechatConfigService.delete(id)
         
         if (!result) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Wechat config not found"
-                )
-            )
+            throw NotFoundException("微信配置不存在")
         }
         
         logger.info("Deleted Wechat config: $id")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "message" to "Wechat config deleted successfully"
-            )
-        )
+        return ok("微信配置删除成功")
     }
     
     @Operation(summary = "Refresh WeChat services", description = "Refresh WeChat service cache")
@@ -222,12 +169,7 @@ class WechatConfigController(
         
         logger.info("Refreshed Wechat services")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "message" to "Wechat services refreshed successfully"
-            )
-        )
+        return ok("微信服务刷新成功")
     }
 }
 
@@ -259,12 +201,7 @@ class PublicWechatConfigController(
             )
         }
         
-        return ResponseEntity.ok(
-            mapOf(
-                "success" to true,
-                "data" to configs
-            )
-        )
+        return configs.ok()
     }
     
     @Operation(summary = "Get WeChat configs by login type", description = "Retrieve enabled WeChat configurations by login type")
@@ -277,31 +214,22 @@ class PublicWechatConfigController(
         @Parameter(description = "Login type", required = true)
         @PathVariable loginType: String
     ): ResponseEntity<Map<String, Any>> {
-        return try {
-            val type = WechatLoginType.valueOf(loginType.uppercase())
-            val configs = wechatConfigService.getByLoginType(type).map { config ->
-                mapOf(
-                    "config_id" to config.configId,
-                    "name" to config.name,
-                    "login_type" to config.loginType,
-                    "login_url" to config.loginUrl
-                )
-            }
-            
-            ResponseEntity.ok(
-                mapOf(
-                    "success" to true,
-                    "data" to configs
-                )
-            )
+        val type = try {
+            WechatLoginType.valueOf(loginType.uppercase())
         } catch (e: IllegalArgumentException) {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Invalid login type: $loginType"
-                )
+            throw ValidationException("无效的登录类型: $loginType", "loginType")
+        }
+        
+        val configs = wechatConfigService.getByLoginType(type).map { config ->
+            mapOf(
+                "config_id" to config.configId,
+                "name" to config.name,
+                "login_type" to config.loginType,
+                "login_url" to config.loginUrl
             )
         }
+        
+        return configs.ok()
     }
 }
 

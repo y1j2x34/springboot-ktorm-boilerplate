@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -23,10 +22,9 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Dictionary Type", description = "Dictionary type management APIs")
 @RestController
 @RequestMapping("/dict/types")
-class DictTypeController {
-    
-    @Autowired
-    lateinit var dictTypeService: DictTypeService
+class DictTypeController(
+    private val dictTypeService: DictTypeService
+) {
     
     @Operation(summary = "Create dictionary type", description = "Create a new dictionary type")
     @ApiResponses(

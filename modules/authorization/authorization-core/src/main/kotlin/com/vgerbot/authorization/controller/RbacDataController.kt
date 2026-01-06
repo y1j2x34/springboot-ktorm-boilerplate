@@ -2,13 +2,14 @@ package com.vgerbot.authorization.controller
 
 import com.vgerbot.authorization.dto.*
 import com.vgerbot.authorization.service.RbacDataService
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.ConflictException
+import com.vgerbot.common.exception.NotFoundException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -19,10 +20,9 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "RBAC Data", description = "RBAC data management APIs")
 @RestController
 @RequestMapping("/rbac")
-class RbacDataController {
-    
-    @Autowired
-    lateinit var rbacDataService: RbacDataService
+class RbacDataController(
+    private val rbacDataService: RbacDataService
+) {
     
     // ==================== 用户角色管理 ====================
     
@@ -35,13 +35,12 @@ class RbacDataController {
     fun assignRoleToUser(
         @Parameter(description = "Role assignment data", required = true)
         @RequestBody dto: AssignRoleToUserDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val assigned = rbacDataService.assignRoleToUser(dto.userId, dto.roleId)
-        return if (assigned) {
-            ResponseEntity.ok(mapOf("message" to "Role assigned to user successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to "Role already assigned to user"))
+        if (!assigned) {
+            throw ConflictException("角色已分配给用户")
         }
+        return ok("角色分配成功")
     }
     
     @Operation(summary = "Remove role from user", description = "Remove a role from a user")
@@ -53,13 +52,12 @@ class RbacDataController {
     fun removeRoleFromUser(
         @Parameter(description = "Role removal data", required = true)
         @RequestBody dto: RemoveRoleFromUserDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val removed = rbacDataService.removeRoleFromUser(dto.userId, dto.roleId)
-        return if (removed) {
-            ResponseEntity.ok(mapOf("message" to "Role removed from user successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "User role assignment not found"))
+        if (!removed) {
+            throw NotFoundException("用户角色关联不存在")
         }
+        return ok("角色移除成功")
     }
     
     @Operation(summary = "Get user roles", description = "Retrieve all roles assigned to a user")
@@ -68,9 +66,9 @@ class RbacDataController {
     fun getUserRoles(
         @Parameter(description = "User ID", required = true)
         @PathVariable userId: Int
-    ): ResponseEntity<List<RoleDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val roles = rbacDataService.getUserRoles(userId)
-        return ResponseEntity.ok(roles)
+        return roles.ok()
     }
     
     @Operation(summary = "Get user permissions", description = "Retrieve all permissions for a user (including role-based and direct permissions)")
@@ -79,9 +77,9 @@ class RbacDataController {
     fun getUserPermissions(
         @Parameter(description = "User ID", required = true)
         @PathVariable userId: Int
-    ): ResponseEntity<List<PermissionDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val permissions = rbacDataService.getUserPermissions(userId)
-        return ResponseEntity.ok(permissions)
+        return permissions.ok()
     }
     
     // ==================== 角色权限管理 ====================
@@ -95,13 +93,12 @@ class RbacDataController {
     fun assignPermissionToRole(
         @Parameter(description = "Permission assignment data", required = true)
         @RequestBody dto: AssignPermissionToRoleDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val assigned = rbacDataService.assignPermissionToRole(dto.roleId, dto.permissionId)
-        return if (assigned) {
-            ResponseEntity.ok(mapOf("message" to "Permission assigned to role successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to "Permission already assigned to role"))
+        if (!assigned) {
+            throw ConflictException("权限已分配给角色")
         }
+        return ok("权限分配成功")
     }
     
     @Operation(summary = "Remove permission from role", description = "Remove a permission from a role")
@@ -113,13 +110,12 @@ class RbacDataController {
     fun removePermissionFromRole(
         @Parameter(description = "Permission removal data", required = true)
         @RequestBody dto: RemovePermissionFromRoleDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val removed = rbacDataService.removePermissionFromRole(dto.roleId, dto.permissionId)
-        return if (removed) {
-            ResponseEntity.ok(mapOf("message" to "Permission removed from role successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Role permission assignment not found"))
+        if (!removed) {
+            throw NotFoundException("角色权限关联不存在")
         }
+        return ok("权限移除成功")
     }
     
     @Operation(summary = "Get role permissions", description = "Retrieve all permissions assigned to a role")
@@ -128,9 +124,9 @@ class RbacDataController {
     fun getRolePermissions(
         @Parameter(description = "Role ID", required = true)
         @PathVariable roleId: Int
-    ): ResponseEntity<List<PermissionDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val permissions = rbacDataService.getRolePermissions(roleId)
-        return ResponseEntity.ok(permissions)
+        return permissions.ok()
     }
     
     // ==================== ACL: 用户直接权限管理 ====================
@@ -144,13 +140,12 @@ class RbacDataController {
     fun assignPermissionToUser(
         @Parameter(description = "Permission assignment data", required = true)
         @RequestBody dto: AssignPermissionToUserDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val assigned = rbacDataService.assignPermissionToUser(dto.userId, dto.permissionId, dto.tenantId)
-        return if (assigned) {
-            ResponseEntity.ok(mapOf("message" to "Permission assigned to user successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to "Permission already assigned to user"))
+        if (!assigned) {
+            throw ConflictException("权限已分配给用户")
         }
+        return ok("权限分配成功")
     }
     
     @Operation(summary = "Remove permission from user", description = "Remove a direct permission from a user (ACL)")
@@ -162,13 +157,12 @@ class RbacDataController {
     fun removePermissionFromUser(
         @Parameter(description = "Permission removal data", required = true)
         @RequestBody dto: RemovePermissionFromUserDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val removed = rbacDataService.removePermissionFromUser(dto.userId, dto.permissionId, dto.tenantId)
-        return if (removed) {
-            ResponseEntity.ok(mapOf("message" to "Permission removed from user successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "User permission assignment not found"))
+        if (!removed) {
+            throw NotFoundException("用户权限关联不存在")
         }
+        return ok("权限移除成功")
     }
     
     @Operation(summary = "Get user direct permissions", description = "Retrieve direct permissions assigned to a user (ACL, excluding role-based permissions)")
@@ -179,9 +173,9 @@ class RbacDataController {
         @PathVariable userId: Int,
         @Parameter(description = "Optional tenant ID filter")
         @RequestParam(required = false) tenantId: Int?
-    ): ResponseEntity<List<PermissionDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val permissions = rbacDataService.getUserDirectPermissions(userId, tenantId)
-        return ResponseEntity.ok(permissions)
+        return permissions.ok()
     }
     
     @Operation(summary = "Get all user permissions", description = "Retrieve all permissions for a user (including role-based and direct permissions)")
@@ -192,9 +186,9 @@ class RbacDataController {
         @PathVariable userId: Int,
         @Parameter(description = "Optional tenant ID filter")
         @RequestParam(required = false) tenantId: Int?
-    ): ResponseEntity<List<PermissionDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val permissions = rbacDataService.getAllUserPermissions(userId, tenantId)
-        return ResponseEntity.ok(permissions)
+        return permissions.ok()
     }
     
     // ==================== 权限检查 ====================
@@ -207,9 +201,9 @@ class RbacDataController {
         @PathVariable userId: Int,
         @Parameter(description = "Permission code", required = true)
         @PathVariable permissionCode: String
-    ): ResponseEntity<Map<String, Boolean>> {
+    ): ResponseEntity<Map<String, Any>> {
         val hasPermission = rbacDataService.hasPermissionInDb(userId, permissionCode)
-        return ResponseEntity.ok(mapOf("hasPermission" to hasPermission))
+        return mapOf("hasPermission" to hasPermission).ok()
     }
     
     @Operation(summary = "Check user role", description = "Check if a user has a specific role")
@@ -220,9 +214,9 @@ class RbacDataController {
         @PathVariable userId: Int,
         @Parameter(description = "Role code", required = true)
         @PathVariable roleCode: String
-    ): ResponseEntity<Map<String, Boolean>> {
+    ): ResponseEntity<Map<String, Any>> {
         val hasRole = rbacDataService.hasRoleInDb(userId, roleCode)
-        return ResponseEntity.ok(mapOf("hasRole" to hasRole))
+        return mapOf("hasRole" to hasRole).ok()
     }
     
     @Operation(summary = "Check user direct permission", description = "Check if a user has a specific direct permission (ACL)")
@@ -235,8 +229,8 @@ class RbacDataController {
         @PathVariable permissionCode: String,
         @Parameter(description = "Optional tenant ID filter")
         @RequestParam(required = false) tenantId: Int?
-    ): ResponseEntity<Map<String, Boolean>> {
+    ): ResponseEntity<Map<String, Any>> {
         val hasPermission = rbacDataService.hasDirectPermissionInDb(userId, permissionCode, tenantId)
-        return ResponseEntity.ok(mapOf("hasDirectPermission" to hasPermission))
+        return mapOf("hasDirectPermission" to hasPermission).ok()
     }
 }

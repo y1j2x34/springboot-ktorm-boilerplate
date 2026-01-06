@@ -5,7 +5,16 @@ import com.vgerbot.oauth2server.data.OAuth2ClientCreateRequest
 import com.vgerbot.oauth2server.data.OAuth2ClientResponse
 import com.vgerbot.oauth2server.data.OAuth2ClientUpdateRequest
 import com.vgerbot.oauth2server.entity.OAuth2Client
+import com.vgerbot.oauth2server.entity.OAuth2Clients
 import org.ktorm.database.Database
+import org.ktorm.dsl.and
+import org.ktorm.dsl.eq
+import org.ktorm.entity.add
+import org.ktorm.entity.filter
+import org.ktorm.entity.map
+import org.ktorm.entity.sequenceOf
+import org.ktorm.entity.toList
+import org.ktorm.entity.update
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -36,24 +45,24 @@ class OAuth2ClientService(
 
         // 创建客户端实体
         val client = OAuth2Client {
-            clientId = request.clientId
-            clientSecret = passwordEncoder.encode(request.clientSecret)
-            clientName = request.clientName
-            description = request.description
-            clientAuthenticationMethods = request.clientAuthenticationMethods.joinToString(",")
-            authorizationGrantTypes = request.authorizationGrantTypes.joinToString(",")
-            redirectUris = request.redirectUris?.joinToString(",")
-            scopes = request.scopes?.joinToString(",")
-            requireProofKey = request.requireProofKey
-            accessTokenValiditySeconds = request.accessTokenValiditySeconds
-            refreshTokenValiditySeconds = request.refreshTokenValiditySeconds
-            enabled = request.enabled
-            createdAt = Instant.now()
-            createdBy = createdBy
-            isDeleted = false
+            this.clientId = request.clientId
+            this.clientSecret = passwordEncoder.encode(request.clientSecret)
+            this.clientName = request.clientName
+            this.description = request.description
+            this.clientAuthenticationMethods = request.clientAuthenticationMethods.joinToString(",")
+            this.authorizationGrantTypes = request.authorizationGrantTypes.joinToString(",")
+            this.redirectUris = request.redirectUris?.joinToString(",")
+            this.scopes = request.scopes?.joinToString(",")
+            this.requireProofKey = request.requireProofKey
+            this.accessTokenValiditySeconds = request.accessTokenValiditySeconds
+            this.refreshTokenValiditySeconds = request.refreshTokenValiditySeconds
+            this.enabled = request.enabled
+            this.createdAt = Instant.now()
+            this.createdBy = createdBy
+            this.isDeleted = false
         }
 
-        database.oauth2Clients.add(client)
+        database.sequenceOf(OAuth2Clients).add(client)
         logger.info("Created OAuth2 client: ${request.clientId}")
 
         return toResponse(client)
@@ -85,7 +94,7 @@ class OAuth2ClientService(
         client.updatedAt = Instant.now()
         client.updatedBy = updatedBy
 
-        database.oauth2Clients.update(client)
+        database.sequenceOf(OAuth2Clients).update(client)
         logger.info("Updated OAuth2 client: $clientId")
 
         return toResponse(client)
@@ -115,9 +124,8 @@ class OAuth2ClientService(
      * 获取所有启用的客户端
      */
     fun findAllEnabled(): List<OAuth2ClientResponse> {
-        return database.oauth2Clients
-            .filter { it.isDeleted eq false }
-            .filter { it.enabled eq true }
+        return database.sequenceOf(OAuth2Clients)
+            .filter { (it.isDeleted eq false) and (it.enabled eq true) }
             .map { toResponse(it) }
     }
 

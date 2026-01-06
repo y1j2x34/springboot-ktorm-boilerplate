@@ -1,6 +1,7 @@
 package com.vgerbot.dynamictable.core
 
 import org.ktorm.schema.*
+import org.ktorm.dsl.QueryRowSet
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
@@ -185,9 +186,10 @@ class DynamicTable(
     
     /**
      * Get a column by name, throws exception if not found
+     * Note: Cannot use 'get' operator due to conflict with parent class BaseTable.get()
      */
-    operator fun get(columnName: String): Column<*> {
-        return getColumn(columnName) 
+    fun column(columnName: String): Column<*> {
+        return getColumn(columnName)
             ?: throw IllegalArgumentException("Column '$columnName' not found in table '$tableName'")
     }
     
@@ -238,6 +240,14 @@ class DynamicTable(
     private fun camelToSnakeCase(camel: String): String {
         return camel.replace(Regex("([a-z])([A-Z])")) { "${it.groupValues[1]}_${it.groupValues[2]}" }
             .lowercase()
+    }
+
+    /**
+     * DynamicTable doesn't bind to any Entity type, so this method should not be called.
+     * This implementation throws an exception to indicate improper usage.
+     */
+    override fun doCreateEntity(row: QueryRowSet, withReferences: Boolean): Nothing {
+        throw UnsupportedOperationException("DynamicTable doesn't support entity creation. Use row mapping instead.")
     }
 }
 

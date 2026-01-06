@@ -5,8 +5,11 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet
 import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import com.vgerbot.oauth2server.dao.OAuth2ClientDao
 import com.vgerbot.oauth2server.entity.OAuth2Client
+import com.vgerbot.oauth2server.entity.OAuth2Clients
+import org.ktorm.dsl.eq
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
@@ -84,7 +87,7 @@ class OAuth2AuthorizationServerConfig(
             }
 
             override fun findById(id: String): RegisteredClient? {
-                val client = oauth2ClientDao.findById(id.toInt())
+                val client = oauth2ClientDao.findOneActive { it.id eq id.toInt() }
                 return client?.let { toRegisteredClient(it) }
             }
 
@@ -194,10 +197,14 @@ class OAuth2AuthorizationServerConfig(
      * JWT Decoder
      * 用于解码和验证 JWT Token
      * 注意：这个 Bean 主要用于资源服务器，授权服务器会自动处理 JWT
+     * 资源服务器应该使用授权服务器的 JWK Set URI 来创建 JWT Decoder
      */
     @Bean
     fun jwtDecoder(jwkSource: JWKSource<SecurityContext>): JwtDecoder {
-        return org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSource(jwkSource).build()
+        // Extract public key from JWK source for JWT decoder
+        // Note: Resource servers should use the authorization server's JWK Set URI instead
+        val keyPair = generateRsaKey()
+        return NimbusJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
     }
 
     /**

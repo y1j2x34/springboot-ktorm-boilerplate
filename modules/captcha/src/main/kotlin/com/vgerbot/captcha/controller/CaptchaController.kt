@@ -1,13 +1,13 @@
 package com.vgerbot.captcha.controller
 
-import com.anji.captcha.model.common.ResponseModel
 import com.anji.captcha.model.vo.CaptchaVO
 import com.anji.captcha.service.CaptchaService
+import com.vgerbot.common.controller.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "Captcha", description = "Captcha generation and verification APIs")
 @RestController("ajCaptchaController")
 @RequestMapping("captcha")
-class CaptchaController {
-    @Autowired
-    lateinit var captchaService: CaptchaService;
+class CaptchaController(
+    private val captchaService: CaptchaService
+) {
 
     @Operation(summary = "Get captcha identity", description = "Get captcha identity value")
     @ApiResponse(responseCode = "200", description = "Identity returned")
@@ -32,8 +32,8 @@ class CaptchaController {
     fun identity(
         @Parameter(description = "Identity value", required = true)
         @RequestParam value: String
-    ): String {
-        return value;
+    ): ResponseEntity<Map<String, Any>> {
+        return mapOf("identity" to value).ok()
     }
 
     @Operation(summary = "Get captcha", description = "Generate a new captcha")
@@ -42,8 +42,9 @@ class CaptchaController {
     operator fun get(
         @Parameter(description = "Captcha request data")
         @RequestBody captchaVO: CaptchaVO?
-    ): ResponseModel? {
-        return captchaService[captchaVO]
+    ): ResponseEntity<Map<String, Any>> {
+        val response = captchaService[captchaVO]
+        return response?.ok() ?: error("验证码生成失败", 500)
     }
 
     @Operation(summary = "Check captcha", description = "Check captcha verification")
@@ -52,8 +53,9 @@ class CaptchaController {
     fun check(
         @Parameter(description = "Captcha verification data")
         @RequestBody captchaVO: CaptchaVO?
-    ): ResponseModel? {
-        return captchaService.check(captchaVO)
+    ): ResponseEntity<Map<String, Any>> {
+        val response = captchaService.check(captchaVO)
+        return response?.ok() ?: error("验证码检查失败", 500)
     }
 
     @Operation(summary = "Verify captcha", description = "Verify captcha answer")
@@ -62,7 +64,8 @@ class CaptchaController {
     fun verify(
         @Parameter(description = "Captcha verification data")
         @RequestBody captchaVO: CaptchaVO?
-    ): ResponseModel? {
-        return captchaService.verification(captchaVO)
+    ): ResponseEntity<Map<String, Any>> {
+        val response = captchaService.verification(captchaVO)
+        return response?.ok() ?: error("验证码验证失败", 500)
     }
 }

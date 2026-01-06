@@ -2,13 +2,14 @@ package com.vgerbot.authorization.controller
 
 import com.vgerbot.authorization.dto.*
 import com.vgerbot.authorization.service.PermissionService
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.ConflictException
+import com.vgerbot.common.exception.NotFoundException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -19,10 +20,9 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Permission", description = "Permission management APIs")
 @RestController
 @RequestMapping("/permissions")
-class PermissionController {
-    
-    @Autowired
-    lateinit var permissionService: PermissionService
+class PermissionController(
+    private val permissionService: PermissionService
+) {
     
     @Operation(summary = "Create permission", description = "Create a new permission")
     @ApiResponses(
@@ -33,13 +33,10 @@ class PermissionController {
     fun createPermission(
         @Parameter(description = "Permission creation data", required = true)
         @RequestBody dto: CreatePermissionDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val permission = permissionService.createPermission(dto)
-        return if (permission != null) {
-            ResponseEntity.status(HttpStatus.CREATED).body(permission)
-        } else {
-            ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to "Permission code already exists"))
-        }
+            ?: throw ConflictException("权限代码已存在")
+        return permission.created("权限创建成功")
     }
     
     @Operation(summary = "Update permission", description = "Update an existing permission")
@@ -53,13 +50,12 @@ class PermissionController {
         @PathVariable id: Int,
         @Parameter(description = "Permission update data", required = true)
         @RequestBody dto: UpdatePermissionDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val updated = permissionService.updatePermission(id, dto)
-        return if (updated) {
-            ResponseEntity.ok(mapOf("message" to "Permission updated successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Permission not found"))
+        if (!updated) {
+            throw NotFoundException("权限不存在")
         }
+        return ok("权限更新成功")
     }
     
     @Operation(summary = "Delete permission", description = "Delete a permission")
@@ -71,13 +67,12 @@ class PermissionController {
     fun deletePermission(
         @Parameter(description = "Permission ID", required = true)
         @PathVariable id: Int
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val deleted = permissionService.deletePermission(id)
-        return if (deleted) {
-            ResponseEntity.ok(mapOf("message" to "Permission deleted successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Permission not found"))
+        if (!deleted) {
+            throw NotFoundException("权限不存在")
         }
+        return ok("权限删除成功")
     }
     
     @Operation(summary = "Get permission by ID", description = "Retrieve a permission by its ID")
@@ -89,13 +84,10 @@ class PermissionController {
     fun getPermissionById(
         @Parameter(description = "Permission ID", required = true)
         @PathVariable id: Int
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val permission = permissionService.getPermissionById(id)
-        return if (permission != null) {
-            ResponseEntity.ok(permission)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Permission not found"))
-        }
+            ?: throw NotFoundException("权限不存在")
+        return permission.ok()
     }
     
     @Operation(summary = "Get permission by code", description = "Retrieve a permission by its code")
@@ -107,21 +99,18 @@ class PermissionController {
     fun getPermissionByCode(
         @Parameter(description = "Permission code", required = true)
         @PathVariable code: String
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val permission = permissionService.getPermissionByCode(code)
-        return if (permission != null) {
-            ResponseEntity.ok(permission)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Permission not found"))
-        }
+            ?: throw NotFoundException("权限不存在")
+        return permission.ok()
     }
     
     @Operation(summary = "Get all permissions", description = "Retrieve a list of all permissions")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved permissions")
     @GetMapping
-    fun getAllPermissions(): ResponseEntity<List<PermissionDto>> {
+    fun getAllPermissions(): ResponseEntity<Map<String, Any>> {
         val permissions = permissionService.getAllPermissions()
-        return ResponseEntity.ok(permissions)
+        return permissions.ok()
     }
 }
 

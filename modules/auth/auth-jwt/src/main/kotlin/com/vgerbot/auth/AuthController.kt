@@ -6,6 +6,9 @@ import com.vgerbot.auth.data.TokenResponse
 import com.vgerbot.auth.data.TokenType
 import com.vgerbot.auth.exception.InvalidTokenException
 import com.vgerbot.auth.exception.JwtAuthenticationException
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.ConflictException
+import com.vgerbot.common.exception.UnauthorizedException
 import com.vgerbot.user.dto.CreateUserDto
 import com.vgerbot.user.service.UserService
 import io.swagger.v3.oas.annotations.Operation
@@ -17,7 +20,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.BadCredentialsException
@@ -59,7 +61,7 @@ class AuthController(
     fun login(
         @Parameter(description = "Authentication request", required = true)
         @Valid @RequestBody req: AuthRequest
-    ): ResponseEntity<TokenResponse> {
+    ): ResponseEntity<Map<String, Any>> {
         try {
             // 认证用户
             val authentication = authenticationManager.authenticate(
@@ -69,21 +71,18 @@ class AuthController(
             // 获取用户详情
             val userDetails = authentication.principal as? ExtendedUserDetails
                 ?: userDetailsService.loadUserByUsername(req.username) as? ExtendedUserDetails
-                ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+                ?: throw UnauthorizedException("用户认证失败")
             
             // 生成 Token
             val tokenResponse = generateTokenResponse(userDetails)
             
             logger.info("User logged in successfully: ${req.username}")
             
-            return ResponseEntity.ok(tokenResponse)
+            return tokenResponse.ok("登录成功")
             
         } catch (e: BadCredentialsException) {
             logger.warn("Login failed for user ${req.username}: Invalid credentials")
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-        } catch (e: Exception) {
-            logger.error("Login failed for user ${req.username}", e)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+            throw UnauthorizedException("用户名或密码错误")
         }
     }
     
@@ -104,34 +103,14 @@ class AuthController(
         @Parameter(description = "User creation data", required = true)
         @Valid @RequestBody userDto: CreateUserDto
     ): ResponseEntity<Map<String, Any>> {
-        return try {
-            val success = userService.createUser(userDto)
-            
-            if (success) {
-                logger.info("User registered successfully: ${userDto.username}")
-                ResponseEntity.status(HttpStatus.CREATED).body(
-                    mapOf(
-                        "success" to true,
-                        "message" to "User registered successfully"
-                    )
-                )
-            } else {
-                ResponseEntity.status(HttpStatus.CONFLICT).body(
-                    mapOf(
-                        "success" to false,
-                        "message" to "User already exists"
-                    )
-                )
-            }
-        } catch (e: Exception) {
-            logger.error("Registration failed for user ${userDto.username}", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                mapOf(
-                    "success" to false,
-                    "message" to "Registration failed"
-                )
-            )
+        val success = userService.createUser(userDto)
+        
+        if (!success) {
+            throw ConflictException("用户已存在")
         }
+        
+        logger.info("User registered successfully: ${userDto.username}")
+        return ok("用户注册成功")
     }
     
     /**
@@ -152,47 +131,38 @@ class AuthController(
     fun refresh(
         @Parameter(description = "Refresh token request", required = true)
         @Valid @RequestBody req: RefreshTokenRequest
-    ): ResponseEntity<TokenResponse> {
-        return try {
-            val refreshToken = req.refreshToken
-            
-            // 验证 Token 类型
-            val tokenType = jwtTokenUtils.getTokenType(refreshToken)
-            if (tokenType != TokenType.REFRESH) {
-                logger.warn("Invalid token type for refresh: $tokenType")
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-            }
-            
-            // 获取用户名
-            val username = jwtTokenUtils.getUsernameFromToken(refreshToken)
-                ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-            
-            // 加载用户信息
-            val userDetails = userDetailsService.loadUserByUsername(username) as? ExtendedUserDetails
-                ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-            
-            // 验证 Refresh Token
-            if (!jwtTokenUtils.validateRefreshToken(refreshToken, userDetails)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-            }
-            
-            // 撤销旧的 Refresh Token
-            jwtTokenUtils.revokeToken(refreshToken)
-            
-            // 生成新的 Token
-            val tokenResponse = generateTokenResponse(userDetails)
-            
-            logger.info("Token refreshed successfully for user: $username")
-            
-            ResponseEntity.ok(tokenResponse)
-            
-        } catch (e: JwtAuthenticationException) {
-            logger.warn("Token refresh failed: ${e.message}")
-            ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-        } catch (e: Exception) {
-            logger.error("Token refresh failed", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+    ): ResponseEntity<Map<String, Any>> {
+        val refreshToken = req.refreshToken
+        
+        // 验证 Token 类型
+        val tokenType = jwtTokenUtils.getTokenType(refreshToken)
+        if (tokenType != TokenType.REFRESH) {
+            logger.warn("Invalid token type for refresh: $tokenType")
+            throw UnauthorizedException("无效的令牌类型")
         }
+        
+        // 获取用户名
+        val username = jwtTokenUtils.getUsernameFromToken(refreshToken)
+            ?: throw UnauthorizedException("无效的刷新令牌")
+        
+        // 加载用户信息
+        val userDetails = userDetailsService.loadUserByUsername(username) as? ExtendedUserDetails
+            ?: throw UnauthorizedException("用户不存在")
+        
+        // 验证 Refresh Token
+        if (!jwtTokenUtils.validateRefreshToken(refreshToken, userDetails)) {
+            throw UnauthorizedException("刷新令牌无效或已过期")
+        }
+        
+        // 撤销旧的 Refresh Token
+        jwtTokenUtils.revokeToken(refreshToken)
+        
+        // 生成新的 Token
+        val tokenResponse = generateTokenResponse(userDetails)
+        
+        logger.info("Token refreshed successfully for user: $username")
+        
+        return tokenResponse.ok("令牌刷新成功")
     }
     
     /**
@@ -207,11 +177,7 @@ class AuthController(
         @Parameter(description = "Authorization header with Bearer token")
         @RequestHeader("Authorization") authHeader: String?
     ): ResponseEntity<Map<String, Any>> {
-        return try {
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.ok(mapOf("success" to true, "message" to "Already logged out"))
-            }
-            
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
             val token = authHeader.substring(7)
             
             // 撤销 Access Token
@@ -221,22 +187,9 @@ class AuthController(
             SecurityContextHolder.clearContext()
             
             logger.info("User logged out successfully")
-            
-            ResponseEntity.ok(
-                mapOf(
-                    "success" to true,
-                    "message" to "Logged out successfully"
-                )
-            )
-        } catch (e: Exception) {
-            logger.error("Logout failed", e)
-            ResponseEntity.ok(
-                mapOf(
-                    "success" to true,
-                    "message" to "Logged out"
-                )
-            )
         }
+        
+        return ok("登出成功")
     }
     
     /**
@@ -248,20 +201,18 @@ class AuthController(
         ApiResponse(responseCode = "401", description = "User not authenticated")
     )
     @GetMapping("me")
-    fun getCurrentUser(): ResponseEntity<Map<String, Any?>> {
+    fun getCurrentUser(): ResponseEntity<Map<String, Any>> {
         val authentication = SecurityContextHolder.getContext().authentication
-            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            ?: throw UnauthorizedException("用户未认证")
         
         val userDetails = authentication.principal as? ExtendedUserDetails
-            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+            ?: throw UnauthorizedException("用户未认证")
         
-        return ResponseEntity.ok(
-            mapOf(
-                "userId" to userDetails.userId,
-                "username" to userDetails.username,
-                "authorities" to userDetails.authorities.map { it.authority }
-            )
-        )
+        return mapOf(
+            "userId" to userDetails.userId,
+            "username" to userDetails.username,
+            "authorities" to userDetails.authorities.map { it.authority }
+        ).ok()
     }
     
     /**

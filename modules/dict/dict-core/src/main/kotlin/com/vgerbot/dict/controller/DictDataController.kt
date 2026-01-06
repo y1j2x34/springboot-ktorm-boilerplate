@@ -1,5 +1,8 @@
 package com.vgerbot.dict.controller
 
+import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.ConflictException
+import com.vgerbot.common.exception.NotFoundException
 import com.vgerbot.dict.dto.CreateDictDataDto
 import com.vgerbot.dict.dto.DictDataDto
 import com.vgerbot.dict.dto.UpdateDictDataDto
@@ -9,8 +12,6 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -21,10 +22,9 @@ import org.springframework.web.bind.annotation.*
 @Tag(name = "Dictionary Data", description = "Dictionary data management APIs")
 @RestController
 @RequestMapping("/dict/data")
-class DictDataController {
-    
-    @Autowired
-    lateinit var dictDataService: DictDataService
+class DictDataController(
+    private val dictDataService: DictDataService
+) {
     
     @Operation(summary = "Create dictionary data", description = "Create a new dictionary data entry")
     @ApiResponses(
@@ -35,13 +35,10 @@ class DictDataController {
     fun createDictData(
         @Parameter(description = "Dictionary data creation data", required = true)
         @RequestBody dto: CreateDictDataDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val dictData = dictDataService.createDictData(dto)
-        return if (dictData != null) {
-            ResponseEntity.status(HttpStatus.CREATED).body(dictData)
-        } else {
-            ResponseEntity.status(HttpStatus.CONFLICT).body(mapOf("error" to "Dictionary data value already exists or dictionary type not found"))
-        }
+            ?: throw ConflictException("字典数据值已存在或字典类型不存在")
+        return dictData.created("字典数据创建成功")
     }
     
     @Operation(summary = "Update dictionary data", description = "Update an existing dictionary data entry")
@@ -55,13 +52,12 @@ class DictDataController {
         @PathVariable id: Long,
         @Parameter(description = "Dictionary data update data", required = true)
         @RequestBody dto: UpdateDictDataDto
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val updated = dictDataService.updateDictData(id, dto)
-        return if (updated) {
-            ResponseEntity.ok(mapOf("message" to "Dictionary data updated successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Dictionary data not found"))
+        if (!updated) {
+            throw NotFoundException("字典数据不存在")
         }
+        return ok("字典数据更新成功")
     }
     
     @Operation(summary = "Delete dictionary data", description = "Delete a dictionary data entry")
@@ -73,13 +69,12 @@ class DictDataController {
     fun deleteDictData(
         @Parameter(description = "Dictionary data ID", required = true)
         @PathVariable id: Long
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val deleted = dictDataService.deleteDictData(id)
-        return if (deleted) {
-            ResponseEntity.ok(mapOf("message" to "Dictionary data deleted successfully"))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Dictionary data not found"))
+        if (!deleted) {
+            throw NotFoundException("字典数据不存在")
         }
+        return ok("字典数据删除成功")
     }
     
     @Operation(summary = "Get dictionary data by ID", description = "Retrieve a dictionary data entry by its ID")
@@ -91,13 +86,10 @@ class DictDataController {
     fun getDictDataById(
         @Parameter(description = "Dictionary data ID", required = true)
         @PathVariable id: Long
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val dictData = dictDataService.getDictDataById(id)
-        return if (dictData != null) {
-            ResponseEntity.ok(dictData)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Dictionary data not found"))
-        }
+            ?: throw NotFoundException("字典数据不存在")
+        return dictData.ok()
     }
     
     @Operation(summary = "Get dictionary data by code", description = "Retrieve dictionary data entries by dictionary type code")
@@ -108,13 +100,13 @@ class DictDataController {
         @PathVariable code: String,
         @Parameter(description = "Return only active entries")
         @RequestParam(required = false) activeOnly: Boolean?
-    ): ResponseEntity<List<DictDataDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val dictData = if (activeOnly == true) {
             dictDataService.getActiveDictDataByCode(code)
         } else {
             dictDataService.getDictDataByCode(code)
         }
-        return ResponseEntity.ok(dictData)
+        return dictData.ok()
     }
     
     @Operation(summary = "Get dictionary data tree by code", description = "Retrieve dictionary data entries as a tree structure by dictionary type code")
@@ -123,9 +115,9 @@ class DictDataController {
     fun getDictDataTreeByCode(
         @Parameter(description = "Dictionary type code", required = true)
         @PathVariable code: String
-    ): ResponseEntity<List<DictDataDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val dictDataTree = dictDataService.getDictDataTreeByCode(code)
-        return ResponseEntity.ok(dictDataTree)
+        return dictDataTree.ok()
     }
     
     @Operation(summary = "Get dictionary data by code and parent", description = "Retrieve dictionary data entries by dictionary type code and parent ID")
@@ -136,9 +128,9 @@ class DictDataController {
         @PathVariable code: String,
         @Parameter(description = "Parent ID", required = true)
         @PathVariable parentId: Long
-    ): ResponseEntity<List<DictDataDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val dictData = dictDataService.getDictDataByCodeAndParent(code, parentId)
-        return ResponseEntity.ok(dictData)
+        return dictData.ok()
     }
     
     @Operation(summary = "Get dictionary data by type ID", description = "Retrieve dictionary data entries by dictionary type ID")
@@ -147,9 +139,9 @@ class DictDataController {
     fun getDictDataByTypeId(
         @Parameter(description = "Dictionary type ID", required = true)
         @PathVariable typeId: Long
-    ): ResponseEntity<List<DictDataDto>> {
+    ): ResponseEntity<Map<String, Any>> {
         val dictData = dictDataService.getDictDataByTypeId(typeId)
-        return ResponseEntity.ok(dictData)
+        return dictData.ok()
     }
     
     @Operation(summary = "Get dictionary data by code and value", description = "Retrieve a dictionary data entry by dictionary type code and value")
@@ -163,13 +155,10 @@ class DictDataController {
         @PathVariable code: String,
         @Parameter(description = "Dictionary data value", required = true)
         @PathVariable value: String
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val dictData = dictDataService.getDictDataByCodeAndValue(code, value)
-        return if (dictData != null) {
-            ResponseEntity.ok(dictData)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Dictionary data not found"))
-        }
+            ?: throw NotFoundException("字典数据不存在")
+        return dictData.ok()
     }
     
     @Operation(summary = "Get default dictionary data by code", description = "Retrieve the default dictionary data entry by dictionary type code")
@@ -181,13 +170,10 @@ class DictDataController {
     fun getDefaultDictDataByCode(
         @Parameter(description = "Dictionary type code", required = true)
         @PathVariable code: String
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, Any>> {
         val dictData = dictDataService.getDefaultDictDataByCode(code)
-        return if (dictData != null) {
-            ResponseEntity.ok(dictData)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to "Default dictionary data not found"))
-        }
+            ?: throw NotFoundException("默认字典数据不存在")
+        return dictData.ok()
     }
 }
 
