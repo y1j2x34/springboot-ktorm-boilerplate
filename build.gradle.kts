@@ -33,7 +33,9 @@ subprojects {
         implementation("org.ktorm:ktorm-jackson:3.6.0")
         implementation("org.ktorm:ktorm-support-mysql:3.6.0")
         implementation("org.mariadb.jdbc:mariadb-java-client:3.4.0")
-        // JAXB no longer needed in Spring Boot 3.x, removed
+        
+        // Swagger/OpenAPI documentation (common dependency)
+        implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
         testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
