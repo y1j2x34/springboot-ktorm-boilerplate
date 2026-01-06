@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`wechat_config` (
     `status` INT NOT NULL DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
     `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序顺序',
     `description` VARCHAR(500) NULL COMMENT '描述',
+    `tenant_id` INT NULL COMMENT '租户ID（可选，支持多租户配置隔离）',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
@@ -24,7 +25,9 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`wechat_config` (
     INDEX `idx_app_id` (`app_id`),
     INDEX `idx_status` (`status`),
     INDEX `idx_is_deleted` (`is_deleted`),
-    INDEX `idx_sort_order` (`sort_order`)
+    INDEX `idx_sort_order` (`sort_order`),
+    INDEX `idx_tenant_id` (`tenant_id`),
+    CONSTRAINT `fk_wechat_config_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='微信配置表';
 
 -- ================================================

@@ -43,7 +43,11 @@ data class CreateWechatConfigDto(
     @JsonProperty("sort_order")
     val sortOrder: Int = 0,
     
-    val description: String? = null
+    val description: String? = null,
+    
+    /** 租户ID（可选，支持多租户配置隔离） */
+    @JsonProperty("tenant_id")
+    val tenantId: Int? = null
 )
 
 /**
@@ -69,7 +73,11 @@ data class UpdateWechatConfigDto(
     @JsonProperty("sort_order")
     val sortOrder: Int? = null,
     
-    val description: String? = null
+    val description: String? = null,
+    
+    /** 租户ID（可选，支持多租户配置隔离） */
+    @JsonProperty("tenant_id")
+    val tenantId: Int? = null
 )
 
 /**
@@ -97,6 +105,9 @@ data class WechatConfigResponseDto(
     val sortOrder: Int,
     
     val description: String?,
+    
+    @JsonProperty("tenant_id")
+    val tenantId: Int?,
     
     @JsonProperty("login_url")
     val loginUrl: String,

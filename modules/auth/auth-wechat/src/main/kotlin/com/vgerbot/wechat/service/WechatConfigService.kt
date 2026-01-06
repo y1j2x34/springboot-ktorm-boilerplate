@@ -71,6 +71,7 @@ class WechatConfigServiceImpl(
             status = dto.status
             sortOrder = dto.sortOrder
             description = dto.description
+            tenantId = dto.tenantId
             createdAt = Instant.now()
             updatedAt = null
             isDeleted = false
@@ -103,6 +104,7 @@ class WechatConfigServiceImpl(
         dto.status?.let { entity.status = it }
         dto.sortOrder?.let { entity.sortOrder = it }
         dto.description?.let { entity.description = it }
+        dto.tenantId?.let { entity.tenantId = it }
         entity.updatedAt = Instant.now()
         
         val result = wechatConfigDao.update(entity)
@@ -177,6 +179,7 @@ class WechatConfigServiceImpl(
             status = entity.status,
             sortOrder = entity.sortOrder,
             description = entity.description,
+            tenantId = entity.tenantId,
             loginUrl = loginUrl,
             createdAt = DATE_FORMATTER.format(entity.createdAt),
             updatedAt = entity.updatedAt?.let { DATE_FORMATTER.format(it) }
