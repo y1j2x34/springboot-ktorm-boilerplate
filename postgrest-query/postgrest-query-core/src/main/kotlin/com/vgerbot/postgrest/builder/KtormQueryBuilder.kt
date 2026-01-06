@@ -1,6 +1,7 @@
 package com.vgerbot.postgrest.builder
 
 import com.vgerbot.common.exception.BusinessException
+import com.vgerbot.dynamictable.core.DynamicTableManager
 import com.vgerbot.postgrest.api.TableRegistry
 import com.vgerbot.postgrest.dto.CountType
 import com.vgerbot.postgrest.dto.OrderConfig
@@ -22,7 +23,8 @@ import org.springframework.stereotype.Component
 @Component
 class KtormQueryBuilder(
     private val database: Database,
-    private val tableRegistry: TableRegistry
+    private val tableRegistry: TableRegistry,
+    private val dynamicTableManager: DynamicTableManager
 ) {
     
     private val logger = LoggerFactory.getLogger(KtormQueryBuilder::class.java)
@@ -259,14 +261,28 @@ class KtormQueryBuilder(
         val allColumns = tableRegistry.getColumns(tableName)
             ?: throw BusinessException("表 '$tableName' 未注册", code = 400)
         
+        // Get excluded columns for this table
+        val excludedColumns = dynamicTableManager.getExcludedColumns(tableName)
+            .map { it.lowercase() }
+            .toSet()
+        
         if (select == null || select.isEmpty() || select.contains("*")) {
-            return allColumns.values.distinctBy { it.name }
+            // Filter out excluded columns when selecting all
+            return allColumns.values
+                .distinctBy { it.name }
+                .filter { it.name.lowercase() !in excludedColumns }
         }
         
         return select.mapNotNull { columnName ->
             // 跳过关联查询（暂不支持）
             if (columnName.contains(":") || columnName.contains("(")) {
                 logger.warn("关联查询暂不支持: {}", columnName)
+                return@mapNotNull null
+            }
+            
+            // Check if column is excluded
+            if (columnName.lowercase() in excludedColumns) {
+                logger.warn("列 '{}' 已被排除，跳过", columnName)
                 return@mapNotNull null
             }
             

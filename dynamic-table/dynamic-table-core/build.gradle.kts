@@ -1,4 +1,6 @@
-// Disable bootJar for library modules
+// Core implementation module for dynamic-table
+// Contains DynamicTable, DynamicTableManager, Controller, etc.
+
 tasks.bootJar {
     enabled = false
 }
@@ -7,16 +9,17 @@ tasks.jar {
 }
 
 dependencies {
+    api(project(":dynamic-table:dynamic-table-api"))
     implementation(project(":core"))
-    api(project(":postgrest-query:postgrest-query-api"))
-    implementation(project(":authorization:authorization-api"))
-    api(project(":dynamic-table:dynamic-table-core"))
     
     implementation("org.springframework.boot:spring-boot-starter-web")
     
     // Ktorm ORM
     implementation("org.ktorm:ktorm-core")
     implementation("org.ktorm:ktorm-support-mysql")
+    
+    // Swagger/OpenAPI
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
     
     // SLF4J for logging
     implementation("org.slf4j:slf4j-api")
