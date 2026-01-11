@@ -9,8 +9,10 @@ tasks.jar {
 dependencies {
     implementation(project(":infrastructure:infrastructure-common"))
     implementation(project(":infrastructure:infrastructure-core"))
+    implementation(project(":infrastructure:infrastructure-redis"))
     implementation(project(":modules:user:user-api"))
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     // Updated JWT library for better Java 17+ and Spring Boot 3 compatibility
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")

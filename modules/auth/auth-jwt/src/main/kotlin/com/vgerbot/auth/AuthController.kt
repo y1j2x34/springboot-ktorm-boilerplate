@@ -1,12 +1,17 @@
 package com.vgerbot.auth
 
 import com.vgerbot.auth.data.AuthRequest
+import com.vgerbot.auth.data.PublicKeyResponse
 import com.vgerbot.auth.data.RefreshTokenRequest
 import com.vgerbot.auth.data.TokenResponse
 import com.vgerbot.auth.data.TokenType
 import com.vgerbot.auth.exception.InvalidTokenException
 import com.vgerbot.auth.exception.JwtAuthenticationException
+import com.vgerbot.auth.exception.KeyExpiredException
+import com.vgerbot.auth.exception.KeyNotFoundException
+import com.vgerbot.auth.service.RsaKeyService
 import com.vgerbot.common.controller.*
+import com.vgerbot.common.exception.BusinessException
 import com.vgerbot.common.exception.ConflictException
 import com.vgerbot.common.exception.UnauthorizedException
 import com.vgerbot.user.dto.CreateUserDto
@@ -34,38 +39,112 @@ import org.springframework.web.bind.annotation.*
  */
 @Tag(name = "Authentication", description = "Authentication and authorization APIs")
 @RestController
-@RequestMapping("public/auth")
 class AuthController(
     private val authenticationManager: AuthenticationManager,
     private val userDetailsService: CustomUserDetailsService,
     private val jwtTokenUtils: JwtTokenUtils,
     private val userService: UserService,
-    private val jwtProperties: JwtProperties
+    private val jwtProperties: JwtProperties,
+    private val rsaKeyService: RsaKeyService
 ) {
     
     private val logger = LoggerFactory.getLogger(AuthController::class.java)
     
     /**
+     * Get public key for RSA encryption
+     * 
+     * Generates a temporary RSA key pair for the session.
+     * The private key is stored in Redis with 5-minute TTL.
+     * 
+     * @param sessionId Optional session ID from X-Session-Id header
+     * @return Public key information
+     */
+    @Operation(
+        summary = "Get public key",
+        description = "Generate a temporary RSA public key for password encryption. Private key is stored in Redis with 5-minute TTL."
+    )
+    @ApiResponses(
+        ApiResponse(responseCode = "200", description = "Public key generated successfully"),
+        ApiResponse(responseCode = "500", description = "Failed to generate key")
+    )
+    @GetMapping(value = ["public/auth/public-key"])
+    fun getPublicKey(
+        @Parameter(description = "Session ID from X-Session-Id header")
+        @RequestHeader("X-Session-Id", required = false) sessionId: String?
+    ): ResponseEntity<Map<String, Any>> {
+        try {
+            val keyInfo = rsaKeyService.generateKeyPair(sessionId)
+            
+            val response = PublicKeyResponse(
+                keyId = keyInfo.keyId,
+                publicKey = keyInfo.publicKey,
+                expiresAt = keyInfo.expiresAt,
+                algorithm = keyInfo.algorithm
+            )
+            
+            logger.debug("Generated public key for session: {}, keyId: {}", sessionId, keyInfo.keyId)
+            
+            return response.ok("公钥获取成功")
+        } catch (e: Exception) {
+            logger.error("Failed to generate public key", e)
+            throw RuntimeException("公钥生成失败", e)
+        }
+    }
+    
+    /**
      * User login
      * 
-     * @param req Authentication request (username and password)
+     * Supports two login modes:
+     * 1. Traditional: plain password (password field)
+     * 2. Encrypted: RSA encrypted password (encryptedPassword + keyId fields)
+     * 
+     * @param req Authentication request
      * @return Token response
      */
-    @Operation(summary = "User login", description = "Authenticate user and return JWT tokens")
+    @Operation(
+        summary = "User login",
+        description = "Authenticate user and return JWT tokens. Supports both plain password and RSA encrypted password."
+    )
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Login successful"),
-        ApiResponse(responseCode = "401", description = "Invalid credentials"),
+        ApiResponse(responseCode = "400", description = "Invalid request format"),
+        ApiResponse(responseCode = "401", description = "Invalid credentials or expired key"),
         ApiResponse(responseCode = "500", description = "Internal server error")
     )
-    @PostMapping("login")
+    @PostMapping(value = ["public/auth/login"])
     fun login(
         @Parameter(description = "Authentication request", required = true)
         @Valid @RequestBody req: AuthRequest
     ): ResponseEntity<Map<String, Any>> {
         try {
+            // 验证请求格式
+            if (!req.isValid()) {
+                throw BusinessException("请求格式错误：必须提供 password 或 (encryptedPassword + keyId)", code = 400)
+            }
+            
+            // 处理密码
+            val password = if (req.isEncrypted()) {
+                // 加密登录：解密密码
+                try {
+                    rsaKeyService.decryptPassword(req.keyId!!, req.encryptedPassword!!)
+                } catch (e: KeyNotFoundException) {
+                    logger.warn("Key not found for login attempt: keyId={}, username={}", req.keyId, req.username)
+                    throw UnauthorizedException("KEY_NOT_FOUND: 安全验证失败，请刷新页面重试")
+                } catch (e: KeyExpiredException) {
+                    logger.warn("Key expired for login attempt: keyId={}, username={}", req.keyId, req.username)
+                    throw UnauthorizedException("KEY_EXPIRED: 安全会话已过期，请重新获取公钥")
+                } catch (e: Exception) {
+                    logger.error("Failed to decrypt password for user: ${req.username}", e)
+                    throw UnauthorizedException("密码解密失败")
+                }
+            } else {
+                // 传统登录：使用明文密码
+                req.password ?: throw BusinessException("密码不能为空", code = 400)
+            }
+            
             // 认证用户
             val authentication = authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(req.username, req.password)
+                UsernamePasswordAuthenticationToken(req.username, password)
             )
             
             // 获取用户详情
@@ -76,13 +155,19 @@ class AuthController(
             // 生成 Token
             val tokenResponse = generateTokenResponse(userDetails)
             
-            logger.info("User logged in successfully: ${req.username}")
+            logger.info("User logged in successfully: ${req.username}, encrypted: ${req.isEncrypted()}")
             
             return tokenResponse.ok("登录成功")
             
         } catch (e: BadCredentialsException) {
             logger.warn("Login failed for user ${req.username}: Invalid credentials")
-            throw UnauthorizedException("用户名或密码错误")
+            throw UnauthorizedException("INVALID_CREDENTIALS: 用户名或密码错误")
+        } catch (e: UnauthorizedException) {
+            // 重新抛出，保持错误码
+            throw e
+        } catch (e: Exception) {
+            logger.error("Unexpected error during login for user: ${req.username}", e)
+            throw UnauthorizedException("登录失败，请稍后重试")
         }
     }
     
@@ -98,7 +183,7 @@ class AuthController(
         ApiResponse(responseCode = "409", description = "User already exists"),
         ApiResponse(responseCode = "500", description = "Registration failed")
     )
-    @PostMapping("register")
+    @PostMapping("public/auth/register")
     fun register(
         @Parameter(description = "User creation data", required = true)
         @Valid @RequestBody userDto: CreateUserDto
@@ -127,7 +212,7 @@ class AuthController(
         ApiResponse(responseCode = "401", description = "Invalid or expired refresh token"),
         ApiResponse(responseCode = "500", description = "Token refresh failed")
     )
-    @PostMapping("refresh")
+    @PostMapping("public/auth/refresh")
     fun refresh(
         @Parameter(description = "Refresh token request", required = true)
         @Valid @RequestBody req: RefreshTokenRequest
@@ -172,7 +257,7 @@ class AuthController(
      */
     @Operation(summary = "User logout", description = "Logout user and revoke tokens")
     @ApiResponse(responseCode = "200", description = "Logout successful")
-    @PostMapping("logout")
+    @PostMapping("public/auth/logout")
     fun logout(
         @Parameter(description = "Authorization header with Bearer token")
         @RequestHeader("Authorization") authHeader: String?
@@ -200,7 +285,7 @@ class AuthController(
         ApiResponse(responseCode = "200", description = "User information retrieved successfully"),
         ApiResponse(responseCode = "401", description = "User not authenticated")
     )
-    @GetMapping("me")
+    @GetMapping("public/auth/me")
     fun getCurrentUser(): ResponseEntity<Map<String, Any>> {
         val authentication = SecurityContextHolder.getContext().authentication
             ?: throw UnauthorizedException("用户未认证")
