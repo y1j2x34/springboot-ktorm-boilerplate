@@ -13,9 +13,15 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/${DB_NAME:?Database name required}
       - DB_USER=${DB_USER:?Database user required}
       - DB_PASSWORD=${DB_PASSWORD:?Database password required}
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_DATABASE=${REDIS_DATABASE:-0}
       - SERVER_PORT=8081
     depends_on:
       mariadb:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - app-network

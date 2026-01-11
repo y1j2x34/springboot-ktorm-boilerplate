@@ -2,6 +2,7 @@ version: "3.9"
 
 include:
   - path: ./database/docker-compose.prod.yml
+  - path: ./redis/docker-compose.prod.yml
   - path: ./app/docker-compose.prod.yml
 
 networks:

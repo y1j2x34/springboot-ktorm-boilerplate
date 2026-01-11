@@ -8,6 +8,7 @@ include("infrastructure")
 include("infrastructure:infrastructure-core")
 include("infrastructure:infrastructure-common")
 include("infrastructure:infrastructure-security")
+include("infrastructure:infrastructure-redis")
 
 // Modules layer
 include("modules")

@@ -1,0 +1,29 @@
+spring:
+  data:
+    redis:
+      # Redis 连接配置
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      timeout: 3000ms
+      # 连接池配置
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+# Redis 模块配置
+vgerbot:
+  redis:
+    # 分布式锁默认过期时间（秒）
+    lock-default-timeout: 30
+    # 缓存默认过期时间（秒）
+    cache-default-timeout: 3600
+    # 分布式锁获取失败时的重试间隔（毫秒）
+    lock-retry-interval: 100
+    # 分布式锁最大重试次数
+    lock-max-retries: 10
+

@@ -2,6 +2,7 @@ dependencies {
     implementation(project(":modules:captcha"))
     implementation(project(":infrastructure:infrastructure-common"))
     implementation(project(":infrastructure:infrastructure-core"))
+    implementation(project(":infrastructure:infrastructure-redis"))
     implementation(project(":modules:auth:auth-jwt"))
     implementation(project(":modules:authorization:authorization-core"))
     implementation(project(":modules:tenant:tenant-core"))

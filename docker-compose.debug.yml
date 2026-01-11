@@ -1,0 +1,24 @@
+version: "3.9"
+
+# Docker Compose configuration for local development debugging
+# 
+# This file only starts database and Redis services.
+# The Spring Boot application should be started via IntelliJ IDEA.
+#
+# Usage:
+#   docker compose -f docker-compose.debug.yml up -d
+#   docker compose -f docker-compose.debug.yml down
+#
+# Services:
+#   - mariadb: Database service (port 3306)
+#   - redis: Redis cache service (port 6379)
+#
+# Network: app-network (services accessible via localhost)
+
+include:
+  - path: ./database/docker-compose.yml
+  - path: ./redis/docker-compose.yml
+
+networks:
+  app-network:
+    driver: bridge

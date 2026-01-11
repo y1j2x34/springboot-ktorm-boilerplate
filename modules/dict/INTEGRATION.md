@@ -33,7 +33,7 @@ dependencies {
 ```bash
 # 如果使用 Docker Compose
 cd database
-docker-compose up -d
+docker compose up -d
 
 # 或手动执行 SQL
 mysql -u root -p < database/init.sql

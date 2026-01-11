@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  # Redis Cache - Cache and distributed lock service
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis-cache
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+      - ./entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    healthcheck:
+      test: >
+        sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
+          redis-cli -a "$$REDIS_PASSWORD" ping
+        else
+          redis-cli ping
+        fi'
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
+
