@@ -74,6 +74,7 @@ class RedisCacheService(
      * @return 缓存值，如果不存在返回 null
      */
     @Suppress("UNCHECKED_CAST")
+    @JvmName("getTyped")
     inline fun <reified T> get(key: String): T? {
         val value = get(key)
         return value as? T
@@ -100,7 +101,7 @@ class RedisCacheService(
      */
     fun delete(keys: Collection<String>): Long {
         val fullKeys = keys.map { CACHE_PREFIX + it }
-        val deleted = redisTemplate.delete(fullKeys.toSet())
+        val deleted = redisTemplate.delete(fullKeys.toSet()) ?: 0L
         logger.debug("Deleted {} cache keys", deleted)
         return deleted
     }
@@ -138,7 +139,7 @@ class RedisCacheService(
      */
     fun getExpire(key: String): Long {
         val fullKey = CACHE_PREFIX + key
-        return redisTemplate.getExpire(fullKey, TimeUnit.SECONDS)
+        return redisTemplate.getExpire(fullKey, TimeUnit.SECONDS) ?: -2L
     }
     
     /**
@@ -150,7 +151,7 @@ class RedisCacheService(
      * @return 缓存值或操作结果
      */
     fun <T> getOrSet(key: String, timeoutSeconds: Long = redisProperties.cacheDefaultTimeout, action: () -> T): T {
-        val cached = get<T>(key)
+        val cached = get(key) as T
         if (cached != null) {
             logger.debug("Cache hit for key: {}", key)
             return cached
@@ -178,10 +179,10 @@ class RedisCacheService(
         val keys = redisTemplate.keys(searchPattern) ?: emptySet()
         if (keys.isEmpty()) {
             logger.debug("No keys found matching pattern: {}", searchPattern)
-            return 0
+            return 0L
         }
         
-        val deleted = redisTemplate.delete(keys)
+        val deleted = redisTemplate.delete(keys) ?: 0L
         logger.info("Cleared {} cache keys matching pattern: {}", deleted, searchPattern)
         return deleted
     }
