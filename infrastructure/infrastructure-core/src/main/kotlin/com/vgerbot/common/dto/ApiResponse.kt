@@ -1,5 +1,6 @@
 package com.vgerbot.common.dto
 
+import com.vgerbot.common.exception.ErrorCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
@@ -22,7 +23,8 @@ sealed class ApiResponse<out T> {
      */
     data class Error(
         val message: String,
-        val code: Int,
+        val code: Int,  // HTTP状态码
+        val businessCode: Int? = null,  // 业务错误码（ErrorCode.code）
         val details: Map<String, Any>? = null
     ) : ApiResponse<Nothing>()
 }
@@ -51,9 +53,26 @@ object ApiResponses {
     fun error(
         message: String,
         code: Int = 400,
+        businessCode: Int? = null,
         details: Map<String, Any>? = null
     ): ApiResponse.Error {
-        return ApiResponse.Error(message, code, details)
+        return ApiResponse.Error(message, code, businessCode, details)
+    }
+    
+    /**
+     * 使用ErrorCode接口创建错误响应
+     */
+    fun error(
+        errorCode: com.vgerbot.common.exception.ErrorCode,
+        message: String? = null,
+        details: Map<String, Any>? = null
+    ): ApiResponse.Error {
+        return ApiResponse.Error(
+            message = message ?: errorCode.message,
+            code = errorCode.httpStatus.value(),
+            businessCode = errorCode.code,
+            details = details
+        )
     }
 
     /**
@@ -114,6 +133,8 @@ fun <T> ApiResponse<T>.toResponseEntity(): ResponseEntity<Map<String, Any>> {
                 "code" to code,
                 "message" to message
             )
+            // 添加业务错误码（如果存在）
+            businessCode?.let { body["businessCode"] = it }
             details?.let { body.putAll(it) }
             ResponseEntity.status(HttpStatus.valueOf(code)).body(body)
         }

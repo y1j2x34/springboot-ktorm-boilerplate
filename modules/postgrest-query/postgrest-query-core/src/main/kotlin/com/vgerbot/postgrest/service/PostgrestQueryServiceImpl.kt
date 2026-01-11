@@ -1,6 +1,7 @@
 package com.vgerbot.postgrest.service
 
-import com.vgerbot.common.exception.BusinessException
+import com.vgerbot.common.exception.exception
+import com.vgerbot.postgrest.exception.PostgrestQueryErrorCode
 import com.vgerbot.postgrest.api.PostgrestQueryService
 import com.vgerbot.postgrest.builder.KtormQueryBuilder
 import com.vgerbot.postgrest.dto.QueryRequest
@@ -39,9 +40,8 @@ class PostgrestQueryServiceImpl(
         )
         
         if (!hasPermission) {
-            throw BusinessException(
-                "没有权限执行 ${operation} 操作 on 表 ${request.from}",
-                code = 403
+            throw PostgrestQueryErrorCode.POSTGREST_QUERY_FORBIDDEN.exception(
+                message = "没有权限执行 ${operation} 操作 on 表 ${request.from}"
             )
         }
         
@@ -62,13 +62,12 @@ class PostgrestQueryServiceImpl(
                 count = result.count,
                 head = result.headOnly
             )
-        } catch (e: BusinessException) {
+        } catch (e: com.vgerbot.common.exception.BusinessException) {
             throw e
         } catch (e: Exception) {
             logger.error("Error executing query", e)
-            throw BusinessException(
-                "查询执行失败: ${e.message}",
-                code = 500,
+            throw PostgrestQueryErrorCode.POSTGREST_QUERY_EXECUTION_FAILED.exception(
+                message = "查询执行失败: ${e.message}",
                 cause = e
             )
         }

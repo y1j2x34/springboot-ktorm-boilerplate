@@ -56,6 +56,7 @@ class GlobalExceptionHandler {
         val response = ApiResponse.Error(
             message = e.message ?: "业务异常",
             code = e.code,
+            businessCode = e.businessCode.takeIf { it != e.code }, // 只有当业务错误码与HTTP状态码不同时才添加
             details = e.details
         )
         return response.toResponseEntity()

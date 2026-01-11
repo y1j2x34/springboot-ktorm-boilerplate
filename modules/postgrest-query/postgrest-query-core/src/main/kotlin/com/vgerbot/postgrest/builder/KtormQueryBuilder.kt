@@ -1,6 +1,7 @@
 package com.vgerbot.postgrest.builder
 
-import com.vgerbot.common.exception.BusinessException
+import com.vgerbot.common.exception.exception
+import com.vgerbot.postgrest.exception.PostgrestQueryErrorCode
 import com.vgerbot.dynamictable.core.DynamicTableManager
 import com.vgerbot.postgrest.api.TableRegistry
 import com.vgerbot.postgrest.dto.CountType
@@ -38,7 +39,9 @@ class KtormQueryBuilder(
     ): QueryResult {
         // 验证表是否已注册
         val table = tableRegistry.findTable(request.from)
-            ?: throw BusinessException("表 '${request.from}' 未注册，无法查询", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_TABLE_NOT_REGISTERED.exception(
+                message = "表 '${request.from}' 未注册，无法查询"
+            )
         
         return when (request.operation) {
             QueryOperation.SELECT -> executeSelect(request, table, rlsConditions)
@@ -121,7 +124,7 @@ class KtormQueryBuilder(
         request: QueryRequest,
         table: BaseTable<*>
     ): QueryResult {
-        val data = request.data ?: throw BusinessException("INSERT 操作需要 data 字段", code = 400)
+        val data = request.data ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_INSERT_DATA_REQUIRED.exception()
         
         val dataList = if (data is List<*>) {
             data.map { it as Map<*, *> }
@@ -130,7 +133,7 @@ class KtormQueryBuilder(
         }
         
         if (dataList.isEmpty()) {
-            throw BusinessException("INSERT 操作的数据不能为空", code = 400)
+            throw PostgrestQueryErrorCode.POSTGREST_QUERY_INSERT_DATA_EMPTY.exception()
         }
         
         var insertedCount = 0
@@ -166,10 +169,10 @@ class KtormQueryBuilder(
         rlsConditions: List<RlsCondition>
     ): QueryResult {
         val data = request.data as? Map<*, *>
-            ?: throw BusinessException("UPDATE 操作需要 data 字段", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_UPDATE_DATA_REQUIRED.exception()
         
         val whereCondition = buildWhereCondition(request.where, request.from, rlsConditions)
-            ?: throw BusinessException("UPDATE 操作必须包含 where 条件", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_UPDATE_WHERE_REQUIRED.exception()
         
         val assignments = buildAssignments(data, request.from)
         
@@ -200,7 +203,7 @@ class KtormQueryBuilder(
         rlsConditions: List<RlsCondition>
     ): QueryResult {
         val whereCondition = buildWhereCondition(request.where, request.from, rlsConditions)
-            ?: throw BusinessException("DELETE 操作必须包含 where 条件", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_DELETE_WHERE_REQUIRED.exception()
         
         // Ktorm delete 方法需要直接传递条件
         val affectedRows = database.delete(table) {
@@ -221,22 +224,26 @@ class KtormQueryBuilder(
         table: BaseTable<*>
     ): QueryResult {
         val data = request.data as? Map<*, *>
-            ?: throw BusinessException("UPSERT 操作需要 data 字段", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_UPSERT_DATA_REQUIRED.exception()
         
         val onConflict = request.onConflict
-            ?: throw BusinessException("UPSERT 操作需要 onConflict 字段", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_UPSERT_CONFLICT_REQUIRED.exception()
         
         val assignments = buildAssignments(data, request.from)
         val conflictColumn = tableRegistry.findColumn(request.from, onConflict)
-            ?: throw BusinessException("冲突字段 '$onConflict' 不存在", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_UPSERT_CONFLICT_FIELD_NOT_FOUND.exception(
+                message = "冲突字段 '$onConflict' 不存在"
+            )
         
         // 获取冲突字段的值
         val conflictValue = data[onConflict]
-            ?: throw BusinessException("冲突字段 '$onConflict' 的值不能为空", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_UPSERT_CONFLICT_FIELD_EMPTY.exception(
+                message = "冲突字段 '$onConflict' 的值不能为空"
+            )
         
         // 先查询是否存在
         val conflictCondition = buildCondition(conflictColumn, "eq", conflictValue)
-            ?: throw BusinessException("无法构建冲突条件", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_UPSERT_CONFLICT_BUILD_FAILED.exception()
         
         val existing = database.from(table)
             .select()
@@ -281,7 +288,9 @@ class KtormQueryBuilder(
      */
     private fun resolveSelectColumns(select: List<String>?, tableName: String): List<Column<*>> {
         val allColumns = tableRegistry.getColumns(tableName)
-            ?: throw BusinessException("表 '$tableName' 未注册", code = 400)
+            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_TABLE_NOT_REGISTERED.exception(
+                message = "表 '$tableName' 未注册"
+            )
         
         // Get excluded columns for this table
         val excludedColumns = dynamicTableManager.getExcludedColumns(tableName)
@@ -309,7 +318,9 @@ class KtormQueryBuilder(
             }
             
             tableRegistry.findColumn(tableName, columnName)
-                ?: throw BusinessException("列 '$columnName' 在表 '$tableName' 中不存在", code = 400)
+                ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_COLUMN_NOT_FOUND.exception(
+                    message = "列 '$columnName' 在表 '$tableName' 中不存在"
+                )
         }
     }
     
@@ -375,7 +386,9 @@ class KtormQueryBuilder(
                         val value = item[2]
                         
                         val column = tableRegistry.findColumn(tableName, field)
-                            ?: throw BusinessException("列 '$field' 在表 '$tableName' 中不存在", code = 400)
+                            ?: throw PostgrestQueryErrorCode.POSTGREST_QUERY_COLUMN_NOT_FOUND.exception(
+                                message = "列 '$field' 在表 '$tableName' 中不存在"
+                            )
                         
                         buildCondition(column, operator, value)
                     } else {

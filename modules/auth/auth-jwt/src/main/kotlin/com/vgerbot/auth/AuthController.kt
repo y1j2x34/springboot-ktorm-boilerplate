@@ -11,9 +11,9 @@ import com.vgerbot.auth.exception.KeyExpiredException
 import com.vgerbot.auth.exception.KeyNotFoundException
 import com.vgerbot.auth.service.RsaKeyService
 import com.vgerbot.common.controller.*
-import com.vgerbot.common.exception.BusinessException
-import com.vgerbot.common.exception.ConflictException
-import com.vgerbot.common.exception.UnauthorizedException
+import com.vgerbot.auth.exception.AuthErrorCode
+import com.vgerbot.common.exception.CommonErrorCode
+import com.vgerbot.common.exception.exception
 import com.vgerbot.user.dto.CreateUserDto
 import com.vgerbot.user.service.UserService
 import io.swagger.v3.oas.annotations.Operation
@@ -119,7 +119,7 @@ class AuthController(
         try {
             // 验证请求格式
             if (!req.isValid()) {
-                throw BusinessException("请求格式错误：必须提供 password 或 (encryptedPassword + keyId)", code = 400)
+                throw AuthErrorCode.AUTH_REQUEST_FORMAT_ERROR.exception()
             }
             
             // 处理密码
@@ -129,17 +129,17 @@ class AuthController(
                     rsaKeyService.decryptPassword(req.keyId!!, req.encryptedPassword!!)
                 } catch (e: KeyNotFoundException) {
                     logger.warn("Key not found for login attempt: keyId={}, username={}", req.keyId, req.username)
-                    throw UnauthorizedException("KEY_NOT_FOUND: 安全验证失败，请刷新页面重试")
+                    throw AuthErrorCode.AUTH_KEY_NOT_FOUND.exception()
                 } catch (e: KeyExpiredException) {
                     logger.warn("Key expired for login attempt: keyId={}, username={}", req.keyId, req.username)
-                    throw UnauthorizedException("KEY_EXPIRED: 安全会话已过期，请重新获取公钥")
+                    throw AuthErrorCode.AUTH_KEY_EXPIRED.exception()
                 } catch (e: Exception) {
                     logger.error("Failed to decrypt password for user: ${req.username}", e)
-                    throw UnauthorizedException("密码解密失败")
+                    throw AuthErrorCode.AUTH_PASSWORD_DECRYPT_FAILED.exception()
                 }
             } else {
                 // 传统登录：使用明文密码
-                req.password ?: throw BusinessException("密码不能为空", code = 400)
+                req.password ?: throw AuthErrorCode.AUTH_PASSWORD_REQUIRED.exception()
             }
             
             // 认证用户
@@ -150,7 +150,7 @@ class AuthController(
             // 获取用户详情
             val userDetails = authentication.principal as? ExtendedUserDetails
                 ?: userDetailsService.loadUserByUsername(req.username) as? ExtendedUserDetails
-                ?: throw UnauthorizedException("用户认证失败")
+                ?: throw AuthErrorCode.AUTH_FAILED.exception("用户认证失败")
             
             // 生成 Token
             val tokenResponse = generateTokenResponse(userDetails)
@@ -161,13 +161,13 @@ class AuthController(
             
         } catch (e: BadCredentialsException) {
             logger.warn("Login failed for user ${req.username}: Invalid credentials")
-            throw UnauthorizedException("INVALID_CREDENTIALS: 用户名或密码错误")
-        } catch (e: UnauthorizedException) {
+            throw AuthErrorCode.AUTH_INVALID_CREDENTIALS.exception()
+        } catch (e: com.vgerbot.common.exception.BusinessException) {
             // 重新抛出，保持错误码
             throw e
         } catch (e: Exception) {
             logger.error("Unexpected error during login for user: ${req.username}", e)
-            throw UnauthorizedException("登录失败，请稍后重试")
+            throw AuthErrorCode.AUTH_LOGIN_FAILED.exception()
         }
     }
     
@@ -191,7 +191,7 @@ class AuthController(
         val success = userService.createUser(userDto)
         
         if (!success) {
-            throw ConflictException("用户已存在")
+            throw AuthErrorCode.AUTH_USER_EXISTS.exception()
         }
         
         logger.info("User registered successfully: ${userDto.username}")
@@ -223,20 +223,20 @@ class AuthController(
         val tokenType = jwtTokenUtils.getTokenType(refreshToken)
         if (tokenType != TokenType.REFRESH) {
             logger.warn("Invalid token type for refresh: $tokenType")
-            throw UnauthorizedException("无效的令牌类型")
+            throw AuthErrorCode.AUTH_REFRESH_TOKEN_TYPE_ERROR.exception()
         }
         
         // 获取用户名
         val username = jwtTokenUtils.getUsernameFromToken(refreshToken)
-            ?: throw UnauthorizedException("无效的刷新令牌")
+            ?: throw AuthErrorCode.AUTH_REFRESH_TOKEN_INVALID.exception()
         
         // 加载用户信息
         val userDetails = userDetailsService.loadUserByUsername(username) as? ExtendedUserDetails
-            ?: throw UnauthorizedException("用户不存在")
+            ?: throw AuthErrorCode.AUTH_USER_NOT_FOUND.exception()
         
         // 验证 Refresh Token
         if (!jwtTokenUtils.validateRefreshToken(refreshToken, userDetails)) {
-            throw UnauthorizedException("刷新令牌无效或已过期")
+            throw AuthErrorCode.AUTH_REFRESH_TOKEN_INVALID.exception()
         }
         
         // 撤销旧的 Refresh Token
@@ -288,10 +288,10 @@ class AuthController(
     @GetMapping("public/auth/me")
     fun getCurrentUser(): ResponseEntity<Map<String, Any>> {
         val authentication = SecurityContextHolder.getContext().authentication
-            ?: throw UnauthorizedException("用户未认证")
+            ?: throw CommonErrorCode.COMMON_UNAUTHORIZED.exception()
         
         val userDetails = authentication.principal as? ExtendedUserDetails
-            ?: throw UnauthorizedException("用户未认证")
+            ?: throw CommonErrorCode.COMMON_UNAUTHORIZED.exception()
         
         return mapOf(
             "userId" to userDetails.userId,
