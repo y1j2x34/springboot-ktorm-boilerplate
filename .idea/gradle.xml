@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/infrastructure" />
             <option value="$PROJECT_DIR$/infrastructure/infrastructure-common" />
             <option value="$PROJECT_DIR$/infrastructure/infrastructure-core" />
+            <option value="$PROJECT_DIR$/infrastructure/infrastructure-redis" />
             <option value="$PROJECT_DIR$/infrastructure/infrastructure-security" />
             <option value="$PROJECT_DIR$/modules" />
             <option value="$PROJECT_DIR$/modules/auth" />
