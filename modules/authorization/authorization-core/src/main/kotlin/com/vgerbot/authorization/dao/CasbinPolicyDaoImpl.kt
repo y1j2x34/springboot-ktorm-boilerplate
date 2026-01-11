@@ -23,8 +23,8 @@ class CasbinPolicyDaoImpl : CasbinPolicyDao {
             .from(RolePermissions)
             .innerJoin(Roles, on = (RolePermissions.roleId eq Roles.id) and (Roles.status eq 1))
             .innerJoin(Permissions, on = (RolePermissions.permissionId eq Permissions.id) and (Permissions.status eq 1))
-            .leftJoin(UserRoles, on = (UserRoles.roleId eq Roles.id) and (UserRoles.isDeleted eq false))
-            .leftJoin(UserTenants, on = (UserTenants.userId eq UserRoles.userId) and (UserTenants.isDeleted eq false))
+            .leftJoin(UserRoles, on = UserRoles.roleId eq Roles.id)
+            .leftJoin(UserTenants, on = UserTenants.userId eq UserRoles.userId)
             .leftJoin(Tenants, on = (Tenants.id eq UserTenants.tenantId) and (Tenants.status eq 1))
             .select(
                 Roles.code,
@@ -32,9 +32,6 @@ class CasbinPolicyDaoImpl : CasbinPolicyDao {
                 Permissions.action,
                 Tenants.id
             )
-            .where {
-                RolePermissions.isDeleted eq false
-            }
             .groupBy(Roles.code, Permissions.resource, Permissions.action, Tenants.id)
             .map { row ->
                 CasbinPolicyDao.RolePermissionPolicy(
@@ -56,9 +53,6 @@ class CasbinPolicyDaoImpl : CasbinPolicyDao {
                 Permissions.action,
                 UserPermissions.tenantId
             )
-            .where {
-                UserPermissions.isDeleted eq false
-            }
             .map { row ->
                 CasbinPolicyDao.UserPermissionPolicy(
                     userId = row[UserPermissions.userId]!!,
@@ -73,16 +67,13 @@ class CasbinPolicyDaoImpl : CasbinPolicyDao {
         return database
             .from(UserRoles)
             .innerJoin(Roles, on = (UserRoles.roleId eq Roles.id) and (Roles.status eq 1))
-            .leftJoin(UserTenants, on = (UserTenants.userId eq UserRoles.userId) and (UserTenants.isDeleted eq false))
+            .leftJoin(UserTenants, on = UserTenants.userId eq UserRoles.userId)
             .leftJoin(Tenants, on = (Tenants.id eq UserTenants.tenantId) and (Tenants.status eq 1))
             .select(
                 UserRoles.userId,
                 Roles.code,
                 Tenants.id
             )
-            .where {
-                UserRoles.isDeleted eq false
-            }
             .map { row ->
                 CasbinPolicyDao.UserRoleGrouping(
                     userId = row[UserRoles.userId]!!,
@@ -101,9 +92,6 @@ class CasbinPolicyDaoImpl : CasbinPolicyDao {
                 Tenants.id,
                 Tenants.code
             )
-            .where {
-                (UserTenants.isDeleted eq false)
-            }
             .map { row ->
                 CasbinPolicyDao.UserTenantGrouping(
                     userId = row[UserTenants.userId]!!,

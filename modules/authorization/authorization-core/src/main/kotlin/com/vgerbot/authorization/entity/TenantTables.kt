@@ -2,10 +2,10 @@ package com.vgerbot.authorization.entity
 
 import com.vgerbot.common.entity.AuditableEntity
 import com.vgerbot.common.entity.AuditableTable
-import com.vgerbot.common.entity.SimpleAuditableEntity
-import com.vgerbot.common.entity.SimpleAuditableTable
 import org.ktorm.entity.Entity
+import org.ktorm.schema.Table
 import org.ktorm.schema.int
+import org.ktorm.schema.timestamp
 import org.ktorm.schema.varchar
 
 /**
@@ -33,17 +33,20 @@ object Tenants : AuditableTable<TenantTableEntity>("tenant") {
 
 /**
  * 用户租户关联表结构（仅用于查询，不依赖 tenant-core）
+ * 作为纯关联表，不支持逻辑删除，只记录创建时间
  */
-interface UserTenantTableEntity : SimpleAuditableEntity<UserTenantTableEntity> {
+interface UserTenantTableEntity : Entity<UserTenantTableEntity> {
     companion object : Entity.Factory<UserTenantTableEntity>()
     val id: Int
     var userId: Int
     var tenantId: Int
+    var createdAt: java.time.Instant
 }
 
-object UserTenants : SimpleAuditableTable<UserTenantTableEntity>("user_tenant") {
+object UserTenants : Table<UserTenantTableEntity>("user_tenant") {
     val id = int("id").primaryKey().bindTo { it.id }
     val userId = int("user_id").bindTo { it.userId }
     val tenantId = int("tenant_id").bindTo { it.tenantId }
+    val createdAt = timestamp("created_at").bindTo { it.createdAt }
 }
 

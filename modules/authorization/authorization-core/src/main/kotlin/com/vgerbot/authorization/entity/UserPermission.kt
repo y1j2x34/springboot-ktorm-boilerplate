@@ -31,7 +31,6 @@ object UserPermissions : Table<UserPermission>("user_permission") {
     val permissionId = int("permission_id").bindTo { it.permissionId }
     val tenantId = int("tenant_id").bindTo { it.tenantId }
     val createdAt = timestamp("created_at").bindTo { it.createdAt }
-    val isDeleted = boolean("is_deleted")
 }
 
 val Database.userPermissions get() = this.sequenceOf(UserPermissions)

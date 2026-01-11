@@ -28,7 +28,6 @@ object RolePermissions : Table<RolePermission>("role_permission") {
     val roleId = int("role_id").bindTo { it.roleId }
     val permissionId = int("permission_id").bindTo { it.permissionId }
     val createdAt = timestamp("created_at").bindTo { it.createdAt }
-    val isDeleted = boolean("is_deleted")
 }
 
 val Database.rolePermissions get() = this.sequenceOf(RolePermissions)

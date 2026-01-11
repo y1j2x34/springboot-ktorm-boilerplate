@@ -28,7 +28,6 @@ object UserRoles : Table<UserRole>("user_role") {
     val userId = int("user_id").bindTo { it.userId }
     val roleId = int("role_id").bindTo { it.roleId }
     val createdAt = timestamp("created_at").bindTo { it.createdAt }
-    val isDeleted = boolean("is_deleted")
 }
 
 val Database.userRoles get() = this.sequenceOf(UserRoles)
