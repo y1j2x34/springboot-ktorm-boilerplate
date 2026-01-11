@@ -17,3 +17,5 @@ When generating code, strictly follow these rules:
 8. **Error Handling**: Implement proper error handling via `BusinessException`.
 9. **Validation**: Add Jakarta validation annotations where appropriate.
 10. **Database Queries**: Use Ktorm DSL for database queries.
+11. **Build Verification**: After completing any code modifications, **MUST** run the build command (`./gradlew build`) to check for compilation errors and fix any errors found before considering the task complete.
+12. **Git Commit Messages**: When committing code changes, **MUST** use English for commit messages. Avoid using other languages (e.g., Chinese, Japanese, etc.) in commit messages.

@@ -31,3 +31,12 @@ dependencies {
 - Modules are ordinary application modules, not published starters.
 - **Do not** add `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` unless building an auto-configuration starter.
 - Rely on normal `@Configuration` and component scanning.
+
+## Redis Usage
+
+- **MUST** use the existing `infrastructure-redis` module for all Redis operations.
+- **MUST** use `RedisCacheService` for caching operations (do not use `RedisTemplate` directly for caching).
+- **MUST** use `RedisLockService` for distributed locking (do not implement custom lock logic).
+- Inject services via constructor: `class MyService(private val redisCacheService: RedisCacheService, private val redisLockService: RedisLockService)`
+- Prefer `getOrSet()` method for cache operations to avoid cache penetration.
+- Use `executeWithLock()` method for distributed locking to ensure proper lock lifecycle management.
