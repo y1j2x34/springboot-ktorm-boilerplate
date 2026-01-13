@@ -46,3 +46,7 @@ include("modules:postgrest-query:postgrest-query-core")
 include("modules:dynamic-table")
 include("modules:dynamic-table:dynamic-table-api")
 include("modules:dynamic-table:dynamic-table-core")
+
+include("modules:scheduler")
+include("modules:scheduler:scheduler-api")
+include("modules:scheduler:scheduler-core")
