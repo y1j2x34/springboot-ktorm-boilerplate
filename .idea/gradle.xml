@@ -16,6 +16,9 @@
             <option value="$PROJECT_DIR$/infrastructure/infrastructure-redis" />
             <option value="$PROJECT_DIR$/infrastructure/infrastructure-security" />
             <option value="$PROJECT_DIR$/modules" />
+            <option value="$PROJECT_DIR$/modules/async-task" />
+            <option value="$PROJECT_DIR$/modules/async-task/async-task-api" />
+            <option value="$PROJECT_DIR$/modules/async-task/async-task-core" />
             <option value="$PROJECT_DIR$/modules/auth" />
             <option value="$PROJECT_DIR$/modules/auth/auth-jwt" />
             <option value="$PROJECT_DIR$/modules/auth/auth-oauth" />
@@ -31,9 +34,15 @@
             <option value="$PROJECT_DIR$/modules/dynamic-table" />
             <option value="$PROJECT_DIR$/modules/dynamic-table/dynamic-table-api" />
             <option value="$PROJECT_DIR$/modules/dynamic-table/dynamic-table-core" />
+            <option value="$PROJECT_DIR$/modules/notification" />
+            <option value="$PROJECT_DIR$/modules/notification/notification-api" />
+            <option value="$PROJECT_DIR$/modules/notification/notification-core" />
             <option value="$PROJECT_DIR$/modules/postgrest-query" />
             <option value="$PROJECT_DIR$/modules/postgrest-query/postgrest-query-api" />
             <option value="$PROJECT_DIR$/modules/postgrest-query/postgrest-query-core" />
+            <option value="$PROJECT_DIR$/modules/scheduler" />
+            <option value="$PROJECT_DIR$/modules/scheduler/scheduler-api" />
+            <option value="$PROJECT_DIR$/modules/scheduler/scheduler-core" />
             <option value="$PROJECT_DIR$/modules/tenant" />
             <option value="$PROJECT_DIR$/modules/tenant/tenant-api" />
             <option value="$PROJECT_DIR$/modules/tenant/tenant-core" />
