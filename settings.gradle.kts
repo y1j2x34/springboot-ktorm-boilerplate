@@ -50,3 +50,11 @@ include("modules:dynamic-table:dynamic-table-core")
 include("modules:scheduler")
 include("modules:scheduler:scheduler-api")
 include("modules:scheduler:scheduler-core")
+
+include("modules:notification")
+include("modules:notification:notification-api")
+include("modules:notification:notification-core")
+
+include("modules:async-task")
+include("modules:async-task:async-task-api")
+include("modules:async-task:async-task-core")

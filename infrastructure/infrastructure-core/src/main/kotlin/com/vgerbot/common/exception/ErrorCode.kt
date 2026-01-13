@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus
  * - 70: 动态表模块 (DynamicTable)
  * - 80: PostgREST查询模块 (PostgrestQuery)
  * - 90: 验证码模块 (Captcha)
+ * - 95: 通知模块 (Notification)
  * 
  * 错误类型：
  * - 00: 通用错误
@@ -96,6 +97,7 @@ object ErrorCodes {
             registerModuleErrorCodes("com.vgerbot.dynamictable.exception.DynamicTableErrorCode")
             registerModuleErrorCodes("com.vgerbot.postgrest.exception.PostgrestQueryErrorCode")
             registerModuleErrorCodes("com.vgerbot.captcha.exception.CaptchaErrorCode")
+            registerModuleErrorCodes("com.vgerbot.notification.exception.NotificationErrorCode")
         }
     }
     
