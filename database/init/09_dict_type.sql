@@ -37,6 +37,7 @@ INSERT INTO `dict_type` (`dict_code`, `dict_name`, `dict_category`, `value_type`
 ('password-strategy', '密码策略', 'security', 'JSON', 0, '密码策略定义', 1, 1, NOW(), NOW()),
 ('lock-strategy', '锁定策略', 'security', 'JSON', 0, '锁定策略定义', 1, 1, NOW(), NOW()),
 ('enable-lock-strategy', '是否启用锁定策略', 'security', 'BOOLEAN', 0, '是否启用锁定策略', 1, 1, NOW(), NOW()),
-('email-blacklist', '邮箱黑名单', 'security', 'List<String>', 0, '邮箱黑名单定义', 1, 1, NOW(), NOW())
+('email-blacklist', '邮箱黑名单', 'security', 'List<String>', 0, '邮箱黑名单定义', 1, 1, NOW(), NOW()),
+('phone-blacklist', '电话黑名单', 'security', 'List<String>', 0, '电话黑名单定义', 1, 1, NOW(), NOW())
 ON DUPLICATE KEY UPDATE `dict_name` = VALUES(`dict_name`);
 

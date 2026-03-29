@@ -21,7 +21,11 @@ interface User: Entity<User> {
 
     var phoneNumber: String?
 
-    var password: String
+    var password: String?
+
+    var authProvider: String?
+
+    var externalId: String?
 
     var createdAt: Instant
 
@@ -40,6 +44,10 @@ object Users: Table<User>("user") {
     var phoneNumber = varchar("phone_number").bindTo { it.phoneNumber }
 
     var password = varchar("password").bindTo { it.password }
+
+    var authProvider = varchar("auth_provider").bindTo { it.authProvider }
+
+    var externalId = varchar("external_id").bindTo { it.externalId }
 
     var createdAt = timestamp("created_at").bindTo { it.createdAt }
 

@@ -8,11 +8,15 @@ data class UserInfoDto (
 
     val username: String,
     @JsonIgnore
-    val password: String,
+    val password: String?,
 
     val email: String,
 
     val phoneNumber: String?,
+
+    val authProvider: String? = null,
+
+    val externalId: String? = null,
 
     val createdAt: Instant,
     

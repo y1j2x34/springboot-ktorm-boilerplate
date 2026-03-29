@@ -15,6 +15,7 @@ include("modules")
 
 // Auth modules
 include("modules:auth")
+include("modules:auth:auth-common")
 include("modules:auth:auth-jwt")
 include("modules:auth:auth-oauth")
 include("modules:auth:auth-wechat")
@@ -58,3 +59,5 @@ include("modules:notification:notification-core")
 include("modules:async-task")
 include("modules:async-task:async-task-api")
 include("modules:async-task:async-task-core")
+
+include("console")

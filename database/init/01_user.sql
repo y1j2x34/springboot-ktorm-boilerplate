@@ -8,13 +8,16 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user` (
     username     varchar(32)                           not null comment '用户名（唯一）',
     email        varchar(128)                          not null comment '邮箱',
     phone_number varchar(20)                               null comment '手机号',
-    password     char(60)                              not null comment '密码（=BCrypt(MD5(明文), salt)）',
+    password     char(60)                                  null comment '密码（本地账号必填，外部账号可为空）',
+    auth_provider varchar(32)                              null comment '外部认证提供方',
+    external_id   varchar(128)                             null comment '外部用户ID',
     created_at   timestamp default current_timestamp()     null comment '创建时间',
     updated_at   timestamp null on update current_timestamp comment '更新时间',
     is_deleted   tinyint(1) default 0 not null comment '是否删除：0-否, 1-是',
     constraint user_pk unique (username),
     constraint user_pk3 unique (email),
     constraint user_pk_phone unique (phone_number),
+    constraint user_pk_external unique (auth_provider, external_id),
     index idx_is_deleted (is_deleted)
 ) comment '用户表';
 

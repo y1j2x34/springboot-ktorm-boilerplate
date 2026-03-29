@@ -51,7 +51,7 @@ data class CustomUserDetails(
             return CustomUserDetails(
                 userId = userInfo.id,
                 username = userInfo.username,
-                password = userInfo.password,
+                password = userInfo.password ?: "",
                 email = userInfo.email,
                 authorities = authorities.map { SimpleGrantedAuthority(it) }
             )
