@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # MariaDB Database - Data storage for Spring Boot application
   mariadb:
@@ -14,7 +12,6 @@ services:
       - "${DB_PORT:-3306}:3306"
     volumes:
       - mariadb-data:/var/lib/mysql
-      - ./init:/docker-entrypoint-initdb.d:ro
       - ./conf.d:/etc/mysql/conf.d:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
@@ -24,6 +21,32 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+
+  flyway:
+    image: flyway/flyway:10.17.3
+    container_name: flyway-migrator
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      FLYWAY_URL: jdbc:mariadb://mariadb:3306/${DB_NAME}
+      FLYWAY_USER: ${DB_USER}
+      FLYWAY_PASSWORD: ${DB_PASSWORD}
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+      FLYWAY_BASELINE_VERSION: "0"
+      FLYWAY_CONNECT_RETRIES: "30"
+    volumes:
+      - ./init:/flyway/source:ro
+    entrypoint:
+      - /bin/sh
+      - -c
+      - 'mkdir -p /flyway/sql && rm -f /flyway/sql/*.sql && for file in /flyway/source/*.sql; do name="$$(basename "$$file")"; cp "$$file" "/flyway/sql/R__$$name"; done && exec flyway "$$@"'
+      - --
+    command:
+      - migrate
+    networks:
+      - app-network
+    restart: "no"
 
 volumes:
   mariadb-data:
