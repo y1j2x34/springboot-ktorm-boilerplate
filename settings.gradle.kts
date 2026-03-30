@@ -61,3 +61,4 @@ include("modules:async-task:async-task-api")
 include("modules:async-task:async-task-core")
 
 include("console")
+include("modules:auth:auth-logto")

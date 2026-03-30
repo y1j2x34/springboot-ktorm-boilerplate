@@ -49,3 +49,40 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`oauth2_provider` (
 -- ('keycloak', 'Keycloak', 'your-keycloak-client-id', 'your-keycloak-client-secret', 'https://your-keycloak-server.com/realms/your-realm', 'openid,profile,email', 'preferred_username', 1, 3, 'Keycloak OIDC 登录')
 -- ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
+# logto
+
+INSERT INTO `spring-boot-kt`.`oauth2_provider` (
+  `registration_id`,
+  `name`,
+  `client_id`,
+  `client_secret`,
+  `authorization_uri`,
+  `token_uri`,
+  `user_info_uri`,
+  `jwk_set_uri`,
+  `issuer_uri`,
+  `redirect_uri`,
+  `scopes`,
+  `user_name_attribute_name`,
+  `status`,
+  `sort_order`,
+  `description`,
+  `is_deleted`
+) VALUES (
+  'logto',
+  'springboot-kt',
+  'nb3b123mi6sx3xem1a73k',
+  'm6wgOShsesy06Vzaw66wBd61JuKQNV37',
+  'http://localhost:3001/oidc/auth',
+  NULL,
+  NULL,
+  'http://localhost:3001/oidc/jwks',
+  'http://localhost:3001/oidc',
+  '{baseUrl}/login/oauth2/code/{registrationId}',
+  'openid,profile,email,offline_access',
+  'sub',
+  1,
+  0,
+  'Logto OIDC provider',
+  0
+);

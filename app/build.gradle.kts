@@ -3,11 +3,12 @@ dependencies {
     implementation(project(":infrastructure:infrastructure-common"))
     implementation(project(":infrastructure:infrastructure-core"))
     implementation(project(":infrastructure:infrastructure-redis"))
-    implementation(project(":modules:auth:auth-jwt"))
+
     implementation(project(":modules:authorization:authorization-core"))
     implementation(project(":modules:tenant:tenant-core"))
     implementation(project(":modules:user:user-core"))
     implementation(project(":modules:auth:auth-wechat"))
+//    implementation(project(":modules:auth:auth-jwt"))
     implementation(project(":modules:auth:auth-oauth"))
     implementation(project(":modules:dict:dict-core"))
     implementation(project(":modules:postgrest-query:postgrest-query-core"))
@@ -15,6 +16,7 @@ dependencies {
 
     // Spring Security is needed because AppSecurityConfiguration uses it directly
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("me.paulschwarz:springboot3-dotenv:5.0.1")
     
     // Swagger/OpenAPI documentation

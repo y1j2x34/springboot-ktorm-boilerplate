@@ -16,6 +16,17 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 
+oauth2:
+  # 是否启用 OAuth2 认证
+  enabled: true
+
+  # 默认重定向 URI 模板（可选）
+  default-redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+  # 默认权限范围（可选）
+  default-scopes: "openid,profile,email"
+
+
 server:
   servlet:
     context-path: /api

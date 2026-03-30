@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.security.oauth2.client.registration.ClientRegistration
+import org.springframework.security.oauth2.client.registration.ClientRegistrations
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository
 import org.springframework.security.oauth2.core.AuthorizationGrantType
@@ -108,21 +109,14 @@ class DynamicClientRegistrationRepository(
      */
     private fun buildClientRegistration(provider: OAuth2Provider): ClientRegistration {
         val scopes = provider.scopes.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-        
-        // 如果提供了 issuerUri，使用自动发现配置
-        if (!provider.issuerUri.isNullOrBlank()) {
-            return ClientRegistration.withRegistrationId(provider.registrationId)
-                .issuerUri(provider.issuerUri)
-                .clientId(provider.clientId)
-                .clientSecret(provider.clientSecret)
-                .redirectUri(provider.redirectUri ?: "{baseUrl}/login/oauth2/code/{registrationId}")
-                .scope(*scopes.toTypedArray())
-                .clientName(provider.name)
-                .build()
+
+        val builder = if (!provider.issuerUri.isNullOrBlank()) {
+            // OIDC discovery fills authorization/token/jwk/userinfo endpoints from issuer metadata.
+            ClientRegistrations.fromOidcIssuerLocation(provider.issuerUri)
+                .registrationId(provider.registrationId)
+        } else {
+            ClientRegistration.withRegistrationId(provider.registrationId)
         }
-        
-        // 手动配置各个端点
-        val builder = ClientRegistration.withRegistrationId(provider.registrationId)
             .clientId(provider.clientId)
             .clientSecret(provider.clientSecret)
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -130,30 +124,26 @@ class DynamicClientRegistrationRepository(
             .redirectUri(provider.redirectUri ?: "{baseUrl}/login/oauth2/code/{registrationId}")
             .scope(*scopes.toTypedArray())
             .clientName(provider.name)
-        
-        // 设置授权端点
+
+        // Manual endpoint values override discovery results when explicitly provided.
         provider.authorizationUri?.let {
             if (it.isNotBlank()) builder.authorizationUri(it)
         }
-        
-        // 设置 Token 端点
+
         provider.tokenUri?.let {
             if (it.isNotBlank()) builder.tokenUri(it)
         }
-        
-        // 设置用户信息端点
+
         provider.userInfoUri?.let {
             if (it.isNotBlank()) builder.userInfoUri(it)
         }
-        
-        // 设置 JWK Set URI
+
         provider.jwkSetUri?.let {
             if (it.isNotBlank()) builder.jwkSetUri(it)
         }
-        
-        // 设置用户名属性名
+
         builder.userNameAttributeName(provider.userNameAttributeName)
-        
+
         return builder.build()
     }
 }
