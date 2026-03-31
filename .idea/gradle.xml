@@ -21,7 +21,9 @@
             <option value="$PROJECT_DIR$/modules/async-task/async-task-api" />
             <option value="$PROJECT_DIR$/modules/async-task/async-task-core" />
             <option value="$PROJECT_DIR$/modules/auth" />
+            <option value="$PROJECT_DIR$/modules/auth/auth-common" />
             <option value="$PROJECT_DIR$/modules/auth/auth-jwt" />
+            <option value="$PROJECT_DIR$/modules/auth/auth-logto" />
             <option value="$PROJECT_DIR$/modules/auth/auth-oauth" />
             <option value="$PROJECT_DIR$/modules/auth/auth-oauth2-server" />
             <option value="$PROJECT_DIR$/modules/auth/auth-wechat" />
