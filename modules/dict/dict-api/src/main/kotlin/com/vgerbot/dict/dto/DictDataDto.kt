@@ -18,6 +18,7 @@ data class DictDataDto(
     val updatedBy: Int? = null,
     val updatedAt: Instant? = null,
     val remark: String? = null,
+    val tenantId: Int? = null,
     val children: List<DictDataDto>? = null
 )
 
@@ -31,7 +32,8 @@ data class CreateDictDataDto(
     val isDefault: Boolean = false,
     val status: Boolean = true,
     val sortOrder: Int = 0,
-    val remark: String? = null
+    val remark: String? = null,
+    val tenantId: Int? = null
 )
 
 data class UpdateDictDataDto(
@@ -42,7 +44,8 @@ data class UpdateDictDataDto(
     val isDefault: Boolean? = null,
     val status: Boolean? = null,
     val sortOrder: Int? = null,
-    val remark: String? = null
+    val remark: String? = null,
+    val tenantId: Int? = null
 )
 
 data class DictDataQueryDto(

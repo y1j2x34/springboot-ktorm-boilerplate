@@ -31,6 +31,7 @@ class RoleServiceImpl : RoleService {
         role.name = dto.name
         role.code = dto.code
         role.description = dto.description
+        role.tenantId = dto.tenantId
         role.createdAt = Instant.now()
         role.status = 1 // 默认启用
         
@@ -44,6 +45,7 @@ class RoleServiceImpl : RoleService {
         dto.name?.let { role.name = it }
         dto.code?.let { role.code = it }
         dto.description?.let { role.description = it }
+        dto.tenantId?.let { role.tenantId = it }
         role.updatedAt = Instant.now()
         
         return roleDao.update(role) == 1

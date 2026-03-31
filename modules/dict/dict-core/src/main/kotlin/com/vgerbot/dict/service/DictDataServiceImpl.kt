@@ -54,6 +54,7 @@ class DictDataServiceImpl : DictDataService {
         dictData.status = 1 // 默认启用
         dictData.sortOrder = dto.sortOrder
         dictData.remark = dto.remark
+        dictData.tenantId = dto.tenantId
         dictData.createdAt = Instant.now()
         
         return if (dictDataDao.add(dictData) == 1) dictData.toDto() else null
@@ -78,6 +79,7 @@ class DictDataServiceImpl : DictDataService {
         dto.isDefault?.let { dictData.isDefault = it }
         dto.sortOrder?.let { dictData.sortOrder = it }
         dto.remark?.let { dictData.remark = it }
+        dto.tenantId?.let { dictData.tenantId = it }
         dictData.updatedAt = Instant.now()
         
         return dictDataDao.update(dictData) == 1
@@ -148,6 +150,7 @@ class DictDataServiceImpl : DictDataService {
                     updatedBy = data.updatedBy,
                     updatedAt = data.updatedAt,
                     remark = data.remark,
+                    tenantId = data.tenantId,
                     children = buildTree(allData, data.id)
                 )
             }

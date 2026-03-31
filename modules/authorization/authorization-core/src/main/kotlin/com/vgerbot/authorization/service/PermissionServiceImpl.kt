@@ -33,6 +33,7 @@ class PermissionServiceImpl : PermissionService {
         permission.resource = dto.resource
         permission.action = dto.action
         permission.description = dto.description
+        permission.tenantId = dto.tenantId
         permission.createdAt = Instant.now()
         permission.status = 1 // 默认启用
         
@@ -48,6 +49,7 @@ class PermissionServiceImpl : PermissionService {
         dto.resource?.let { permission.resource = it }
         dto.action?.let { permission.action = it }
         dto.description?.let { permission.description = it }
+        dto.tenantId?.let { permission.tenantId = it }
         permission.updatedAt = Instant.now()
         
         return permissionDao.update(permission) == 1

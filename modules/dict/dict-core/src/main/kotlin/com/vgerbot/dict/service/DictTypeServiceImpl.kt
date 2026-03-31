@@ -39,6 +39,7 @@ class DictTypeServiceImpl : DictTypeService {
         dictType.status = 1 // 默认启用
         dictType.sortOrder = dto.sortOrder
         dictType.remark = dto.remark
+        dictType.tenantId = dto.tenantId
         dictType.createdAt = Instant.now()
         
         return if (dictTypeDao.add(dictType) == 1) dictType.toDto() else null
@@ -58,6 +59,7 @@ class DictTypeServiceImpl : DictTypeService {
         dto.description?.let { dictType.description = it }
         dto.sortOrder?.let { dictType.sortOrder = it }
         dto.remark?.let { dictType.remark = it }
+        dto.tenantId?.let { dictType.tenantId = it }
         dictType.updatedAt = Instant.now()
         
         return dictTypeDao.update(dictType) == 1

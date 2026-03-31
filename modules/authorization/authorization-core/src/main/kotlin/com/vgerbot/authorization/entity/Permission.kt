@@ -17,6 +17,7 @@ interface Permission : StatusAuditableEntity<Permission> {
     var resource: String
     var action: String
     var description: String?
+    var tenantId: Int?
 }
 
 object Permissions : StatusAuditableTable<Permission>("permission") {
@@ -26,6 +27,7 @@ object Permissions : StatusAuditableTable<Permission>("permission") {
     val resource = varchar("resource").bindTo { it.resource }
     val action = varchar("action").bindTo { it.action }
     val description = varchar("description").bindTo { it.description }
+    val tenantId = int("tenant_id").bindTo { it.tenantId }
 }
 
 val Database.permissions get() = this.sequenceOf(Permissions)
@@ -40,6 +42,7 @@ fun Permission.toDto(): PermissionDto = PermissionDto(
     createdBy = this.createdBy,
     createdAt = this.createdAt,
     updatedBy = this.updatedBy,
-    updatedAt = this.updatedAt
+    updatedAt = this.updatedAt,
+    tenantId = this.tenantId
 )
 

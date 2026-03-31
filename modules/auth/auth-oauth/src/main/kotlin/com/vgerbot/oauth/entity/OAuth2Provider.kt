@@ -63,6 +63,9 @@ interface OAuth2Provider : Entity<OAuth2Provider> {
     /** 描述 */
     var description: String?
     
+    /** 租户ID（可选，支持多租户配置隔离） */
+    var tenantId: Int?
+    
     /** 创建时间 */
     var createdAt: Instant
     
@@ -93,6 +96,7 @@ object OAuth2Providers : Table<OAuth2Provider>("oauth2_provider") {
     val status = int("status").bindTo { it.status }
     val sortOrder = int("sort_order").bindTo { it.sortOrder }
     val description = varchar("description").bindTo { it.description }
+    val tenantId = int("tenant_id").bindTo { it.tenantId }
     val createdAt = timestamp("created_at").bindTo { it.createdAt }
     val updatedAt = timestamp("updated_at").bindTo { it.updatedAt }
     val isDeleted = boolean("is_deleted").bindTo { it.isDeleted }

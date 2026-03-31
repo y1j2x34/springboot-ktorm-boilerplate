@@ -18,7 +18,8 @@ data class DictTypeDto(
     val createdAt: Instant? = null,
     val updatedBy: Int? = null,
     val updatedAt: Instant? = null,
-    val remark: String? = null
+    val remark: String? = null,
+    val tenantId: Int? = null
 )
 
 data class CreateDictTypeDto(
@@ -32,7 +33,8 @@ data class CreateDictTypeDto(
     val description: String? = null,
     val status: Boolean = true,
     val sortOrder: Int = 0,
-    val remark: String? = null
+    val remark: String? = null,
+    val tenantId: Int? = null
 )
 
 data class UpdateDictTypeDto(
@@ -46,6 +48,7 @@ data class UpdateDictTypeDto(
     val description: String? = null,
     val status: Boolean? = null,
     val sortOrder: Int? = null,
-    val remark: String? = null
+    val remark: String? = null,
+    val tenantId: Int? = null
 )
 

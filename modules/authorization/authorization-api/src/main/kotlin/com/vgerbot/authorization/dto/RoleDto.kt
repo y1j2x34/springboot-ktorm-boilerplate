@@ -10,19 +10,22 @@ data class RoleDto(
     val createdBy: Int? = null,
     val createdAt: Instant? = null,
     val updatedBy: Int? = null,
-    val updatedAt: Instant? = null
+    val updatedAt: Instant? = null,
+    val tenantId: Int? = null
 )
 
 data class CreateRoleDto(
     val name: String,
     val code: String,
-    val description: String? = null
+    val description: String? = null,
+    val tenantId: Int? = null
 )
 
 data class UpdateRoleDto(
     val name: String? = null,
     val code: String? = null,
-    val description: String? = null
+    val description: String? = null,
+    val tenantId: Int? = null
 )
 
 data class AssignRoleToUserDto(

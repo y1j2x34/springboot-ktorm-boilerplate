@@ -12,7 +12,8 @@ data class PermissionDto(
     val createdBy: Int? = null,
     val createdAt: Instant? = null,
     val updatedBy: Int? = null,
-    val updatedAt: Instant? = null
+    val updatedAt: Instant? = null,
+    val tenantId: Int? = null
 )
 
 data class CreatePermissionDto(
@@ -20,7 +21,8 @@ data class CreatePermissionDto(
     val code: String,
     val resource: String,
     val action: String,
-    val description: String? = null
+    val description: String? = null,
+    val tenantId: Int? = null
 )
 
 data class UpdatePermissionDto(
@@ -28,7 +30,8 @@ data class UpdatePermissionDto(
     val code: String? = null,
     val resource: String? = null,
     val action: String? = null,
-    val description: String? = null
+    val description: String? = null,
+    val tenantId: Int? = null
 )
 
 data class AssignPermissionToRoleDto(

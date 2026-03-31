@@ -15,6 +15,7 @@ interface Role : StatusAuditableEntity<Role> {
     var name: String
     var code: String
     var description: String?
+    var tenantId: Int?
 }
 
 object Roles : StatusAuditableTable<Role>("role") {
@@ -22,6 +23,7 @@ object Roles : StatusAuditableTable<Role>("role") {
     val name = varchar("name").bindTo { it.name }
     val code = varchar("code").bindTo { it.code }
     val description = varchar("description").bindTo { it.description }
+    val tenantId = int("tenant_id").bindTo { it.tenantId }
 }
 
 val Database.roles get() = this.sequenceOf(Roles)
@@ -34,6 +36,7 @@ fun Role.toDto(): RoleDto = RoleDto(
     createdBy = this.createdBy,
     createdAt = this.createdAt,
     updatedBy = this.updatedBy,
-    updatedAt = this.updatedAt
+    updatedAt = this.updatedAt,
+    tenantId = this.tenantId
 )
 

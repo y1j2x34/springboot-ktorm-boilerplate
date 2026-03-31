@@ -21,11 +21,14 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`dict_type` (
     updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     is_deleted TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
     remark VARCHAR(500) COMMENT '备注',
+    tenant_id INT NULL COMMENT '租户ID（可选，支持多租户配置隔离）',
     
     INDEX idx_dict_code (dict_code),
     INDEX idx_dict_category (dict_category),
     INDEX idx_status (status),
-    INDEX idx_is_deleted (is_deleted)
+    INDEX idx_is_deleted (is_deleted),
+    INDEX idx_tenant_id (tenant_id),
+    CONSTRAINT fk_dict_type_tenant FOREIGN KEY (tenant_id) REFERENCES tenant(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='字典类型定义表';
 
 -- ================================================

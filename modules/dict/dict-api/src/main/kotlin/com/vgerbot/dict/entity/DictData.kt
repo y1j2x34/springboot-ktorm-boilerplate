@@ -21,6 +21,7 @@ interface DictData : StatusAuditableEntity<DictData> {
     var isDefault: Boolean
     var sortOrder: Int
     var remark: String?
+    var tenantId: Int?
 }
 
 object DictDatas : StatusAuditableTable<DictData>("dict_data") {
@@ -34,6 +35,7 @@ object DictDatas : StatusAuditableTable<DictData>("dict_data") {
     val isDefault = boolean("is_default").bindTo { it.isDefault }
     val sortOrder = int("sort_order").bindTo { it.sortOrder }
     val remark = varchar("remark").bindTo { it.remark }
+    val tenantId = int("tenant_id").bindTo { it.tenantId }
 }
 
 val Database.dictDatas get() = this.sequenceOf(DictDatas)
@@ -54,6 +56,7 @@ fun DictData.toDto(): DictDataDto = DictDataDto(
     updatedBy = this.updatedBy,
     updatedAt = this.updatedAt,
     remark = this.remark,
+    tenantId = this.tenantId,
     children = null
 )
 

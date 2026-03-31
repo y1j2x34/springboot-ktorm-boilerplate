@@ -22,6 +22,7 @@ interface DictType : StatusAuditableEntity<DictType> {
     var description: String?
     var sortOrder: Int
     var remark: String?
+    var tenantId: Int?
 }
 
 object DictTypes : StatusAuditableTable<DictType>("dict_type") {
@@ -36,6 +37,7 @@ object DictTypes : StatusAuditableTable<DictType>("dict_type") {
     val description = text("description").bindTo { it.description }
     val sortOrder = int("sort_order").bindTo { it.sortOrder }
     val remark = varchar("remark").bindTo { it.remark }
+    val tenantId = int("tenant_id").bindTo { it.tenantId }
 }
 
 val Database.dictTypes get() = this.sequenceOf(DictTypes)
@@ -56,6 +58,7 @@ fun DictType.toDto(): DictTypeDto = DictTypeDto(
     createdAt = this.createdAt,
     updatedBy = this.updatedBy,
     updatedAt = this.updatedAt,
-    remark = this.remark
+    remark = this.remark,
+    tenantId = this.tenantId
 )
 

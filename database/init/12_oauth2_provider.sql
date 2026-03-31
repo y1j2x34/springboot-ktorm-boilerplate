@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`oauth2_provider` (
     `status` INT NOT NULL DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
     `sort_order` INT NOT NULL DEFAULT 0 COMMENT '排序顺序',
     `description` VARCHAR(500) NULL COMMENT '描述',
+    `tenant_id` INT NULL COMMENT '租户ID（可选，支持多租户配置隔离）',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `is_deleted` TINYINT(1) DEFAULT 0 NOT NULL COMMENT '是否删除：0-否, 1-是',
@@ -27,7 +28,9 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`oauth2_provider` (
     UNIQUE KEY `uk_registration_id` (`registration_id`),
     INDEX `idx_status` (`status`),
     INDEX `idx_is_deleted` (`is_deleted`),
-    INDEX `idx_sort_order` (`sort_order`)
+    INDEX `idx_sort_order` (`sort_order`),
+    INDEX `idx_tenant_id` (`tenant_id`),
+    CONSTRAINT `fk_oauth2_provider_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='OAuth2 提供商配置表';
 
 -- ================================================
@@ -49,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`oauth2_provider` (
 -- ('keycloak', 'Keycloak', 'your-keycloak-client-id', 'your-keycloak-client-secret', 'https://your-keycloak-server.com/realms/your-realm', 'openid,profile,email', 'preferred_username', 1, 3, 'Keycloak OIDC 登录')
 -- ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
-# logto
+-- logto
 
 INSERT INTO `spring-boot-kt`.`oauth2_provider` (
   `registration_id`,

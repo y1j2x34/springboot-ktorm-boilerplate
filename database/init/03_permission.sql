@@ -15,14 +15,17 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`permission` (
     `updated_by` INT NULL COMMENT '更新人ID',
     `updated_at` TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `status` INT NOT NULL DEFAULT 1 COMMENT '状态：1-启用, 0-禁用',
+    `tenant_id` INT NULL COMMENT '租户ID（可选，支持多租户配置隔离）',
     PRIMARY KEY (`id`),
     INDEX `idx_code` (`code`),
     INDEX `idx_resource_action` (`resource`, `action`),
     INDEX `idx_created_by` (`created_by`),
     INDEX `idx_updated_by` (`updated_by`),
     INDEX `idx_status` (`status`),
+    INDEX `idx_tenant_id` (`tenant_id`),
     CONSTRAINT `fk_permission_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL,
-    CONSTRAINT `fk_permission_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL
+    CONSTRAINT `fk_permission_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL,
+    CONSTRAINT `fk_permission_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表';
 
 -- ================================================
