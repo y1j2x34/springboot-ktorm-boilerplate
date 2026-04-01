@@ -53,6 +53,18 @@ interface OAuth2Provider : Entity<OAuth2Provider> {
     
     /** 用户名属性名 */
     var userNameAttributeName: String
+
+    /** OAuth2 客户端认证方式 */
+    var clientAuthenticationMethod: String
+
+    /** OAuth2 授权类型 */
+    var authorizationGrantType: String
+
+    /** 授权请求附加参数（JSON） */
+    var authorizationRequestParams: String?
+
+    /** ID Token JWS 算法 */
+    var idTokenJwsAlgorithm: String?
     
     /** 状态：1-启用，0-禁用 */
     var status: Int
@@ -93,6 +105,10 @@ object OAuth2Providers : Table<OAuth2Provider>("oauth2_provider") {
     val redirectUri = varchar("redirect_uri").bindTo { it.redirectUri }
     val scopes = varchar("scopes").bindTo { it.scopes }
     val userNameAttributeName = varchar("user_name_attribute_name").bindTo { it.userNameAttributeName }
+    val clientAuthenticationMethod = varchar("client_authentication_method").bindTo { it.clientAuthenticationMethod }
+    val authorizationGrantType = varchar("authorization_grant_type").bindTo { it.authorizationGrantType }
+    val authorizationRequestParams = varchar("authorization_request_params").bindTo { it.authorizationRequestParams }
+    val idTokenJwsAlgorithm = varchar("id_token_jws_algorithm").bindTo { it.idTokenJwsAlgorithm }
     val status = int("status").bindTo { it.status }
     val sortOrder = int("sort_order").bindTo { it.sortOrder }
     val description = varchar("description").bindTo { it.description }

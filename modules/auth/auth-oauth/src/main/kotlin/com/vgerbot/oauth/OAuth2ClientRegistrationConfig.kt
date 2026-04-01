@@ -25,7 +25,8 @@ import java.util.concurrent.ConcurrentHashMap
 @Component
 @ConditionalOnProperty(prefix = "oauth2", name = ["enabled"], havingValue = "true", matchIfMissing = true)
 class DynamicClientRegistrationRepository(
-    private val oauth2ProviderDao: OAuth2ProviderDao
+    private val oauth2ProviderDao: OAuth2ProviderDao,
+    private val oauth2Properties: OAuth2Properties
 ) : ClientRegistrationRepository, ClientRegistrationRefresher {
     
     private val logger = LoggerFactory.getLogger(DynamicClientRegistrationRepository::class.java)
@@ -108,7 +109,15 @@ class DynamicClientRegistrationRepository(
      * 构建客户端注册
      */
     private fun buildClientRegistration(provider: OAuth2Provider): ClientRegistration {
-        val scopes = provider.scopes.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        val scopes = provider.scopes
+            .ifBlank { oauth2Properties.defaultScopes }
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+
+        val resolvedUserNameAttributeName = provider.userNameAttributeName.ifBlank {
+            oauth2Properties.defaultUserNameAttribute
+        }
 
         val builder = if (!provider.issuerUri.isNullOrBlank()) {
             // OIDC discovery fills authorization/token/jwk/userinfo endpoints from issuer metadata.
@@ -119,9 +128,9 @@ class DynamicClientRegistrationRepository(
         }
             .clientId(provider.clientId)
             .clientSecret(provider.clientSecret)
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .redirectUri(provider.redirectUri ?: "{baseUrl}/login/oauth2/code/{registrationId}")
+            .clientAuthenticationMethod(resolveClientAuthenticationMethod(provider.clientAuthenticationMethod))
+            .authorizationGrantType(resolveAuthorizationGrantType(provider.authorizationGrantType))
+            .redirectUri(provider.redirectUri ?: oauth2Properties.defaultRedirectUri)
             .scope(*scopes.toTypedArray())
             .clientName(provider.name)
 
@@ -142,9 +151,28 @@ class DynamicClientRegistrationRepository(
             if (it.isNotBlank()) builder.jwkSetUri(it)
         }
 
-        builder.userNameAttributeName(provider.userNameAttributeName)
+        builder.userNameAttributeName(resolvedUserNameAttributeName)
 
         return builder.build()
+    }
+
+    private fun resolveClientAuthenticationMethod(value: String): ClientAuthenticationMethod {
+        return when (value.lowercase()) {
+            "client_secret_post" -> ClientAuthenticationMethod.CLIENT_SECRET_POST
+            "client_secret_jwt" -> ClientAuthenticationMethod.CLIENT_SECRET_JWT
+            "private_key_jwt" -> ClientAuthenticationMethod.PRIVATE_KEY_JWT
+            "none" -> ClientAuthenticationMethod.NONE
+            else -> ClientAuthenticationMethod.CLIENT_SECRET_BASIC
+        }
+    }
+
+    private fun resolveAuthorizationGrantType(value: String): AuthorizationGrantType {
+        return when (value.lowercase()) {
+            "client_credentials" -> AuthorizationGrantType.CLIENT_CREDENTIALS
+            "password" -> AuthorizationGrantType.PASSWORD
+            "refresh_token" -> AuthorizationGrantType.REFRESH_TOKEN
+            else -> AuthorizationGrantType.AUTHORIZATION_CODE
+        }
     }
 }
 

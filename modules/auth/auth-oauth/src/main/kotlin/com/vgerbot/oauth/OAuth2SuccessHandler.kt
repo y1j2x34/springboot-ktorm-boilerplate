@@ -10,16 +10,17 @@ import org.springframework.stereotype.Component
 /**
  * OAuth2 认证成功处理器
  * 
- * 在 OAuth2 认证成功后，重定向到成功页面或返回 JSON 响应
+ * 在 OAuth2 认证成功后，始终重定向到配置的成功页面
  */
 @Component
-class OAuth2SuccessHandler : SimpleUrlAuthenticationSuccessHandler() {
+class OAuth2SuccessHandler(
+    oauth2Properties: OAuth2Properties
+) : SimpleUrlAuthenticationSuccessHandler() {
     
     private val logger = LoggerFactory.getLogger(OAuth2SuccessHandler::class.java)
     
     init {
-        // 设置默认的成功 URL
-        defaultTargetUrl = "/public/oauth2/login/success"
+        defaultTargetUrl = oauth2Properties.successRedirectUri
         // 总是使用默认 URL，忽略 saved request
         setAlwaysUseDefaultTargetUrl(true)
     }

@@ -1,5 +1,7 @@
 package com.vgerbot.oauth.service
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.vgerbot.oauth.dao.OAuth2ProviderDao
 import com.vgerbot.oauth.dto.CreateOAuth2ProviderDto
 import com.vgerbot.oauth.dto.OAuth2ProviderResponseDto
@@ -64,7 +66,8 @@ interface OAuth2ProviderService {
 @Service
 class OAuth2ProviderServiceImpl(
     private val oauth2ProviderDao: OAuth2ProviderDao,
-    private val clientRegistrationRefresher: ClientRegistrationRefresher?
+    private val clientRegistrationRefresher: ClientRegistrationRefresher?,
+    private val objectMapper: ObjectMapper
 ) : OAuth2ProviderService {
     
     private val logger = LoggerFactory.getLogger(OAuth2ProviderServiceImpl::class.java)
@@ -95,6 +98,10 @@ class OAuth2ProviderServiceImpl(
             redirectUri = dto.redirectUri
             scopes = dto.scopes
             userNameAttributeName = dto.userNameAttributeName
+            clientAuthenticationMethod = dto.clientAuthenticationMethod
+            authorizationGrantType = dto.authorizationGrantType
+            authorizationRequestParams = serializeAuthorizationRequestParams(dto.authorizationRequestParams)
+            idTokenJwsAlgorithm = dto.idTokenJwsAlgorithm
             status = dto.status
             sortOrder = dto.sortOrder
             description = dto.description
@@ -134,6 +141,12 @@ class OAuth2ProviderServiceImpl(
         dto.redirectUri?.let { entity.redirectUri = it }
         dto.scopes?.let { entity.scopes = it }
         dto.userNameAttributeName?.let { entity.userNameAttributeName = it }
+        dto.clientAuthenticationMethod?.let { entity.clientAuthenticationMethod = it }
+        dto.authorizationGrantType?.let { entity.authorizationGrantType = it }
+        if (dto.authorizationRequestParams != null) {
+            entity.authorizationRequestParams = serializeAuthorizationRequestParams(dto.authorizationRequestParams)
+        }
+        dto.idTokenJwsAlgorithm?.let { entity.idTokenJwsAlgorithm = it }
         dto.status?.let { entity.status = it }
         dto.sortOrder?.let { entity.sortOrder = it }
         dto.description?.let { entity.description = it }
@@ -207,6 +220,10 @@ class OAuth2ProviderServiceImpl(
             redirectUri = entity.redirectUri,
             scopes = entity.scopes.split(",").map { it.trim() }.filter { it.isNotEmpty() },
             userNameAttributeName = entity.userNameAttributeName,
+            clientAuthenticationMethod = entity.clientAuthenticationMethod,
+            authorizationGrantType = entity.authorizationGrantType,
+            authorizationRequestParams = deserializeAuthorizationRequestParams(entity.authorizationRequestParams),
+            idTokenJwsAlgorithm = entity.idTokenJwsAlgorithm,
             status = entity.status,
             sortOrder = entity.sortOrder,
             description = entity.description,
@@ -214,6 +231,22 @@ class OAuth2ProviderServiceImpl(
             createdAt = DATE_FORMATTER.format(entity.createdAt),
             updatedAt = entity.updatedAt?.let { DATE_FORMATTER.format(it) }
         )
+    }
+
+    private fun serializeAuthorizationRequestParams(params: Map<String, Any>?): String? {
+        if (params.isNullOrEmpty()) {
+            return null
+        }
+
+        return objectMapper.writeValueAsString(params)
+    }
+
+    private fun deserializeAuthorizationRequestParams(params: String?): Map<String, Any>? {
+        if (params.isNullOrBlank()) {
+            return null
+        }
+
+        return objectMapper.readValue(params, object : TypeReference<Map<String, Any>>() {})
     }
 }
 

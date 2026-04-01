@@ -26,6 +26,8 @@ oauth2:
   # 默认权限范围（可选）
   default-scopes: "openid,profile,email"
 
+  success-redirect-uri: "/home/index.html"
+
 
 server:
   servlet:

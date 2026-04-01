@@ -14,13 +14,15 @@ import org.springframework.context.annotation.Configuration
  * @property defaultRedirectUri 默认重定向 URI 模板
  * @property defaultScopes 默认权限范围
  * @property defaultUserNameAttribute 默认用户名属性名
+ * @property successRedirectUri OAuth2 登录成功后的目标地址
  */
 @ConfigurationProperties(prefix = "oauth2", ignoreInvalidFields = false)
 data class OAuth2Properties(
     val enabled: Boolean = true,
     val defaultRedirectUri: String = "{baseUrl}/login/oauth2/code/{registrationId}",
     val defaultScopes: String = "openid,profile,email",
-    val defaultUserNameAttribute: String = "sub"
+    val defaultUserNameAttribute: String = "sub",
+    val successRedirectUri: String = "/"
 )
 
 @Configuration

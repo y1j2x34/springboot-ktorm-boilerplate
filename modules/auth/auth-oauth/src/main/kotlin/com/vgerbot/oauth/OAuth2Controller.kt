@@ -37,8 +37,8 @@ class OAuth2Controller(
     /**
      * OAuth2 login success callback endpoint
      * 
-     * This endpoint is automatically called by Spring Security OAuth2
-     * After successful OAuth2 authentication, generates JWT token and returns it
+     * This endpoint remains available for compatibility and manual token exchange flows.
+     * It is no longer the default post-login target for Spring Security OAuth2 success handling.
      */
     @Operation(summary = "OAuth2 login success", description = "Callback endpoint for successful OAuth2 authentication")
     @ApiResponses(

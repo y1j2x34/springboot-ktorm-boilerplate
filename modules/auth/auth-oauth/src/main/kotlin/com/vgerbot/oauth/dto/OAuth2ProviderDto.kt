@@ -50,6 +50,18 @@ data class CreateOAuth2ProviderDto(
     
     @JsonProperty("user_name_attribute_name")
     val userNameAttributeName: String = "sub",
+
+    @JsonProperty("client_authentication_method")
+    val clientAuthenticationMethod: String = "client_secret_basic",
+
+    @JsonProperty("authorization_grant_type")
+    val authorizationGrantType: String = "authorization_code",
+
+    @JsonProperty("authorization_request_params")
+    val authorizationRequestParams: Map<String, Any>? = null,
+
+    @JsonProperty("id_token_jws_algorithm")
+    val idTokenJwsAlgorithm: String? = null,
     
     val status: Int = 1,
     
@@ -100,6 +112,18 @@ data class UpdateOAuth2ProviderDto(
     
     @JsonProperty("user_name_attribute_name")
     val userNameAttributeName: String? = null,
+
+    @JsonProperty("client_authentication_method")
+    val clientAuthenticationMethod: String? = null,
+
+    @JsonProperty("authorization_grant_type")
+    val authorizationGrantType: String? = null,
+
+    @JsonProperty("authorization_request_params")
+    val authorizationRequestParams: Map<String, Any>? = null,
+
+    @JsonProperty("id_token_jws_algorithm")
+    val idTokenJwsAlgorithm: String? = null,
     
     val status: Int? = null,
     
@@ -151,6 +175,18 @@ data class OAuth2ProviderResponseDto(
     
     @JsonProperty("user_name_attribute_name")
     val userNameAttributeName: String,
+
+    @JsonProperty("client_authentication_method")
+    val clientAuthenticationMethod: String,
+
+    @JsonProperty("authorization_grant_type")
+    val authorizationGrantType: String,
+
+    @JsonProperty("authorization_request_params")
+    val authorizationRequestParams: Map<String, Any>?,
+
+    @JsonProperty("id_token_jws_algorithm")
+    val idTokenJwsAlgorithm: String?,
     
     val status: Int,
     
