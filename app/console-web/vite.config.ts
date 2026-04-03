@@ -17,6 +17,25 @@ export default defineConfig(({ mode }) => {
       
     },
     appType: 'mpa',
-    devtools: true
+    devtools: true,
+    server: {
+      proxy: {
+        "/oauth2": {
+          target: "http://localhost:8082",
+          changeOrigin: false,
+          xfwd: true
+        },
+        "/login/oauth2": {
+          target: "http://localhost:8082",
+          changeOrigin: false,
+          xfwd: true,
+        },
+        "/api": {
+          target: "http://localhost:8082",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ""),
+        }
+      }
+    }
   }
 });

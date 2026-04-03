@@ -31,7 +31,7 @@ oauth2:
 
 server:
   servlet:
-    context-path: /api
+    context-path: /
   port: ${APP_PORT}
   application:
     name: spring-boot-kt
