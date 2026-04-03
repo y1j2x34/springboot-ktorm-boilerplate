@@ -7,9 +7,11 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig(({ mode }) => {
   return {
     plugins: [
-      tailwindcss(),
-      solidStart({
+      tailwindcss({
         
+      }),
+      solidStart({
+        ssr: false
       }),
       nitro()
     ],
