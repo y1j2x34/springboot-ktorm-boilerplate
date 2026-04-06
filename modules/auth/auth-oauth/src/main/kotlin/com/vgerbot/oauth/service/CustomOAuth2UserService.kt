@@ -1,7 +1,7 @@
 package com.vgerbot.oauth.service
 
-import com.vgerbot.auth.CustomUserDetails
-import com.vgerbot.auth.ExtendedUserDetails
+import com.vgerbot.auth.common.principal.AuthenticatedUserDetails
+import com.vgerbot.auth.common.service.PrincipalFactory
 import com.vgerbot.oauth.dao.OAuth2ProviderDao
 import com.vgerbot.user.dto.CreateUserDto
 import com.vgerbot.user.service.UserService
@@ -24,7 +24,8 @@ import org.springframework.stereotype.Service
 @Service
 class CustomOAuth2UserService(
     private val userService: UserService,
-    private val oauth2ProviderDao: OAuth2ProviderDao
+    private val oauth2ProviderDao: OAuth2ProviderDao,
+    private val principalFactory: PrincipalFactory
 ) {
     
     private val logger = LoggerFactory.getLogger(CustomOAuth2UserService::class.java)
@@ -87,7 +88,7 @@ class CustomOAuth2UserService(
         email: String?,
         name: String?,
         provider: String
-    ): ExtendedUserDetails {
+    ): AuthenticatedUserDetails {
         // 尝试通过用户名查找用户
         var userInfo = userService.findUser(username)
         
@@ -124,7 +125,7 @@ class CustomOAuth2UserService(
         }
         
         // 转换为 UserDetails
-        return CustomUserDetails.fromUserInfo(userInfo, listOf("ROLE_USER"))
+        return principalFactory.create(userInfo, null, listOf("ROLE_USER"))
     }
     
     /**
@@ -187,7 +188,7 @@ class CustomOAuth2UserService(
  */
 class CustomOAuth2User(
     private val delegate: OAuth2User,
-    val userDetails: ExtendedUserDetails,
+    val userDetails: AuthenticatedUserDetails,
     val provider: String
 ) : OAuth2User by delegate {
     
@@ -196,7 +197,7 @@ class CustomOAuth2User(
     }
     
     override fun getAuthorities(): MutableCollection<out org.springframework.security.core.GrantedAuthority> {
-        return userDetails.authorities.toMutableList()
+        return userDetails.authorities.map { org.springframework.security.core.authority.SimpleGrantedAuthority(it) }.toMutableList()
     }
 }
 
@@ -205,7 +206,7 @@ class CustomOAuth2User(
  */
 class CustomOidcUser(
     private val delegate: OidcUser,
-    val userDetails: ExtendedUserDetails,
+    val userDetails: AuthenticatedUserDetails,
     val provider: String
 ) : OidcUser by delegate {
     
@@ -214,6 +215,6 @@ class CustomOidcUser(
     }
     
     override fun getAuthorities(): MutableCollection<out org.springframework.security.core.GrantedAuthority> {
-        return userDetails.authorities.toMutableList()
+        return userDetails.authorities.map { org.springframework.security.core.authority.SimpleGrantedAuthority(it) }.toMutableList()
     }
 }

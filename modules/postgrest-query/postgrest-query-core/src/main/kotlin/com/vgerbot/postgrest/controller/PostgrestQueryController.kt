@@ -56,7 +56,7 @@ class PostgrestQueryController(
     private fun getUserId(authentication: org.springframework.security.core.Authentication): String {
         val principal = authentication.principal
         
-        // 尝试通过反射获取 userId 字段（ExtendedUserDetails）
+        // 尝试通过反射获取 userId 字段（AuthenticatedUserDetails）
         try {
             val userIdField = principal::class.java.getDeclaredField("userId")
             userIdField.isAccessible = true

@@ -1,5 +1,6 @@
 package com.vgerbot.auth
 
+import com.vgerbot.auth.common.principal.AuthenticatedUserDetails
 import com.vgerbot.common.security.UserIdentityResolver
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -49,9 +50,9 @@ class JwtUserIdentityResolver(
             return null
         }
         
-        // 尝试从 ExtendedUserDetails 获取用户 ID
+        // 尝试从 AuthenticatedUserDetails 获取用户 ID
         val principal = authentication.principal
-        if (principal is ExtendedUserDetails) {
+        if (principal is AuthenticatedUserDetails) {
             return principal.userId
         }
         

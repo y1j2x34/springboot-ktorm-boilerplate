@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":infrastructure:infrastructure-common"))
     implementation(project(":infrastructure:infrastructure-core"))
     implementation(project(":modules:user:user-api"))
+    implementation(project(":modules:auth:auth-common"))
     implementation(project(":modules:auth:auth-jwt"))
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")

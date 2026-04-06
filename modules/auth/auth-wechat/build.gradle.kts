@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":infrastructure:infrastructure-common"))
     implementation(project(":infrastructure:infrastructure-core"))
     implementation(project(":modules:user:user-api"))
+    implementation(project(":modules:auth:auth-common"))
     implementation(project(":modules:auth:auth-jwt"))
     implementation(project(":modules:auth:auth-oauth"))
     implementation("org.springframework.boot:spring-boot-starter-security")

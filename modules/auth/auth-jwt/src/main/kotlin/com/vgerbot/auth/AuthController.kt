@@ -1,5 +1,6 @@
 package com.vgerbot.auth
 
+import com.vgerbot.auth.common.principal.AuthenticatedUserDetails
 import com.vgerbot.auth.data.AuthRequest
 import com.vgerbot.auth.data.PublicKeyResponse
 import com.vgerbot.auth.data.RefreshTokenRequest
@@ -148,8 +149,8 @@ class AuthController(
             )
             
             // 获取用户详情
-            val userDetails = authentication.principal as? ExtendedUserDetails
-                ?: userDetailsService.loadUserByUsername(req.username) as? ExtendedUserDetails
+            val userDetails = authentication.principal as? AuthenticatedUserDetails
+                ?: userDetailsService.loadUserByUsername(req.username) as? AuthenticatedUserDetails
                 ?: throw AuthErrorCode.AUTH_FAILED.exception("用户认证失败")
             
             // 生成 Token
@@ -231,7 +232,7 @@ class AuthController(
             ?: throw AuthErrorCode.AUTH_REFRESH_TOKEN_INVALID.exception()
         
         // 加载用户信息
-        val userDetails = userDetailsService.loadUserByUsername(username) as? ExtendedUserDetails
+        val userDetails = userDetailsService.loadUserByUsername(username) as? AuthenticatedUserDetails
             ?: throw AuthErrorCode.AUTH_USER_NOT_FOUND.exception()
         
         // 验证 Refresh Token
@@ -278,32 +279,9 @@ class AuthController(
     }
     
     /**
-     * Get current user information
-     */
-    @Operation(summary = "Get current user", description = "Get information about the currently authenticated user")
-    @ApiResponses(
-        ApiResponse(responseCode = "200", description = "User information retrieved successfully"),
-        ApiResponse(responseCode = "401", description = "User not authenticated")
-    )
-    @GetMapping("public/auth/me")
-    fun getCurrentUser(): ResponseEntity<Map<String, Any>> {
-        val authentication = SecurityContextHolder.getContext().authentication
-            ?: throw CommonErrorCode.COMMON_UNAUTHORIZED.exception()
-        
-        val userDetails = authentication.principal as? ExtendedUserDetails
-            ?: throw CommonErrorCode.COMMON_UNAUTHORIZED.exception()
-        
-        return mapOf(
-            "userId" to userDetails.userId,
-            "username" to userDetails.username,
-            "authorities" to userDetails.authorities.map { it.authority }
-        ).ok()
-    }
-    
-    /**
      * 生成 Token 响应
      */
-    private fun generateTokenResponse(userDetails: ExtendedUserDetails): TokenResponse {
+    private fun generateTokenResponse(userDetails: AuthenticatedUserDetails): TokenResponse {
         val accessToken = jwtTokenUtils.generateAccessToken(userDetails, userDetails.userId)
         val refreshToken = jwtTokenUtils.generateRefreshToken(userDetails, userDetails.userId)
         

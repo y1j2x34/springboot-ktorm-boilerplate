@@ -2,7 +2,7 @@ services:
   # MariaDB Database - Data storage for Spring Boot application
   mariadb:
     image: mariadb:11.2
-    container_name: mariadb-db
+    container_name: springboot-kt-mariadb-db
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
@@ -11,7 +11,7 @@ services:
     ports:
       - "${DB_PORT:-3306}:3306"
     volumes:
-      - mariadb-data:/var/lib/mysql
+      - ./mariadb-data:/var/lib/mysql
       - ./conf.d:/etc/mysql/conf.d:ro
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
@@ -24,7 +24,7 @@ services:
 
   flyway:
     image: flyway/flyway:10.17.3
-    container_name: flyway-migrator
+    container_name: springboot-kt-flyway-migrator
     depends_on:
       mariadb:
         condition: service_healthy
@@ -47,10 +47,6 @@ services:
     networks:
       - app-network
     restart: "no"
-
-volumes:
-  mariadb-data:
-    driver: local
 
 networks:
   app-network:

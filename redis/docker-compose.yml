@@ -4,7 +4,7 @@ services:
   # Redis Cache - Cache and distributed lock service
   redis:
     image: redis:7.2-alpine
-    container_name: redis-cache
+    container_name: springboot-kt-redis-cache
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-}
     ports:

@@ -97,7 +97,7 @@ class OAuth2Controller(
         return mapOf(
             "userId" to userDetails.userId,
             "username" to userDetails.username,
-            "authorities" to userDetails.authorities.map { it.authority },
+            "authorities" to userDetails.authorities,
             "provider" to provider
         ).ok()
     }
@@ -105,7 +105,7 @@ class OAuth2Controller(
     /**
      * 从 Principal 提取 UserDetails
      */
-    private fun extractUserDetails(principal: Any?): com.vgerbot.auth.ExtendedUserDetails? {
+    private fun extractUserDetails(principal: Any?): com.vgerbot.auth.common.principal.AuthenticatedUserDetails? {
         return when (principal) {
             is CustomOidcUser -> principal.userDetails
             is CustomOAuth2User -> principal.userDetails
@@ -124,7 +124,7 @@ class OAuth2Controller(
     /**
      * 生成 Token 响应
      */
-    private fun generateTokenResponse(userDetails: com.vgerbot.auth.ExtendedUserDetails): TokenResponse {
+    private fun generateTokenResponse(userDetails: com.vgerbot.auth.common.principal.AuthenticatedUserDetails): TokenResponse {
         val accessToken = jwtTokenUtils.generateAccessToken(userDetails, userDetails.userId)
         val refreshToken = jwtTokenUtils.generateRefreshToken(userDetails, userDetails.userId)
         

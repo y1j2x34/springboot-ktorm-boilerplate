@@ -1,7 +1,7 @@
 package com.vgerbot.wechat.wechat
 
-import com.vgerbot.auth.CustomUserDetails
-import com.vgerbot.auth.ExtendedUserDetails
+import com.vgerbot.auth.common.principal.AuthenticatedUserDetails
+import com.vgerbot.auth.common.service.PrincipalFactory
 import com.vgerbot.auth.JwtProperties
 import com.vgerbot.auth.JwtTokenUtils
 import com.vgerbot.auth.data.TokenResponse
@@ -31,7 +31,8 @@ class WechatLoginService(
     private val wechatConfigDao: WechatConfigDao,
     private val userService: UserService,
     private val jwtTokenUtils: JwtTokenUtils,
-    private val jwtProperties: JwtProperties
+    private val jwtProperties: JwtProperties,
+    private val principalFactory: PrincipalFactory
 ) {
     
     private val logger = LoggerFactory.getLogger(WechatLoginService::class.java)
@@ -364,7 +365,7 @@ class WechatLoginService(
     /**
      * 查找或创建用户
      */
-    private fun findOrCreateUser(username: String, wechatUserInfo: WechatUserInfo): ExtendedUserDetails {
+    private fun findOrCreateUser(username: String, wechatUserInfo: WechatUserInfo): AuthenticatedUserDetails {
         // 尝试查找用户
         var userInfo = userService.findUser(username)
         
@@ -393,13 +394,13 @@ class WechatLoginService(
             throw RuntimeException("User not found and creation failed")
         }
         
-        return CustomUserDetails.fromUserInfo(userInfo, listOf("ROLE_USER"))
+        return principalFactory.create(userInfo, null, listOf("ROLE_USER"))
     }
     
     /**
      * 生成 Token 响应
      */
-    private fun generateTokenResponse(userDetails: ExtendedUserDetails): TokenResponse {
+    private fun generateTokenResponse(userDetails: AuthenticatedUserDetails): TokenResponse {
         val accessToken = jwtTokenUtils.generateAccessToken(userDetails, userDetails.userId)
         val refreshToken = jwtTokenUtils.generateRefreshToken(userDetails, userDetails.userId)
         

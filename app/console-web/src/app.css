@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "shadcn-solid-components/dist/style.css";
+@import "shadcn-solid-components/src/themes/default.preset.css";
 
 :root {
   --background-rgb: 214, 219, 220;

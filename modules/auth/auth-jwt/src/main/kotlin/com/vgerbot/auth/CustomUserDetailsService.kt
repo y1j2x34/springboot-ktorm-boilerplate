@@ -1,63 +1,10 @@
 package com.vgerbot.auth
 
-import com.vgerbot.user.dto.UserInfoDto
+import com.vgerbot.auth.common.service.PrincipalFactory
 import com.vgerbot.user.service.UserService
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
-
-/**
- * 扩展的 UserDetails，包含用户 ID
- */
-interface ExtendedUserDetails : UserDetails {
-    val userId: Int
-}
-
-/**
- * 自定义 UserDetails 实现
- */
-data class CustomUserDetails(
-    override val userId: Int,
-    private val username: String,
-    private val password: String,
-    private val email: String,
-    private val authorities: List<GrantedAuthority> = emptyList(),
-    private val enabled: Boolean = true,
-    private val accountNonExpired: Boolean = true,
-    private val accountNonLocked: Boolean = true,
-    private val credentialsNonExpired: Boolean = true
-) : ExtendedUserDetails {
-    
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = authorities.toMutableList()
-    
-    override fun getPassword(): String = password
-    
-    override fun getUsername(): String = username
-    
-    override fun isAccountNonExpired(): Boolean = accountNonExpired
-    
-    override fun isAccountNonLocked(): Boolean = accountNonLocked
-    
-    override fun isCredentialsNonExpired(): Boolean = credentialsNonExpired
-    
-    override fun isEnabled(): Boolean = enabled
-    
-    fun getEmail(): String = email
-    
-    companion object {
-        fun fromUserInfo(userInfo: UserInfoDto, authorities: List<String> = emptyList()): CustomUserDetails {
-            return CustomUserDetails(
-                userId = userInfo.id,
-                username = userInfo.username,
-                password = userInfo.password ?: "",
-                email = userInfo.email,
-                authorities = authorities.map { SimpleGrantedAuthority(it) }
-            )
-        }
-    }
-}
 
 /**
  * 自定义 UserDetailsService 实现
@@ -66,7 +13,8 @@ data class CustomUserDetails(
  */
 @Component
 class CustomUserDetailsService(
-    private val userService: UserService
+    private val userService: UserService,
+    private val principalFactory: PrincipalFactory
 ) : UserDetailsService {
     
     override fun loadUserByUsername(username: String?): UserDetails? {
@@ -80,7 +28,7 @@ class CustomUserDetailsService(
         // 这里暂时返回空权限列表，可以根据实际需求扩展
         val authorities = loadUserAuthorities(userInfo.id)
         
-        return CustomUserDetails.fromUserInfo(userInfo, authorities)
+        return principalFactory.create(userInfo, null, authorities)
     }
     
     /**

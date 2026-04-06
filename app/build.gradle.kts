@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":modules:dict:dict-core"))
     implementation(project(":modules:postgrest-query:postgrest-query-core"))
     implementation(project(":modules:scheduler:scheduler-core"))
+    implementation(project(":modules:system:system-core"))
 
     // Spring Security is needed because AppSecurityConfiguration uses it directly
     implementation("org.springframework.boot:spring-boot-starter-security")

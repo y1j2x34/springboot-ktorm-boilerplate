@@ -34,6 +34,10 @@ include("modules:authorization")
 include("modules:authorization:authorization-api")
 include("modules:authorization:authorization-core")
 
+include("modules:system")
+include("modules:system:system-api")
+include("modules:system:system-core")
+
 include("modules:dict")
 include("modules:dict:dict-api")
 include("modules:dict:dict-core")

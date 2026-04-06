@@ -18,6 +18,8 @@ version: "3.9"
 include:
   - path: ./database/docker-compose.yml
   - path: ./redis/docker-compose.yml
+  - path: ./logto/docker-compose.yml
+
 
 networks:
   app-network:
