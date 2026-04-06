@@ -6,11 +6,15 @@ import com.vgerbot.oauth.dao.OAuth2ProviderDao
 import com.vgerbot.user.dto.CreateUserDto
 import com.vgerbot.user.service.UserService
 import org.slf4j.LoggerFactory
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException
+import org.springframework.security.oauth2.core.oidc.OidcIdToken
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo
 import org.springframework.security.oauth2.core.oidc.user.OidcUser
 import org.springframework.security.oauth2.core.user.OAuth2User
 import org.springframework.stereotype.Service
@@ -52,7 +56,7 @@ class CustomOAuth2UserService(
         val userDetails = findOrCreateUser(username, email, name, registrationId)
         
         // 创建自定义 OAuth2User，包含系统用户信息
-        return CustomOAuth2User(oauth2User, userDetails, registrationId)
+        return CustomOAuth2User(oauth2User, userDetails)
     }
     
     /**
@@ -77,7 +81,7 @@ class CustomOAuth2UserService(
         val userDetails = findOrCreateUser(username, email, name, registrationId)
         
         // 创建自定义 OidcUser，包含系统用户信息
-        return CustomOidcUser(oidcUser, userDetails, registrationId)
+        return CustomOidcUser(oidcUser, userDetails)
     }
     
     /**
@@ -187,15 +191,19 @@ class CustomOAuth2UserService(
  * 自定义 OAuth2User，包含系统用户信息
  */
 class CustomOAuth2User(
-    private val delegate: OAuth2User,
-    val userDetails: AuthenticatedUserDetails,
-    val provider: String
-) : OAuth2User by delegate {
-    
+    private val oauth2User: OAuth2User,
+    val userDetails: AuthenticatedUserDetails
+) : OAuth2User by oauth2User {
+
+    val provider: String?
+        get() = userDetails.provider
+
     override fun getName(): String {
         return userDetails.username
     }
-    
+
+    override fun getAttributes(): Map<String?, Any?>? = oauth2User.attributes
+
     override fun getAuthorities(): MutableCollection<out org.springframework.security.core.GrantedAuthority> {
         return userDetails.authorities.map { org.springframework.security.core.authority.SimpleGrantedAuthority(it) }.toMutableList()
     }
@@ -205,16 +213,11 @@ class CustomOAuth2User(
  * 自定义 OidcUser，包含系统用户信息
  */
 class CustomOidcUser(
-    private val delegate: OidcUser,
+    private val oidcUser: OidcUser,
     val userDetails: AuthenticatedUserDetails,
-    val provider: String
-) : OidcUser by delegate {
-    
-    override fun getName(): String {
-        return userDetails.username
-    }
-    
-    override fun getAuthorities(): MutableCollection<out org.springframework.security.core.GrantedAuthority> {
-        return userDetails.authorities.map { org.springframework.security.core.authority.SimpleGrantedAuthority(it) }.toMutableList()
+) : AuthenticatedUserDetails by userDetails, OidcUser by oidcUser {
+
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
+        return userDetails.authorities.map(::SimpleGrantedAuthority).toMutableList()
     }
 }

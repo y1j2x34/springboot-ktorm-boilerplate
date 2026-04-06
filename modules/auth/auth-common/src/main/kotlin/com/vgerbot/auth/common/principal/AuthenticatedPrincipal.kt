@@ -13,6 +13,6 @@ interface AuthenticatedPrincipal {
     val externalSubject: String?
     val tenantId: String?
     val organizationId: String?
-    val email: String?
+    val emailAddress: String?
     val authorities: List<String>
 }

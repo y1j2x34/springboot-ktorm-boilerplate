@@ -2,6 +2,7 @@ package com.vgerbot.auth.common.principal
 
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 
 /**
@@ -19,7 +20,7 @@ data class DefaultAuthenticatedUserDetails(
     override val userId: Int,
     override val principalName: String,
     private val encodedPassword: String? = null,
-    override val email: String? = null,
+    override val emailAddress: String? = null,
     override val provider: String? = null,
     override val externalSubject: String? = null,
     override val tenantId: String? = null,
@@ -46,4 +47,17 @@ data class DefaultAuthenticatedUserDetails(
     override fun isCredentialsNonExpired(): Boolean = credentialsNonExpired
 
     override fun isEnabled(): Boolean = enabled
+}
+
+fun getCurrentLoginUser(): AuthenticatedUserDetails? {
+    val principal = SecurityContextHolder.getContext().authentication.principal
+    if (principal is AuthenticatedUserDetails) {
+        return principal;
+    }
+    if (principal.javaClass.simpleName == "org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken") {
+        val principalField = principal.javaClass.getDeclaredField("principal");
+        principalField.isAccessible = true;
+        return principalField.get(principal) as AuthenticatedUserDetails;
+    }
+    return null
 }

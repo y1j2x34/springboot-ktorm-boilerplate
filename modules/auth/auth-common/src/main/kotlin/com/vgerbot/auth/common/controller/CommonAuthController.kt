@@ -47,7 +47,7 @@ class CommonAuthController {
             "provider" to userDetails.provider,
             "tenantId" to userDetails.tenantId,
             "organizationId" to userDetails.organizationId,
-            "email" to userDetails.email
+            "email" to userDetails.emailAddress
         ).ok()
     }
 }

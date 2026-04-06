@@ -34,7 +34,7 @@ class DefaultPrincipalFactory : PrincipalFactory {
             userId = userInfo.id,
             principalName = userInfo.username,
             encodedPassword = userInfo.password,
-            email = userInfo.email,
+            emailAddress = userInfo.email,
             provider = claims?.provider ?: userInfo.authProvider,
             externalSubject = claims?.subject ?: userInfo.externalId,
             tenantId = claims?.tenantId,

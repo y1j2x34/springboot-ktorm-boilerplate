@@ -1,6 +1,7 @@
 package com.vgerbot.oauth
 
 import com.vgerbot.auth.JwtTokenUtils
+import com.vgerbot.auth.common.principal.AuthenticatedUserDetails
 import com.vgerbot.auth.data.TokenResponse
 import com.vgerbot.common.controller.*
 import com.vgerbot.common.exception.UnauthorizedException
@@ -89,7 +90,7 @@ class OAuth2Controller(
             ?: throw UnauthorizedException("用户未认证")
         
         val provider = when (principal) {
-            is CustomOidcUser -> principal.provider
+            is CustomOidcUser -> principal.userDetails.provider
             is CustomOAuth2User -> principal.provider
             else -> null
         }
@@ -105,18 +106,11 @@ class OAuth2Controller(
     /**
      * 从 Principal 提取 UserDetails
      */
-    private fun extractUserDetails(principal: Any?): com.vgerbot.auth.common.principal.AuthenticatedUserDetails? {
+    private fun extractUserDetails(principal: Any?): AuthenticatedUserDetails? {
         return when (principal) {
             is CustomOidcUser -> principal.userDetails
             is CustomOAuth2User -> principal.userDetails
-            is OAuth2AuthenticationToken -> {
-                val oauth2User = principal.principal
-                when (oauth2User) {
-                    is CustomOidcUser -> oauth2User.userDetails
-                    is CustomOAuth2User -> oauth2User.userDetails
-                    else -> null
-                }
-            }
+            is OAuth2AuthenticationToken -> extractUserDetails(principal.principal)
             else -> null
         }
     }
