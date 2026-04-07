@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":modules:auth:auth-wechat"))
 //    implementation(project(":modules:auth:auth-jwt"))
     implementation(project(":modules:auth:auth-oauth"))
+    implementation(project(":modules:auth:auth-common"))
     implementation(project(":modules:dict:dict-core"))
     implementation(project(":modules:postgrest-query:postgrest-query-core"))
     implementation(project(":modules:scheduler:scheduler-core"))
