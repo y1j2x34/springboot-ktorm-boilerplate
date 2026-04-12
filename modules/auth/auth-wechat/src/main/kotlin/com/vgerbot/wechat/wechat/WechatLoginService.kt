@@ -394,7 +394,7 @@ class WechatLoginService(
             throw RuntimeException("User not found and creation failed")
         }
         
-        return principalFactory.create(userInfo, null, listOf("ROLE_USER"))
+        return principalFactory.create(userInfo, null, listOf("user"))
     }
     
     /**

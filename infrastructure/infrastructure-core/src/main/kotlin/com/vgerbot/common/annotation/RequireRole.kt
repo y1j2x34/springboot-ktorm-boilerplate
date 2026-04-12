@@ -5,7 +5,7 @@ package com.vgerbot.common.annotation
  * 
  * 使用示例:
  * ```kotlin
- * @RequireRole(codes = ["ROLE_ADMIN"])
+ * @RequireRole(codes = ["admin"])
  * fun adminOnlyOperation(): ResponseEntity<*> {
  *     // 只有管理员可以访问
  * }

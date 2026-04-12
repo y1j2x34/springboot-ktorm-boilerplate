@@ -31,7 +31,7 @@ class MenuController(
     }
 
     @Operation(summary = "获取所有菜单树", description = "系统管理员用于配置菜单，需要 admin 权限")
-    @PreAuthorize("hasRole('admin') or hasRole('super_admin')")
+    @PreAuthorize("hasRole('admin') or hasRole('supe_admin')")
     @GetMapping
     fun getAllMenus(): ResponseEntity<Map<String, Any>> {
         val menuTree = menuService.getAllMenuTree()
@@ -39,7 +39,7 @@ class MenuController(
     }
 
     @Operation(summary = "获取菜单详情")
-    @PreAuthorize("hasRole('admin') or hasRole('super_admin')")
+    @PreAuthorize("hasRole('admin') or hasRole('supe_admin')")
     @GetMapping("/{id}")
     fun getMenuById(@PathVariable id: Long): ResponseEntity<Map<String, Any>> {
         val menu = menuService.getMenuById(id)
@@ -51,7 +51,7 @@ class MenuController(
     }
 
     @Operation(summary = "创建菜单")
-    @PreAuthorize("hasRole('admin') or hasRole('super_admin')")
+    @PreAuthorize("hasRole('admin') or hasRole('supe_admin')")
     @PostMapping
     fun createMenu(@RequestBody dto: MenuDto): ResponseEntity<Map<String, Any>> {
         val createdMenu = menuService.createMenu(dto)
@@ -59,7 +59,7 @@ class MenuController(
     }
 
     @Operation(summary = "更新菜单")
-    @PreAuthorize("hasRole('admin') or hasRole('super_admin')")
+    @PreAuthorize("hasRole('admin') or hasRole('supe_admin')")
     @PutMapping("/{id}")
     fun updateMenu(
         @PathVariable id: Long,
@@ -70,7 +70,7 @@ class MenuController(
     }
 
     @Operation(summary = "删除菜单")
-    @PreAuthorize("hasRole('admin') or hasRole('super_admin')")
+    @PreAuthorize("hasRole('admin') or hasRole('supe_admin')")
     @DeleteMapping("/{id}")
     fun deleteMenu(@PathVariable id: Long): ResponseEntity<Map<String, Any>> {
         menuService.deleteMenu(id)

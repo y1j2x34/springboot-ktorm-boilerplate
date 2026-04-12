@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`role_permission` (
 -- 为管理员角色分配所有权限
 INSERT INTO `role_permission` (`role_id`, `permission_id`)
 SELECT
-    (SELECT id FROM `role` WHERE code = 'ROLE_ADMIN'),
+    (SELECT id FROM `role` WHERE code = 'admin'),
     p.id
 FROM `permission` p
 ON DUPLICATE KEY UPDATE `role_id` = VALUES(`role_id`);
@@ -31,7 +31,7 @@ ON DUPLICATE KEY UPDATE `role_id` = VALUES(`role_id`);
 -- 为普通用户角色分配基础权限
 INSERT INTO `role_permission` (`role_id`, `permission_id`)
 SELECT
-    (SELECT id FROM `role` WHERE code = 'ROLE_USER'),
+    (SELECT id FROM `role` WHERE code = 'user'),
     p.id
 FROM `permission` p
 WHERE p.code IN ('user:read')

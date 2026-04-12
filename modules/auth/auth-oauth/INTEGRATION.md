@@ -374,7 +374,7 @@ curl -X POST http://localhost:8080/api/admin/oauth2/providers/refresh \
 
 4. **作用域**: 根据提供商的要求配置正确的 `scopes`，例如 Google 需要 `openid`、`profile`、`email`。
 
-5. **管理 API 权限**: 管理 API 需要 `ROLE_ADMIN` 权限。
+5. **管理 API 权限**: 管理 API 需要 `admin` 权限。
 
 ## 故障排除
 

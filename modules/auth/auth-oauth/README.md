@@ -231,7 +231,7 @@ GET /public/oauth2/providers
 1. **重定向 URI**: 在 OAuth2 提供商处配置的重定向 URI 必须是 `{baseUrl}/login/oauth2/code/{registrationId}`
 2. **密码字段**: OAuth2 用户创建时会生成随机密码（不会被使用）
 3. **用户名属性**: 确保配置的 `user_name_attribute_name` 在用户信息中存在
-4. **管理 API 权限**: 管理 API 需要 `ROLE_ADMIN` 权限
+4. **管理 API 权限**: 管理 API 需要 `admin` 权限
 
 ## 相关文档
 

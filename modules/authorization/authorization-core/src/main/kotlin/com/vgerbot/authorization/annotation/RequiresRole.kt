@@ -6,10 +6,10 @@ package com.vgerbot.authorization.annotation
  * 
  * 使用示例：
  * ```
- * @RequiresRole(roles = ["ROLE_ADMIN"])
+ * @RequiresRole(roles = ["admin"])
  * fun deleteUser(id: Int)
  * 
- * @RequiresRole(roles = ["ROLE_ADMIN", "ROLE_MANAGER"], requireAll = false)
+ * @RequiresRole(roles = ["admin", "ROLE_MANAGER"], requireAll = false)
  * fun approveOrder(id: Int)
  * ```
  */

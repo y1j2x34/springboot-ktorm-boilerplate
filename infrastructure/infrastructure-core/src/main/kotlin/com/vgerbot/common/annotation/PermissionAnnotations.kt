@@ -63,14 +63,14 @@ annotation class RequiresPermissions(
  * 
  * 使用示例:
  * ```
- * @RequiresRole("ROLE_ADMIN")
+ * @RequiresRole("admin")
  * @GetMapping("/admin/dashboard")
  * fun adminDashboard(): ResponseEntity<*> {
  *     // 只有管理员才能访问
  * }
  * ```
  * 
- * @param value 角色代码，如 "ROLE_ADMIN", "ROLE_USER"
+ * @param value 角色代码，如 "admin", "user"
  * @param requireAll 当指定多个角色时，是否要求拥有所有角色（默认 false，表示只需要其中之一）
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)

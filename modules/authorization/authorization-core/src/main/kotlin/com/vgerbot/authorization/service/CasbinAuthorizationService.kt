@@ -215,8 +215,11 @@ class CasbinAuthorizationService(
         return try {
             val userIdStr = userId.toString()
             if (domain != null && properties.policyType == PolicyType.RBAC_WITH_DOMAINS) {
-                // 手动从分组策略中获取
-                enforcer.getFilteredGroupingPolicy(0, userIdStr, domain).map { it[1] }
+                // 使用 jCasbin 内置的域模式 API 获取用户角色
+                enforcer.getRolesForUser(userIdStr).toList()
+            } else if (properties.policyType == PolicyType.RBAC_WITH_DOMAINS) {
+                // 域模式下未指定 domain，从所有分组策略中查找该用户的角色
+                enforcer.getFilteredGroupingPolicy(0, userIdStr).map { it[1] }.distinct()
             } else {
                 enforcer.getRolesForUser(userIdStr).toList()
             }

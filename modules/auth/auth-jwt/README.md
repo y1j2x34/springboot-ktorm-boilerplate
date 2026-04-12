@@ -234,7 +234,7 @@ Headers:
   "data": {
     "userId": 1,
     "username": "user@example.com",
-    "authorities": ["ROLE_USER"]
+    "authorities": ["user"]
   }
 }
 ```

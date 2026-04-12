@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`role` (
 
 -- 插入默认角色
 INSERT INTO `role` (`name`, `code`, `description`) VALUES
-    ('管理员', 'ROLE_ADMIN', '系统管理员，拥有所有权限'),
-    ('普通用户', 'ROLE_USER', '普通用户，拥有基础权限')
+    ('管理员', 'admin', '系统管理员，拥有所有权限'),
+    ('普通用户', 'user', '普通用户，拥有基础权限')
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 

@@ -129,7 +129,7 @@ class CustomOAuth2UserService(
         }
         
         // 转换为 UserDetails
-        return principalFactory.create(userInfo, null, listOf("ROLE_USER"))
+        return principalFactory.create(userInfo, null, listOf("user"))
     }
     
     /**

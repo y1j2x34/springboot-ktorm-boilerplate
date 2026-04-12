@@ -24,12 +24,12 @@ CREATE TABLE IF NOT EXISTS `spring-boot-kt`.`user_role` (
 INSERT INTO `user_role` (`user_id`, `role_id`)
 SELECT
     (SELECT id FROM `user` WHERE username = 'admin'),
-    (SELECT id FROM `role` WHERE code = 'ROLE_ADMIN'),
+    (SELECT id FROM `role` WHERE code = 'admin'),
 ON DUPLICATE KEY UPDATE `user_id` = VALUES(`user_id`);
 
 INSERT INTO `user_role` (`user_id`, `role_id`)
 SELECT
     (SELECT id FROM `user` WHERE email = 'y1j2x34@qq.com'),
-    (SELECT id FROM `role` WHERE code = 'ROLE_ADMIN'),
+    (SELECT id FROM `role` WHERE code = 'admin'),
 ON DUPLICATE KEY UPDATE `user_id` = VALUES(`user_id`);
 

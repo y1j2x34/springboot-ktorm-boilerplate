@@ -40,8 +40,8 @@ class CustomUserDetailsService(
      */
     @Suppress("UNUSED_PARAMETER")
     private fun loadUserAuthorities(userId: Int): List<String> {
-        // 示例：默认给所有用户 ROLE_USER 权限
+        // 示例：默认给所有用户 user 权限
         // TODO: 根据 userId 从数据库查询实际权限
-        return listOf("ROLE_USER")
+        return listOf("user")
     }
 }
