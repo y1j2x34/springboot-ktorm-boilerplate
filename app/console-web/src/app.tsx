@@ -4,7 +4,9 @@ import { JSXElement, Suspense } from "solid-js";
 import "./app.css";
 import { AppSidebar, AppSidebarMenuGroup } from 'shadcn-solid-components/hoc/app-sidebar'
 import { HeaderIcon } from "./components/header-icon";
-import { IconAlertTriangle, IconArrowRight, IconBell, IconCreditCard, IconFile, IconFullscreen, IconHash, IconHome, IconInbox, IconRocket, IconSettings, IconStar } from "shadcn-solid-components/components/icons";
+import { 
+  IconSettings
+} from "shadcn-solid-components/components/icons";
 
 fetch('/api/public/auth/me')
 .then(resp => {
@@ -47,7 +49,11 @@ function AppInner(props: { children?: JSXElement }) {
       }
     }
     menus={menus}
-    footer={<></>}
+    footer={[{
+      icon: () => <IconSettings />,
+      title: 'Settings',
+      onClick: () => navigate('/settings'),
+    },]}
     body = {
       <Suspense>{props.children}</Suspense>
     } 
